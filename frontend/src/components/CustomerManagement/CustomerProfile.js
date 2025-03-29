@@ -28,14 +28,23 @@ export default function UpdateCustomerProfile() {
   const [alertMessage, setAlertMessage] = useState("");
   
   // Validation state
-  const [errors, setErrors] = useState({});
+  const [nameError, setNameError] = useState("");
+  const [contactNumberError, setContactNumberError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [genderError, setGenderError] = useState("");
+  const [nationalityError, setNationalityError] = useState("");
+  const [addressError, setAddressError] = useState("");
+  const [nicPassportError, setNicPassportError] = useState("");
+  const [checkInDateError, setCheckInDateError] = useState("");
+  const [roomTypeError, setRoomTypeError] = useState("");
+  const [roomNumberError, setRoomNumberError] = useState("");
+  const [priceError, setPriceError] = useState("");
 
   useEffect(() => {
     axios
       .get(`http://localhost:5000/customer/get/${id}`)
       .then((res) => {
         const customerData = res.data.customer;
-        // Format the checkInDate to YYYY-MM-DD for the date input
         if (customerData.checkInDate) {
           const date = new Date(customerData.checkInDate);
           const formattedDate = date.toISOString().split('T')[0];
@@ -52,104 +61,168 @@ export default function UpdateCustomerProfile() {
       });
   }, [id]);
 
-  // Handle input changes
-  function handleChange(e) {
-    const { name, value } = e.target;
-    setCustomer((prevState) => ({ ...prevState, [name]: value }));
-  }
-
-  // Function to disable past dates
-  const disablePastDates = (current) => {
-    // Get current date without time
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    // Convert current date from the calendar to Date object
-    const currentDate = new Date(current);
-    currentDate.setHours(0, 0, 0, 0);
-    
-    // Disable dates before today
-    return currentDate < today;
+  // Input handlers with validation
+  const handleNameInput = (e) => {
+    const value = e.target.value;
+    if (/^[A-Za-z\s]*$/.test(value)) {
+      setCustomer(prev => ({...prev, name: value}));
+      setNameError("");
+    } else {
+      setNameError("Name can only contain letters");
+    }
   };
 
-  // Validate form fields
+  const handleContactNumberInput = (e) => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value) && value.length <= 10) {
+      setCustomer(prev => ({...prev, contactNumber: value}));
+      setContactNumberError("");
+    } else {
+      setContactNumberError("Mobile must contain only numbers (10 digits)");
+    }
+  };
+
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    setCustomer(prev => ({...prev, email: value}));
+    if (!/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(value)) {
+      setEmailError("Invalid email format");
+    } else {
+      setEmailError("");
+    }
+  };
+
+  const handleGenderChange = (e) => {
+    const value = e.target.value;
+    setCustomer(prev => ({...prev, gender: value}));
+    setGenderError("");
+  };
+
+  const handleNationalityInput = (e) => {
+    const value = e.target.value;
+    if (/^[A-Za-z\s]*$/.test(value)) {
+      setCustomer(prev => ({...prev, nationality: value}));
+      setNationalityError("");
+    } else {
+      setNationalityError("Nationality cannot contain numbers");
+    }
+  };
+
+  const handleAddressChange = (e) => {
+    const value = e.target.value;
+    setCustomer(prev => ({...prev, address: value}));
+    setAddressError("");
+  };
+
+  const handleNicPassportInput = (e) => {
+    const value = e.target.value;
+    if (/^[0-9vV]*$/.test(value) && (value.length <= 12 && value.length >= 8)) {
+      setCustomer(prev => ({...prev, nicPassport: value}));
+      setNicPassportError("");
+    } else {
+      setNicPassportError("NIC must be 8-12 digits with optional V/v at end");
+    }
+  };
+
+  const handleCheckInDateChange = (e) => {
+    const value = e.target.value;
+    setCustomer(prev => ({...prev, checkInDate: value}));
+    setCheckInDateError("");
+  };
+
+  const handleRoomTypeInput = (e) => {
+    const value = e.target.value;
+    if (/^[A-Za-z\s]*$/.test(value)) {
+      setCustomer(prev => ({...prev, roomType: value}));
+      setRoomTypeError("");
+    } else {
+      setRoomTypeError("Room type cannot contain numbers");
+    }
+  };
+
+  const handleRoomNumberChange = (e) => {
+    const value = e.target.value;
+    setCustomer(prev => ({...prev, roomNumber: value}));
+    setRoomNumberError("");
+  };
+
+  const handlePriceInput = (e) => {
+    const value = e.target.value;
+    if (/^\d*\.?\d*$/.test(value)) {
+      setCustomer(prev => ({...prev, price: value}));
+      setPriceError("");
+    } else {
+      setPriceError("Price must be a valid number");
+    }
+  };
+
+  // Validate entire form
   function validateForm() {
-    const newErrors = {};
-  
-    // Name should not be empty and must not contain numbers
-    if (!customer.name.trim()) {
-      newErrors.name = "Name is required";
-    } else if (/\d/.test(customer.name)) {
-      newErrors.name = "Name must not contain numbers";
+    let isValid = true;
+
+    if (!customer.name) {
+      setNameError("Name is required");
+      isValid = false;
     }
-  
-    // Contact number should be exactly 10 digits
-    if (!customer.contactNumber.match(/^\d{10}$/)) {
-      newErrors.contactNumber = "Contact Number must be 10 digits";
+
+    if (!/^\d{10}$/.test(customer.contactNumber)) {
+      setContactNumberError("Mobile must be exactly 10 digits");
+      isValid = false;
     }
-  
-    // Email should follow the email format
-    if (!customer.email.match(/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/)) {
-      newErrors.email = "Invalid email address";
+
+    if (!/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(customer.email)) {
+      setEmailError("Please enter a valid email");
+      isValid = false;
     }
-  
-    // Gender is required
+
     if (!customer.gender) {
-      newErrors.gender = "Gender is required";
+      setGenderError("Gender is required");
+      isValid = false;
     }
-  
-    // Address should not be empty
-    if (!customer.address.trim()) {
-      newErrors.address = "Address is required";
+
+    if (!customer.nationality) {
+      setNationalityError("Nationality is required");
+      isValid = false;
     }
-  
-    // NIC/Passport is required
-    if (!customer.nicPassport.trim()) {
-      newErrors.nicPassport = "NIC/Passport is required";
+
+    if (!customer.address) {
+      setAddressError("Address is required");
+      isValid = false;
     }
-  
-    // Check-in date is required
+
+    if (!/^(?:\d{9}[vV]|\d{12})$/.test(customer.nicPassport)) {
+      setNicPassportError("NIC must be 9 digits with V/v or 12 digits");
+      isValid = false;
+    }
+
     if (!customer.checkInDate) {
-      newErrors.checkInDate = "Check-In Date is required";
+      setCheckInDateError("Check-In Date is required");
+      isValid = false;
     }
-  
-    // Nationality should not be empty and must not contain numbers
-    if (!customer.nationality.trim()) {
-      newErrors.nationality = "Nationality is required";
-    } else if (/\d/.test(customer.nationality)) {
-      newErrors.nationality = "Nationality must not contain numbers";
+
+    if (!customer.roomType) {
+      setRoomTypeError("Room Type is required");
+      isValid = false;
     }
-  
-    // Room type should not be empty and must not contain numbers
-    if (!customer.roomType.trim()) {
-      newErrors.roomType = "Room Type is required";
-    } else if (/\d/.test(customer.roomType)) {
-      newErrors.roomType = "Room Type must not contain numbers";
-    }
-  
-    // Room number is required
+
     if (!customer.roomNumber) {
-      newErrors.roomNumber = "Room Number is required";
+      setRoomNumberError("Room Number is required");
+      isValid = false;
     }
-  
-    // Price should be a positive number
+
     if (!customer.price || customer.price <= 0) {
-      newErrors.price = "Price must be a positive number";
+      setPriceError("Price must be a positive number");
+      isValid = false;
     }
-  
-    return newErrors;
+
+    return isValid;
   }
 
   // Handle form submission
   function handleSubmit(e) {
     e.preventDefault();
 
-    // Validate the form
-    const validationErrors = validateForm();
-    setErrors(validationErrors);
-
-    if (Object.keys(validationErrors).length === 0) {
-      // If no errors, submit form
+    if (validateForm()) {
       axios
         .put(`http://localhost:5000/customer/update/${id}`, customer)
         .then(() => {
@@ -163,6 +236,10 @@ export default function UpdateCustomerProfile() {
           setShowAlert(true);
           setTimeout(() => setShowAlert(false), 3000);
         });
+    } else {
+      setAlertMessage("Please fix the form errors");
+      setShowAlert(true);
+      setTimeout(() => setShowAlert(false), 3000);
     }
   }
 
@@ -184,6 +261,8 @@ export default function UpdateCustomerProfile() {
   const labelStyle = {
     color: "#333333",
     fontWeight: "bold",
+    display: "block",
+    marginBottom: "5px",
   };
 
   const inputStyle = {
@@ -195,6 +274,17 @@ export default function UpdateCustomerProfile() {
     width: "100%",
   };
 
+  const invalidInputStyle = {
+    ...inputStyle,
+    borderColor: "red"
+  };
+
+  const errorMessageStyle = {
+    color: "red",
+    fontSize: "14px",
+    marginTop: "5px"
+  };
+
   const buttonStyle = {
     backgroundColor: "#800000",
     color: "#ffffff",
@@ -203,6 +293,7 @@ export default function UpdateCustomerProfile() {
     borderRadius: "5px",
     cursor: "pointer",
     marginTop: "15px",
+    width: "100%",
   };
 
   const alertStyle = {
@@ -234,6 +325,7 @@ export default function UpdateCustomerProfile() {
         <div style={formStyle}>
           <form onSubmit={handleSubmit}>
             <div style={containerStyle}>
+              {/* Name Field */}
               <div className="form-group">
                 <label htmlFor="name" style={labelStyle}>
                   Name
@@ -242,30 +334,49 @@ export default function UpdateCustomerProfile() {
                   type="text"
                   id="name"
                   name="name"
+                  placeholder="Enter Name"
                   value={customer.name}
-                  onChange={handleChange}
-                  style={inputStyle}
+                  onChange={handleNameInput}
+                  onPaste={(e) => {
+                    const pasteData = e.clipboardData.getData('text');
+                    if (!/^[A-Za-z\s]*$/.test(pasteData)) {
+                      e.preventDefault();
+                      setNameError("Cannot paste numbers or special characters");
+                    }
+                  }}
+                  style={nameError ? invalidInputStyle : inputStyle}
+                  required
                 />
-                {errors.name && <p style={{ color: "red" }}>{errors.name}</p>}
+                {nameError && <div style={errorMessageStyle}>{nameError}</div>}
               </div>
 
+              {/* Contact Number Field */}
               <div className="form-group">
                 <label htmlFor="contactNumber" style={labelStyle}>
                   Contact Number
                 </label>
                 <input
-                  type="text"
+                  type="tel"
                   id="contactNumber"
                   name="contactNumber"
+                  placeholder="Enter Mobile Number"
                   value={customer.contactNumber}
-                  onChange={handleChange}
-                  style={inputStyle}
+                  onChange={handleContactNumberInput}
+                  onPaste={(e) => {
+                    const pasteData = e.clipboardData.getData('text');
+                    if (!/^\d+$/.test(pasteData)) {
+                      e.preventDefault();
+                      setContactNumberError("Cannot paste non-numeric characters");
+                    }
+                  }}
+                  maxLength={10}
+                  style={contactNumberError ? invalidInputStyle : inputStyle}
+                  required
                 />
-                {errors.contactNumber && (
-                  <p style={{ color: "red" }}>{errors.contactNumber}</p>
-                )}
+                {contactNumberError && <div style={errorMessageStyle}>{contactNumberError}</div>}
               </div>
 
+              {/* Email Field */}
               <div className="form-group">
                 <label htmlFor="email" style={labelStyle}>
                   Email
@@ -274,13 +385,16 @@ export default function UpdateCustomerProfile() {
                   type="email"
                   id="email"
                   name="email"
+                  placeholder="Enter Email"
                   value={customer.email}
-                  onChange={handleChange}
-                  style={inputStyle}
+                  onChange={handleEmailChange}
+                  style={emailError ? invalidInputStyle : inputStyle}
+                  required
                 />
-                {errors.email && <p style={{ color: "red" }}>{errors.email}</p>}
+                {emailError && <div style={errorMessageStyle}>{emailError}</div>}
               </div>
 
+              {/* Gender Field */}
               <div className="form-group">
                 <label htmlFor="gender" style={labelStyle}>
                   Gender
@@ -289,17 +403,19 @@ export default function UpdateCustomerProfile() {
                   id="gender"
                   name="gender"
                   value={customer.gender}
-                  onChange={handleChange}
-                  style={inputStyle}
+                  onChange={handleGenderChange}
+                  style={genderError ? invalidInputStyle : inputStyle}
+                  required
                 >
                   <option value="">Select Gender</option>
                   <option value="male">Male</option>
                   <option value="female">Female</option>
                   <option value="other">Other</option>
                 </select>
-                {errors.gender && <p style={{ color: "red" }}>{errors.gender}</p>}
+                {genderError && <div style={errorMessageStyle}>{genderError}</div>}
               </div>
 
+              {/* Nationality Field */}
               <div className="form-group">
                 <label htmlFor="nationality" style={labelStyle}>
                   Nationality
@@ -308,15 +424,23 @@ export default function UpdateCustomerProfile() {
                   type="text"
                   id="nationality"
                   name="nationality"
+                  placeholder="Enter Nationality"
                   value={customer.nationality}
-                  onChange={handleChange}
-                  style={inputStyle}
+                  onChange={handleNationalityInput}
+                  onPaste={(e) => {
+                    const pasteData = e.clipboardData.getData('text');
+                    if (!/^[A-Za-z\s]*$/.test(pasteData)) {
+                      e.preventDefault();
+                      setNationalityError("Cannot paste numbers or special characters");
+                    }
+                  }}
+                  style={nationalityError ? invalidInputStyle : inputStyle}
+                  required
                 />
-                {errors.nationality && (
-                  <p style={{ color: "red" }}>{errors.nationality}</p>
-                )}
+                {nationalityError && <div style={errorMessageStyle}>{nationalityError}</div>}
               </div>
 
+              {/* Address Field */}
               <div className="form-group">
                 <label htmlFor="address" style={labelStyle}>
                   Address
@@ -325,15 +449,16 @@ export default function UpdateCustomerProfile() {
                   type="text"
                   id="address"
                   name="address"
+                  placeholder="Enter Address"
                   value={customer.address}
-                  onChange={handleChange}
-                  style={inputStyle}
+                  onChange={handleAddressChange}
+                  style={addressError ? invalidInputStyle : inputStyle}
+                  required
                 />
-                {errors.address && (
-                  <p style={{ color: "red" }}>{errors.address}</p>
-                )}
+                {addressError && <div style={errorMessageStyle}>{addressError}</div>}
               </div>
 
+              {/* NIC/Passport Field */}
               <div className="form-group">
                 <label htmlFor="nicPassport" style={labelStyle}>
                   NIC/Passport Number
@@ -342,15 +467,24 @@ export default function UpdateCustomerProfile() {
                   type="text"
                   id="nicPassport"
                   name="nicPassport"
+                  placeholder="Enter NIC/Passport"
                   value={customer.nicPassport}
-                  onChange={handleChange}
-                  style={inputStyle}
+                  onChange={handleNicPassportInput}
+                  onPaste={(e) => {
+                    const pasteData = e.clipboardData.getData('text');
+                    if (!/^[0-9vV]+$/.test(pasteData)) {
+                      e.preventDefault();
+                      setNicPassportError("Cannot paste invalid NIC format");
+                    }
+                  }}
+                  maxLength={12}
+                  style={nicPassportError ? invalidInputStyle : inputStyle}
+                  required
                 />
-                {errors.nicPassport && (
-                  <p style={{ color: "red" }}>{errors.nicPassport}</p>
-                )}
+                {nicPassportError && <div style={errorMessageStyle}>{nicPassportError}</div>}
               </div>
 
+              {/* Check-In Date Field */}
               <div className="form-group">
                 <label htmlFor="checkInDate" style={labelStyle}>
                   Check-In Date
@@ -360,15 +494,15 @@ export default function UpdateCustomerProfile() {
                   id="checkInDate"
                   name="checkInDate"
                   value={customer.checkInDate}
-                  onChange={handleChange}
-                  style={inputStyle}
-                  min={new Date().toISOString().split('T')[0]} // Set min date to today
+                  onChange={handleCheckInDateChange}
+                  style={checkInDateError ? invalidInputStyle : inputStyle}
+                  min={new Date().toISOString().split('T')[0]}
+                  required
                 />
-                {errors.checkInDate && (
-                  <p style={{ color: "red" }}>{errors.checkInDate}</p>
-                )}
+                {checkInDateError && <div style={errorMessageStyle}>{checkInDateError}</div>}
               </div>
 
+              {/* Room Type Field */}
               <div className="form-group">
                 <label htmlFor="roomType" style={labelStyle}>
                   Room Type
@@ -377,15 +511,23 @@ export default function UpdateCustomerProfile() {
                   type="text"
                   id="roomType"
                   name="roomType"
+                  placeholder="Enter Room Type"
                   value={customer.roomType}
-                  onChange={handleChange}
-                  style={inputStyle}
+                  onChange={handleRoomTypeInput}
+                  onPaste={(e) => {
+                    const pasteData = e.clipboardData.getData('text');
+                    if (!/^[A-Za-z\s]*$/.test(pasteData)) {
+                      e.preventDefault();
+                      setRoomTypeError("Cannot paste numbers or special characters");
+                    }
+                  }}
+                  style={roomTypeError ? invalidInputStyle : inputStyle}
+                  required
                 />
-                {errors.roomType && (
-                  <p style={{ color: "red" }}>{errors.roomType}</p>
-                )}
+                {roomTypeError && <div style={errorMessageStyle}>{roomTypeError}</div>}
               </div>
 
+              {/* Room Number Field */}
               <div className="form-group">
                 <label htmlFor="roomNumber" style={labelStyle}>
                   Room Number
@@ -394,15 +536,16 @@ export default function UpdateCustomerProfile() {
                   type="number"
                   id="roomNumber"
                   name="roomNumber"
+                  placeholder="Enter Room Number"
                   value={customer.roomNumber}
-                  onChange={handleChange}
-                  style={inputStyle}
+                  onChange={handleRoomNumberChange}
+                  style={roomNumberError ? invalidInputStyle : inputStyle}
+                  required
                 />
-                {errors.roomNumber && (
-                  <p style={{ color: "red" }}>{errors.roomNumber}</p>
-                )}
+                {roomNumberError && <div style={errorMessageStyle}>{roomNumberError}</div>}
               </div>
 
+              {/* Price Field */}
               <div className="form-group">
                 <label htmlFor="price" style={labelStyle}>
                   Price
@@ -411,11 +554,22 @@ export default function UpdateCustomerProfile() {
                   type="number"
                   id="price"
                   name="price"
+                  placeholder="Enter Price"
                   value={customer.price}
-                  onChange={handleChange}
-                  style={inputStyle}
+                  onChange={handlePriceInput}
+                  onPaste={(e) => {
+                    const pasteData = e.clipboardData.getData('text');
+                    if (!/^\d+\.?\d*$/.test(pasteData)) {
+                      e.preventDefault();
+                      setPriceError("Cannot paste non-numeric characters");
+                    }
+                  }}
+                  step="0.01"
+                  min="0.01"
+                  style={priceError ? invalidInputStyle : inputStyle}
+                  required
                 />
-                {errors.price && <p style={{ color: "red" }}>{errors.price}</p>}
+                {priceError && <div style={errorMessageStyle}>{priceError}</div>}
               </div>
             </div>
 

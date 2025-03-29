@@ -89,6 +89,67 @@ const AddCustomer = () => {
     setRoomType(value);
   };
 
+  // Prevent numbers and single character in name input
+  const handleNameInput = (e) => {
+    const charCode = e.which ? e.which : e.keyCode;
+    // Allow only letters and spaces
+    if (!(charCode >= 65 && charCode <= 90) && !(charCode >= 97 && charCode <= 122) && charCode !== 32) {
+      e.preventDefault();
+    }
+  };
+
+  const handleNameChange = (e) => {
+    const value = e.target.value;
+    // Prevent single character names
+    if (value.length === 1) {
+      form.setFields([{
+        name: 'name',
+        errors: ['Name must be at least 2 characters long']
+      }]);
+    } else {
+      form.setFields([{
+        name: 'name',
+        errors: []
+      }]);
+    }
+  };
+
+  // Format NIC/Passport input (only numbers and V/v at the end)
+  const handleNICInput = (e) => {
+    const charCode = e.which ? e.which : e.keyCode;
+    // Allow only numbers (0-9) and V/v (86, 118)
+    if (!(charCode >= 48 && charCode <= 57) && charCode !== 86 && charCode !== 118) {
+      e.preventDefault();
+    }
+  };
+
+  // Prevent numbers in nationality input
+  const handleNationalityInput = (e) => {
+    const charCode = e.which ? e.which : e.keyCode;
+    // Allow only letters and spaces
+    if (!(charCode >= 65 && charCode <= 90) && !(charCode >= 97 && charCode <= 122) && charCode !== 32) {
+      e.preventDefault();
+    }
+  };
+
+  // Prevent non-digit input in contact number
+  const handleContactNumberInput = (e) => {
+    const charCode = e.which ? e.which : e.keyCode;
+    // Only allow numbers (0-9)
+    if (charCode < 48 || charCode > 57) {
+      e.preventDefault();
+    }
+  };
+
+  // Prevent non-digit input in price field
+  const handlePriceInput = (e) => {
+    const charCode = e.which ? e.which : e.keyCode;
+    // Allow numbers (0-9), decimal point (46), and backspace (8)
+    if (!(charCode >= 48 && charCode <= 57) && charCode !== 46 && charCode !== 8) {
+      e.preventDefault();
+    }
+  };
+
   // Custom validation for NIC/Passport
   const validateNIC = (_, value) => {
     if (!value) {
@@ -118,10 +179,14 @@ const AddCustomer = () => {
       return Promise.reject(new Error('Price must be greater than 0!'));
     }
     
+    if (isNaN(value)) {
+      return Promise.reject(new Error('Price must be a number!'));
+    }
+    
     return Promise.resolve();
   };
 
-  // Custom validation for name (minimum one word)
+  // Custom validation for name (minimum one word and at least 2 characters)
   const validateName = (_, value) => {
     if (!value) {
       return Promise.reject(new Error('Please input the customer name!'));
@@ -131,8 +196,25 @@ const AddCustomer = () => {
       return Promise.reject(new Error('Name cannot contain numbers'));
     }
     
+    if (value.length < 2) {
+      return Promise.reject(new Error('Name must be at least 2 characters long'));
+    }
+    
     if (value.trim().split(/\s+/).length < 1) {
       return Promise.reject(new Error('Name must contain at least one word!'));
+    }
+    
+    return Promise.resolve();
+  };
+
+  // Custom validation for contact number
+  const validateContactNumber = (_, value) => {
+    if (!value) {
+      return Promise.reject(new Error('Please input the contact number!'));
+    }
+    
+    if (!/^\d{10}$/.test(value)) {
+      return Promise.reject(new Error('Please enter a valid 10-digit number!'));
     }
     
     return Promise.resolve();
@@ -160,22 +242,35 @@ const AddCustomer = () => {
                   { validator: validateName }
                 ]}
               >
-                <Input />
+                <Input 
+                  onKeyPress={handleNameInput}
+                  onChange={handleNameChange}
+                  onPaste={(e) => {
+                    const pasteData = e.clipboardData.getData('text');
+                    if (/\d/.test(pasteData)) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
               </Form.Item>
 
               <Form.Item
                 name="contactNumber"
                 label="Contact Number"
                 rules={[
-                  { required: true, message: "Please input the contact number!" },
-                  {
-                    pattern: /^\d{10}$/,
-                    message: "Please enter a valid 10-digit number!"
-                  }
+                  { validator: validateContactNumber }
                 ]}
-                normalize={(value) => value ? value.replace(/\D/g, '') : ''}
               >
-                <Input maxLength={10} />
+                <Input 
+                  maxLength={10}
+                  onKeyPress={handleContactNumberInput}
+                  onPaste={(e) => {
+                    const pasteData = e.clipboardData.getData('text');
+                    if (!/^\d+$/.test(pasteData)) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
               </Form.Item>
 
               <Form.Item
@@ -217,7 +312,15 @@ const AddCustomer = () => {
                   }
                 ]}
               >
-                <Input />
+                <Input 
+                  onKeyPress={handleNationalityInput}
+                  onPaste={(e) => {
+                    const pasteData = e.clipboardData.getData('text');
+                    if (/\d/.test(pasteData)) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
               </Form.Item>
             </Col>
 
@@ -238,7 +341,16 @@ const AddCustomer = () => {
                   { validator: validateNIC }
                 ]}
               >
-                <Input />
+                <Input 
+                  onKeyPress={handleNICInput}
+                  onPaste={(e) => {
+                    const pasteData = e.clipboardData.getData('text');
+                    if (!/^[0-9]*[Vv]?$/.test(pasteData)) {
+                      e.preventDefault();
+                    }
+                  }}
+                  maxLength={12}
+                />
               </Form.Item>
 
               <Form.Item
@@ -259,7 +371,18 @@ const AddCustomer = () => {
                   { validator: validatePrice }
                 ]}
               >
-                <Input type="number" min="0.01" step="0.01" />
+                <Input 
+                  type="number" 
+                  min="0.01" 
+                  step="0.01"
+                  onKeyPress={handlePriceInput}
+                  onPaste={(e) => {
+                    const pasteData = e.clipboardData.getData('text');
+                    if (!/^[0-9.]+$/.test(pasteData)) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
               </Form.Item>
 
               <Form.Item

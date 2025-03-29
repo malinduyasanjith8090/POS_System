@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import SideBar from "../SideBar/AdminEmployeeSideBar";
-import "./AddEmployee.css"; // Import the CSS file
+import "./AddEmployee.css";
 
 export default function AddEmployee() {
   const [isHovering, setIsHovering] = useState(false);
-  const [showAlert, setShowAlert] = useState(false); // Fixed typo from setShowAleart
+  const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
 
   const [name, setName] = useState("");
@@ -17,55 +17,118 @@ export default function AddEmployee() {
   const [basicsal, setBasicsal] = useState("");
   const [empid, setEmpid] = useState("");
 
+  // Validation states for each field
+  const [nameError, setNameError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [mobileError, setMobileError] = useState("");
+  const [nicError, setNicError] = useState("");
+  const [designationError, setDesignationError] = useState("");
+  const [basicsalError, setBasicsalError] = useState("");
+  const [empidError, setEmpidError] = useState("");
+
+  const handleNameInput = (e) => {
+    const value = e.target.value;
+    if (/^[A-Za-z\s]*$/.test(value)) {
+      setName(value);
+      setNameError("");
+    } else {
+      setNameError("Name can only contain letters");
+    }
+  };
+
+  const handleMobileInput = (e) => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value) && value.length <= 10) {
+      setMobile(value);
+      setMobileError("");
+    } else {
+      setMobileError("Mobile must contain only numbers (10 digits)");
+    }
+  };
+
+  const handleNicInput = (e) => {
+    const value = e.target.value;
+    if (/^[0-9vV]*$/.test(value) && (value.length <= 12 && value.length >= 8)) {
+      setNic(value);
+      setNicError("");
+    } else {
+      setNicError("NIC must be 8-12 digits with optional V/v at end");
+    }
+  };
+
+  const handleDesignationInput = (e) => {
+    const value = e.target.value;
+    if (/^[A-Za-z\s]*$/.test(value)) {
+      setDesignation(value);
+      setDesignationError("");
+    } else {
+      setDesignationError("Designation cannot contain numbers");
+    }
+  };
+
+  const handleBasicsalInput = (e) => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value)) {
+      setBasicsal(value);
+      setBasicsalError("");
+    } else {
+      setBasicsalError("Salary must contain only numbers");
+    }
+  };
+
+  const handleEmpidInput = (e) => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value)) {
+      setEmpid(value);
+      setEmpidError("");
+    } else {
+      setEmpidError("Employee ID must contain only numbers");
+    }
+  };
+
   const sendData = (e) => {
     e.preventDefault();
 
-    // Validation
-    if (!/^[A-Za-z\s]+$/.test(name)) {
-      setAlertMessage("Name can only contain letters.");
-      setShowAlert(true);
-      setTimeout(() => setShowAlert(false), 3000);
-      return;
+    // Validate all fields before submission
+    let isValid = true;
+
+    if (!name) {
+      setNameError("Name is required");
+      isValid = false;
     }
 
     if (!/^\S+@\S+\.\S+$/.test(email)) {
-      setAlertMessage("Please enter a valid email address.");
-      setShowAlert(true);
-      setTimeout(() => setShowAlert(false), 3000);
-      return;
+      setEmailError("Please enter a valid email");
+      isValid = false;
     }
 
     if (!/^\d{10}$/.test(mobile)) {
-      setAlertMessage(
-        "Mobile number must contain exactly 10 digits without letters, symbols, or decimals."
-      );
-      setShowAlert(true);
-      setTimeout(() => setShowAlert(false), 3000);
-      return;
+      setMobileError("Mobile must be exactly 10 digits");
+      isValid = false;
     }
 
     if (!/^(?:\d{9}[vV]|\d{12})$/.test(nic)) {
-      setAlertMessage(
-        "NIC must be in the format 000000000V or 000000000000, with no letters or symbols."
-      );
-      setShowAlert(true);
-      setTimeout(() => setShowAlert(false), 3000);
-      return;
+      setNicError("NIC must be 9 digits with V/v or 12 digits");
+      isValid = false;
     }
 
-    if (!Number.isInteger(Number(basicsal)) || Number(basicsal) <= 0) {
-      setAlertMessage(
-        "Basic salary must be a positive whole number without letters or symbols."
-      );
-      setShowAlert(true);
-      setTimeout(() => setShowAlert(false), 3000);
-      return;
+    if (!designation) {
+      setDesignationError("Designation is required");
+      isValid = false;
     }
 
-    if (!/^[A-Za-z\s]+$/.test(designation)) {
-      setAlertMessage(
-        "Designation cannot contain numbers or special characters."
-      );
+    if (!basicsal || basicsal <= 0) {
+      setBasicsalError("Salary must be a positive number");
+      isValid = false;
+    }
+
+    if (!empid) {
+      setEmpidError("Employee ID is required");
+      isValid = false;
+    }
+
+    if (!isValid) {
+      setAlertMessage("Please fix the errors in the form");
       setShowAlert(true);
       setTimeout(() => setShowAlert(false), 3000);
       return;
@@ -96,6 +159,15 @@ export default function AddEmployee() {
         setBasicsal("");
         setEmpid("");
 
+        // Clear errors
+        setNameError("");
+        setEmailError("");
+        setMobileError("");
+        setNicError("");
+        setDesignationError("");
+        setBasicsalError("");
+        setEmpidError("");
+
         setTimeout(() => setShowAlert(false), 3000);
       })
       .catch((err) => {
@@ -112,112 +184,170 @@ export default function AddEmployee() {
       <div className="form-page">
         <form className="form-container" onSubmit={sendData}>
           <div className="form-grid">
+            {/* Name Field */}
             <div className="mb-3">
               <label htmlFor="name" className="form-label">
                 Name
               </label>
               <input
                 type="text"
-                className="form-control"
+                className={`form-control ${nameError ? "is-invalid" : ""}`}
                 id="name"
                 placeholder="Enter Name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={handleNameInput}
+                onPaste={(e) => {
+                  const pasteData = e.clipboardData.getData('text');
+                  if (!/^[A-Za-z\s]*$/.test(pasteData)) {
+                    e.preventDefault();
+                    setNameError("Cannot paste numbers or special characters");
+                  }
+                }}
                 required
               />
+              {nameError && <div className="error-message" style={{color: 'red', fontSize: '15px'}}>{nameError}</div>}
             </div>
 
+            {/* Email Field */}
             <div className="mb-3">
               <label htmlFor="email" className="form-label">
                 Email
               </label>
               <input
                 type="email"
-                className="form-control"
+                className={`form-control ${emailError ? "is-invalid" : ""}`}
                 id="email"
                 placeholder="Enter Email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setEmailError("");
+                }}
                 required
               />
+              {emailError && <div className="error-message" style={{color: 'red', fontSize: '15px'}}>{emailError}</div>}
             </div>
 
+            {/* Mobile Field */}
             <div className="mb-3">
               <label htmlFor="mobileno" className="form-label">
                 Mobile No
               </label>
               <input
                 type="tel"
-                className="form-control"
+                className={`form-control ${mobileError ? "is-invalid" : ""}`}
                 id="mobileno"
                 placeholder="Enter Mobile Number"
                 value={mobile}
-                onChange={(e) => setMobile(e.target.value)}
+                onChange={handleMobileInput}
+                onPaste={(e) => {
+                  const pasteData = e.clipboardData.getData('text');
+                  if (!/^\d+$/.test(pasteData)) {
+                    e.preventDefault();
+                    setMobileError("Cannot paste non-numeric characters");
+                  }
+                }}
+                maxLength={10}
                 required
-                pattern="\d{10}"
-                title="Mobile number must be exactly 10 digits."
               />
+              {mobileError && <div className="error-message" style={{color: 'red', fontSize: '15px'}}>{mobileError}</div>}
             </div>
 
+            {/* NIC Field */}
             <div className="mb-3">
               <label htmlFor="nic" className="form-label">
                 NIC
               </label>
               <input
                 type="text"
-                className="form-control"
+                className={`form-control ${nicError ? "is-invalid" : ""}`}
                 id="nic"
-                placeholder="Enter NIC"
+                placeholder="Enter NIC (9 digits with V/v or 12 digits)"
                 value={nic}
-                onChange={(e) => setNic(e.target.value)}
+                onChange={handleNicInput}
+                onPaste={(e) => {
+                  const pasteData = e.clipboardData.getData('text');
+                  if (!/^[0-9vV]+$/.test(pasteData)) {
+                    e.preventDefault();
+                    setNicError("Cannot paste invalid NIC format");
+                  }
+                }}
+                maxLength={12}
                 required
               />
+              {nicError && <div className="error-message" style={{color: 'red', fontSize: '15px'}}>{nicError}</div>}
             </div>
 
+            {/* Designation Field */}
             <div className="mb-3">
               <label htmlFor="designation" className="form-label">
                 Designation
               </label>
               <input
                 type="text"
-                className="form-control"
+                className={`form-control ${designationError ? "is-invalid" : ""}`}
                 id="designation"
                 placeholder="Enter Designation"
                 value={designation}
-                onChange={(e) => setDesignation(e.target.value)}
+                onChange={handleDesignationInput}
+                onPaste={(e) => {
+                  const pasteData = e.clipboardData.getData('text');
+                  if (!/^[A-Za-z\s]*$/.test(pasteData)) {
+                    e.preventDefault();
+                    setDesignationError("Cannot paste numbers or special characters");
+                  }
+                }}
                 required
               />
+              {designationError && <div className="error-message" style={{color: 'red', fontSize: '15px'}}>{designationError}</div>}
             </div>
 
+            {/* Basic Salary Field */}
             <div className="mb-3">
               <label htmlFor="basicsal" className="form-label">
                 Basic Salary
               </label>
               <input
-                type="number"
-                className="form-control"
+                type="text"
+                className={`form-control ${basicsalError ? "is-invalid" : ""}`}
                 id="basicsal"
                 placeholder="Enter Basic Salary"
                 value={basicsal}
-                onChange={(e) => setBasicsal(e.target.value)}
+                onChange={handleBasicsalInput}
+                onPaste={(e) => {
+                  const pasteData = e.clipboardData.getData('text');
+                  if (!/^\d+$/.test(pasteData)) {
+                    e.preventDefault();
+                    setBasicsalError("Cannot paste non-numeric characters");
+                  }
+                }}
                 required
-                min="1"
               />
+              {basicsalError && <div className="error-message" style={{color: 'red', fontSize: '15px'}}>{basicsalError}</div>}
             </div>
 
+            {/* Employee ID Field */}
             <div className="mb-3">
               <label htmlFor="empid" className="form-label">
                 Employee ID
               </label>
               <input
                 type="text"
-                className="form-control"
+                className={`form-control ${empidError ? "is-invalid" : ""}`}
                 id="empid"
                 placeholder="Enter Employee ID"
                 value={empid}
-                onChange={(e) => setEmpid(e.target.value)}
+                onChange={handleEmpidInput}
+                onPaste={(e) => {
+                  const pasteData = e.clipboardData.getData('text');
+                  if (!/^\d+$/.test(pasteData)) {
+                    e.preventDefault();
+                    setEmpidError("Cannot paste non-numeric characters");
+                  }
+                }}
                 required
               />
+              {empidError && <div className="error-message" style={{color: 'red', fontSize: '15px'}}>{empidError}</div>}
             </div>
           </div>
 

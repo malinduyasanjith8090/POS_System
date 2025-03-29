@@ -34,6 +34,37 @@ const AddRoom = () => {
     console.log('Failed:', errorInfo);
   };
 
+  // Prevent non-numeric input in price field
+  const handlePriceInput = (e) => {
+    const charCode = e.which ? e.which : e.keyCode;
+    // Allow numbers (0-9), decimal point (46), and backspace (8)
+    if (!(charCode >= 48 && charCode <= 57) && charCode !== 46 && charCode !== 8) {
+      e.preventDefault();
+    }
+  };
+
+  // Prevent non-numeric input in room number field
+  const handleRoomNumberInput = (e) => {
+    const charCode = e.which ? e.which : e.keyCode;
+    // Only allow numbers (0-9) and backspace (8)
+    if (!(charCode >= 48 && charCode <= 57) && charCode !== 8) {
+      e.preventDefault();
+    }
+  };
+
+  // Prevent numeric input in facilities field
+  const handleFacilitiesInput = (e) => {
+    const charCode = e.which ? e.which : e.keyCode;
+    // Allow letters (a-z, A-Z), spaces (32), commas (44), and backspace (8)
+    if (!(charCode >= 65 && charCode <= 90) && 
+        !(charCode >= 97 && charCode <= 122) && 
+        charCode !== 32 && 
+        charCode !== 44 && 
+        charCode !== 8) {
+      e.preventDefault();
+    }
+  };
+
   // Custom validation for price
   const validatePrice = (_, value) => {
     if (!value) {
@@ -101,7 +132,18 @@ const AddRoom = () => {
                 label="Price"
                 rules={[{ validator: validatePrice }]}
               >
-                <Input type="number" min="0.01" step="0.01" />
+                <Input 
+                  type="number" 
+                  min="0.01" 
+                  step="0.01"
+                  onKeyPress={handlePriceInput}
+                  onPaste={(e) => {
+                    const pasteData = e.clipboardData.getData('text');
+                    if (!/^[0-9.]+$/.test(pasteData)) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
               </Form.Item>
 
               <Form.Item
@@ -109,7 +151,17 @@ const AddRoom = () => {
                 label="Room Number"
                 rules={[{ validator: validateRoomNumber }]}
               >
-                <Input type="number" min="1" />
+                <Input 
+                  type="number" 
+                  min="1"
+                  onKeyPress={handleRoomNumberInput}
+                  onPaste={(e) => {
+                    const pasteData = e.clipboardData.getData('text');
+                    if (!/^\d+$/.test(pasteData)) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
               </Form.Item>
             </Col>
 
@@ -120,7 +172,15 @@ const AddRoom = () => {
                 label="Facilities (comma-separated)"
                 rules={[{ validator: validateFacilities }]}
               >
-                <Input />
+                <Input 
+                  onKeyPress={handleFacilitiesInput}
+                  onPaste={(e) => {
+                    const pasteData = e.clipboardData.getData('text');
+                    if (/\d/.test(pasteData)) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
               </Form.Item>
 
               <Form.Item
