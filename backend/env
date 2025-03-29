@@ -1,0 +1,14 @@
+MONGO_URI="mongodb+srv://dbuser:mern@mernapp.tiima.mongodb.net/MernDB"
+JWT_SECRET="Agkhgfggmfdtdt45234343@242"
+
+# CLOUDINARY_CLOUD_NAME=dpnd9ioa8
+# CLOUDINARY_API_KEY=633986218534767
+# CLOUDINARY_API_SECRET=8OJeR-NeLuCGNklWBxAgXJjuEw8
+
+# Ngrok Configuration
+REACT_APP_API_BASE_URL=https://7469-2402-4000-2300-38fe-e02e-d3b-dc14-fbfd.ngrok-free.app
+REACT_APP_DEBUG_MODE=false
+
+# Server Configuration
+PORT=5000
+NODE_ENV=development
