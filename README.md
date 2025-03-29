@@ -1,1 +1,1 @@
-# POS_System
+# Hotel_Management_System_
