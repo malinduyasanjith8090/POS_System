@@ -2,69 +2,54 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import SideBar from "../../components/SideBar/InventoryManagementSidebar";
 
-export default function AddOrders({ onOrderAdded }) {
-  const [name, setname] = useState("");
-  const [supplier, setsupplier] = useState("");
-  const [date, setdate] = useState("");
-  const [noOfItems, setnoOfitems] = useState("");
+export default function AddOrders() {
+  const [name, setName] = useState("");
+  const [supplier, setSupplier] = useState("");
+  const [date, setDate] = useState("");
+  const [noOfItems, setNoOfItems] = useState("");
   const [errors, setErrors] = useState({});
-  const [orders, setOrders] = useState([]); // Ensure orders is initialized as an empty array
+  const [orders, setOrders] = useState([]);
 
-  // Fetch orders from API on component mount
-  useEffect(() => {
+  // Fetch orders from API
+  const fetchOrders = () => {
     axios
       .get("http://localhost:5000/api/inventory/orders/")
       .then((response) => {
-        // Check if the response contains the 'data' array
         if (response.data && Array.isArray(response.data.data)) {
-          setOrders(response.data.data); // Set orders from the 'data' array
+          setOrders(response.data.data);
         } else {
           console.error("API response does not contain a 'data' array:", response.data);
-          setOrders([]); // Fallback to an empty array if the structure is unexpected
+          setOrders([]);
         }
       })
       .catch((error) => {
         console.error("Error fetching orders:", error);
       });
+  };
+
+  useEffect(() => {
+    fetchOrders();
   }, []);
-  
-  // Fetch orders from API
-const fetchOrders = () => {
-  axios
-      .get("http://localhost:5000/api/inventory/orders/")
-      .then((response) => {
-          // Check if the response contains the 'data' array
-          if (response.data && Array.isArray(response.data.data)) {
-              setOrders(response.data.data); // Set orders from the 'data' array
-          } else {
-              console.error("API response does not contain a 'data' array:", response.data);
-              setOrders([]); // Fallback to an empty array if the structure is unexpected
-          }
-      })
-      .catch((error) => {
-          console.error("Error fetching orders:", error);
-      });
-};
-
-// Fetch orders when the component mounts
-useEffect(() => {
-  fetchOrders();
-}, []);
-
 
   function validateForm() {
     let formErrors = {};
     let valid = true;
 
-    // Name validation
+    // Order Name validation - letters only
     if (!name.trim()) {
       formErrors.name = "Order name is required.";
       valid = false;
+    } else if (!/^[A-Za-z\s]+$/.test(name)) {
+      formErrors.name = "Order name should contain only letters.";
+      valid = false;
     }
 
-    // Supplier validation
+    // Supplier validation - letters only
     if (!supplier.trim()) {
       formErrors.supplier = "Supplier name is required.";
+      valid = false;
+    } else if (!/^[A-Za-z\s]+$/.test(supplier)) {
+      formErrors.supplier = "Supplier name should contain only letters.";
       valid = false;
     }
 
@@ -85,6 +70,9 @@ useEffect(() => {
     if (!noOfItems || noOfItems <= 0) {
       formErrors.noOfItems = "Number of items should be a positive number.";
       valid = false;
+    } else if (!/^\d+$/.test(noOfItems)) {
+      formErrors.noOfItems = "Please enter a valid whole number.";
+      valid = false;
     }
 
     setErrors(formErrors);
@@ -95,42 +83,40 @@ useEffect(() => {
     e.preventDefault();
 
     if (!validateForm()) {
-        return;
+      return;
     }
 
     const newOrder = {
-        orderName: name,
-        supplier,
-        date,
-        noOfItems: Number(noOfItems), // Ensure noOfItems is a number
+      orderName: name,
+      supplier,
+      date,
+      noOfItems: Number(noOfItems),
     };
 
-    console.log("Order Data:", newOrder); // Log the order data before sending
-
     axios
-        .post("http://localhost:5000/api/inventory/orders/send", newOrder)
-        .then((response) => {
-            alert("Order Added");
-            setname("");
-            setsupplier("");
-            setdate("");
-            setnoOfitems("");
-
-            // Fetch the updated list of orders
-            fetchOrders(); // Call the function to fetch orders
-        })
-        .catch((err) => {
-            console.error("Error:", err.response?.data); // Log the error response for debugging
-            alert("Error: " + (err.response?.data?.message || err.message)); // Show specific error message if available
-        });
-}
+      .post("http://localhost:5000/api/inventory/orders/send", newOrder)
+      .then((response) => {
+        alert("Order Added");
+        setName("");
+        setSupplier("");
+        setDate("");
+        setNoOfItems("");
+        fetchOrders();
+      })
+      .catch((err) => {
+        console.error("Error:", err.response?.data);
+        alert("Error: " + (err.response?.data?.message || err.message));
+      });
+  }
 
   return (
     <div>
       <SideBar />
       <div>
         <div className="orders-container">
-          <h2 style={{ textAlign: "center", marginTop: "20px",marginLeft:"250px", fontSize: 28 }}>Previous Orders</h2>
+          <h2 style={{ textAlign: "center", marginTop: "20px", marginLeft: "250px", fontSize: 28 }}>
+            Previous Orders
+          </h2>
           <div className="order-card">
             {orders.length > 0 ? (
               <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
@@ -140,7 +126,8 @@ useEffect(() => {
                     <th>Supplier</th>
                     <th>Status</th>
                   </tr>
-                </thead><br/>
+                </thead>
+                <br />
                 <tbody>
                   {orders.map((order) => (
                     <tr key={order._id}>
@@ -155,7 +142,7 @@ useEffect(() => {
               <p style={{ textAlign: "center" }}>No orders found</p>
             )}
           </div>
-          </div>
+        </div>
         <div
           style={{
             maxWidth: "800px",
@@ -165,71 +152,62 @@ useEffect(() => {
             backgroundColor: "#f9f9f9",
             borderRadius: "10px",
             boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-            border:"1px solid black"
+            border: "1px solid black"
           }}
         >
           <style>
             {`
-          .form-group {
-            margin-bottom: 20px;
-            
-          }
-          .form-label {
-            display: block;
-            margin-bottom: 10px;
-          }
-          .form-control {
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-          }
-          .btn-primary {
-            background-color: #A02334;
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            width: 150px;
-            height: 40px;
-            border-radius: 5px;
-            cursor: pointer;
-          }
-          .btn-primary:hover {
-            background-color: #871c2b;
-          }
-          .error-message {
-            color: red;
-            font-size: 14px;
-            margin-top: 5px;
-          }
-          .button-container {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-          }
-          .orders-container {
-            margin-top: 50px;
-            
-          }
-          .order-card {
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            margin-left:500px;
-            max-width:800px;
-            color:white;
-            background-color: #A02334;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-          }
-          .order-card h3 {
-            margin: 0;
-            font-size: 20px;
-          }
-          .order-card p {
-            margin: 5px 0;
-          }
-        `}
+              .form-group {
+                margin-bottom: 20px;
+              }
+              .form-label {
+                display: block;
+                margin-bottom: 10px;
+              }
+              .form-control {
+                width: 100%;
+                padding: 10px;
+                font-size: 16px;
+                border: 1px solid #ccc;
+              }
+              .btn-primary {
+                background-color: #A02334;
+                color: #fff;
+                padding: 10px 20px;
+                border: none;
+                width: 150px;
+                height: 40px;
+                border-radius: 5px;
+                cursor: pointer;
+              }
+              .btn-primary:hover {
+                background-color: #871c2b;
+              }
+              .error-message {
+                color: red;
+                font-size: 14px;
+                margin-top: 5px;
+              }
+              .button-container {
+                display: flex;
+                justify-content: center;
+                margin-top: 20px;
+              }
+              .orders-container {
+                margin-top: 50px;
+              }
+              .order-card {
+                padding: 20px;
+                border: 1px solid #ccc;
+                border-radius: 10px;
+                margin-bottom: 20px;
+                margin-left: 500px;
+                max-width: 800px;
+                color: white;
+                background-color: #A02334;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+              }
+            `}
           </style>
           <h1 style={{ textAlign: "center", fontSize: 32 }}>Add Order Details</h1>
 
@@ -244,7 +222,7 @@ useEffect(() => {
                 id="Name"
                 value={name}
                 onChange={(e) => {
-                  setname(e.target.value);
+                  setName(e.target.value);
                 }}
               />
               {errors.name && <div className="error-message">{errors.name}</div>}
@@ -259,7 +237,7 @@ useEffect(() => {
                 id="supplier"
                 value={supplier}
                 onChange={(e) => {
-                  setsupplier(e.target.value);
+                  setSupplier(e.target.value);
                 }}
               />
               {errors.supplier && <div className="error-message">{errors.supplier}</div>}
@@ -274,7 +252,7 @@ useEffect(() => {
                 id="date"
                 value={date}
                 onChange={(e) => {
-                  setdate(e.target.value);
+                  setDate(e.target.value);
                 }}
               />
               {errors.date && <div className="error-message">{errors.date}</div>}
@@ -289,8 +267,10 @@ useEffect(() => {
                 id="noOfItems"
                 value={noOfItems}
                 onChange={(e) => {
-                  setnoOfitems(e.target.value);
+                  setNoOfItems(e.target.value);
                 }}
+                min="1"
+                step="1"
               />
               {errors.noOfItems && <div className="error-message">{errors.noOfItems}</div>}
             </div>
@@ -301,8 +281,6 @@ useEffect(() => {
             </div>
           </form>
         </div>
-
-        
       </div>
     </div>
   );
