@@ -46,6 +46,7 @@ import SupplierProfile from './components/SupplyManagement/SupplierProfile';
 import ManagerProfile from './components/SupplyManagement/ManagerProfile';
 import AddSupplier from './components/SupplyManagement/AddSupplier';
 import AddManager from './components/SupplyManagement/AddManager';
+import OrderRequest from './components/SupplyManagement/OrderRequest';
 
 import CusLogin from './components/CustomerManagement/CusLogin';
 import AllCustomers from './components/CustomerManagement/AllCustomers';
@@ -130,6 +131,7 @@ export default function AppRoutes() {
       <Route path="/ManagerProfile" element={<ManagerProfile />} />
       <Route path="/AddSupplier" element={<AddSupplier />} />
       <Route path="/AddManager" element={<AddManager />} />
+      <Route path="/OrderRequest" element={<OrderRequest />} />
 
       {/* Customer */}
       <Route path="/customers" element={<AllCustomers />} />
