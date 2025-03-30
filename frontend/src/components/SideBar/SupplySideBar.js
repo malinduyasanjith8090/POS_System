@@ -108,7 +108,7 @@ function SideBar() {
               Add Supplier
             </Link>
           </li>
-          <li>
+          {/* <li>
             <Link
               to="/ManagerProfile"
               style={defaultStyle}
@@ -135,8 +135,21 @@ function SideBar() {
             >
               Add Manager
             </Link>
+          </li> */}
+         <li>
+            <Link
+              to="/OrderRequest"  // Link to Dashboard page on Log Out
+              style={defaultStyle}
+              onMouseOver={(e) => {
+                Object.assign(e.currentTarget.style, hoverStyle);
+              }}
+              onMouseOut={(e) => {
+                Object.assign(e.currentTarget.style, defaultStyle);
+              }}
+            >
+              Order Requests
+            </Link>
           </li>
-
 
           <li>
             <Link

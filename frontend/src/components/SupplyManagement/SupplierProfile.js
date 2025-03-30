@@ -45,24 +45,24 @@ const SupplierProfile = () => {
     fetchSuppliers();
   }, []);
 
-  // Fetch orders data
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const response = await axios.get("http://localhost:5000/api/inventory/orders/");
-        if (response.data && Array.isArray(response.data.data)) {
-          setOrders(response.data.data);
-        } else {
-          setOrders([]);
-        }
-      } catch (err) {
-        console.error("Error fetching orders:", err);
-        setError(err.message);
-      }
-    };
+  // // Fetch orders data
+  // useEffect(() => {
+  //   const fetchOrders = async () => {
+  //     try {
+  //       const response = await axios.get("http://localhost:5000/api/inventory/orders/");
+  //       if (response.data && Array.isArray(response.data.data)) {
+  //         setOrders(response.data.data);
+  //       } else {
+  //         setOrders([]);
+  //       }
+  //     } catch (err) {
+  //       console.error("Error fetching orders:", err);
+  //       setError(err.message);
+  //     }
+  //   };
 
-    fetchOrders();
-  }, []);
+  //   fetchOrders();
+  // }, []);
 
   // Handle updating supplier
   const handleUpdate = async (values) => {
@@ -182,25 +182,25 @@ const SupplierProfile = () => {
     );
   });
 
-  // Handle updating order status
-  const handleStatusChange = (orderId, newStatus) => {
-    axios
-      .put(`http://localhost:5000/api/inventory/orders/updateStatus/${orderId}`, { status: newStatus })
-      .then((response) => {
-        setOrders((prevOrders) =>
-          prevOrders.map((order) =>
-            order._id === orderId ? { ...order, status: newStatus } : order
-          )
-        );
-        message.success("Order status updated successfully!");
-      })
-      .catch((error) => {
-        console.error("Error updating status:", error);
-        message.error(
-          "Failed to update status: " + (error.response?.data?.message || error.message)
-        );
-      });
-  };
+  // // Handle updating order status
+  // const handleStatusChange = (orderId, newStatus) => {
+  //   axios
+  //     .put(`http://localhost:5000/api/inventory/orders/updateStatus/${orderId}`, { status: newStatus })
+  //     .then((response) => {
+  //       setOrders((prevOrders) =>
+  //         prevOrders.map((order) =>
+  //           order._id === orderId ? { ...order, status: newStatus } : order
+  //         )
+  //       );
+  //       message.success("Order status updated successfully!");
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error updating status:", error);
+  //       message.error(
+  //         "Failed to update status: " + (error.response?.data?.message || error.message)
+  //       );
+  //     });
+  // };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -373,7 +373,7 @@ const SupplierProfile = () => {
           </Modal>
         )}
 
-        {/* Orders Section */}
+        {/* Orders Section
         <h1 style={{ ...headerStyle, marginTop: "40px" }}>All Orders</h1>
         <table style={tableStyle}>
           <thead>
@@ -419,7 +419,7 @@ const SupplierProfile = () => {
               ))
             )}
           </tbody>
-        </table>
+        </table> */}
       </div>
     </>
   );
