@@ -131,11 +131,31 @@ const CartPage = () => {
     }
   };
 
+  // Prevent typing numbers in customer name
+  const handleNameChange = (e) => {
+    const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+    e.target.value = value;
+    return value;
+  };
+
+  // Prevent typing letters in contact number
+  const handleNumberChange = (e) => {
+    const value = e.target.value.replace(/\D/g, '');
+    e.target.value = value;
+    return value;
+  };
+
   return (
     <>
-    <SideBar/>
+      <SideBar/>
       <h1 style={{marginLeft:"260px"}}>Cart</h1>
-      <Table columns={columns} dataSource={cartItems} bordered rowKey="_id" style={{marginLeft:"260px",marginRight:"20px"}}/>
+      <Table 
+        columns={columns} 
+        dataSource={cartItems} 
+        bordered 
+        rowKey="_id" 
+        style={{marginLeft:"260px",marginRight:"20px"}}
+      />
       <div className="d-flex flex-column align-items-end" style={{marginLeft:"260px"}}>
         <hr />
         <h3>
@@ -147,103 +167,108 @@ const CartPage = () => {
       </div>
 
       <Modal
-  title="Create Invoice"
-  visible={billPopup}
-  onCancel={() => setBillPopup(false)}
-  footer={false}
->
-  <Form layout="vertical" onFinish={handleSubmit}>
-    <Form.Item
-      name="customerName"
-      label="Customer Name"
-      rules={[
-        { required: true, message: "Please enter the customer name" },
-        { min: 3, message: "Customer name must be at least 3 characters" },
-      ]}
-    >
-      <Input />
-    </Form.Item>
-    <Form.Item
-      name="customerNumber"
-      label="Contact No"
-      rules={[
-        { required: true, message: "Please enter the contact number" },
-        {
-          pattern: /^\d{10}$/,
-          message: "Contact number must be 10 digits",
-        },
-      ]}
-    >
-      <Input />
-    </Form.Item>
-    <Form.Item
-      name="paymentMode"
-      label="Payment Method"
-      rules={[{ required: true, message: "Please select a payment method" }]}
-    >
-      <Select>
-        <Select.Option value="cash">Cash</Select.Option>
-        <Select.Option value="card">Card</Select.Option>
-      </Select>
-    </Form.Item>
+        title="Create Invoice"
+        visible={billPopup}
+        onCancel={() => setBillPopup(false)}
+        footer={false}
+        width={800}
+      >
+        <Form layout="vertical" onFinish={handleSubmit}>
+          <Form.Item
+            name="customerName"
+            label="Customer Name"
+            rules={[
+              { required: true, message: "Please enter the customer name" },
+              { min: 3, message: "Customer name must be at least 3 characters" },
+              { 
+                pattern: /^[a-zA-Z\s]*$/,
+                message: "Customer name cannot contain numbers or special characters" 
+              }
+            ]}
+            getValueFromEvent={handleNameChange}
+          >
+            <Input placeholder="Enter customer name" maxLength={50} />
+          </Form.Item>
+          <Form.Item
+            name="customerNumber"
+            label="Contact No"
+            rules={[
+              { required: true, message: "Please enter the contact number" },
+              {
+                pattern: /^\d{10}$/,
+                message: "Contact number must be 10 digits",
+              },
+            ]}
+            getValueFromEvent={handleNumberChange}
+          >
+            <Input placeholder="Enter 10-digit contact number" maxLength={10} />
+          </Form.Item>
+          <Form.Item
+            name="paymentMode"
+            label="Payment Method"
+            rules={[{ required: true, message: "Please select a payment method" }]}
+          >
+            <Select placeholder="Select payment method">
+              <Select.Option value="cash">Cash</Select.Option>
+              <Select.Option value="card">Card</Select.Option>
+            </Select>
+          </Form.Item>
 
-    {/* Display cart items in the invoice modal */}
-    <div>
-      <h4>Items:</h4>
-      <Table
-        dataSource={cartItems}
-        columns={[
-          {
-            title: "Item Name",
-            dataIndex: "name",
-          },
-          {
-            title: "Quantity",
-            dataIndex: "quantity",
-          },
-          {
-            title: "Price (LKR)",
-            dataIndex: "price",
-            render: (price, record) => (
-           <div>
-           {record.price > 0 && <div>LKR {record.price * record.quantity}</div>}
-           {record.Bprice > 0 && <div>Bprice: LKR {record.Bprice * record.quantity}</div>}
-           {record.Sprice > 0 && <div>Sprice: LKR {record.Sprice * record.quantity}</div>}
-           </div>
-           ),
-          },
-        ]}
-        pagination={false}
-        rowKey="_id"
-      />
-    </div>
+          {/* Display cart items in the invoice modal */}
+          <div>
+            <h4>Items:</h4>
+            <Table
+              dataSource={cartItems}
+              columns={[
+                {
+                  title: "Item Name",
+                  dataIndex: "name",
+                },
+                {
+                  title: "Quantity",
+                  dataIndex: "quantity",
+                },
+                {
+                  title: "Price (LKR)",
+                  dataIndex: "price",
+                  render: (price, record) => (
+                    <div>
+                      {record.price > 0 && <div>LKR {record.price * record.quantity}</div>}
+                      {record.Bprice > 0 && <div>Bprice: LKR {record.Bprice * record.quantity}</div>}
+                      {record.Sprice > 0 && <div>Sprice: LKR {record.Sprice * record.quantity}</div>}
+                    </div>
+                  ),
+                },
+              ]}
+              pagination={false}
+              rowKey="_id"
+              size="small"
+            />
+          </div>
 
-    {/* Display subtotal, tax, and total */}
-    <div className="bill-it">
-      <h5>
-        Sub Total: LKR <b>{subTotal}</b>
-      </h5>
-      <h4>
-        TAX: LKR <b>{((subTotal / 100) * 10).toFixed(2)}</b>
-      </h4>
-      <h3>
-        GRAND TOTAL: LKR{" "}
-        <b>
-          {Number(subTotal) +
-            Number(((subTotal / 100) * 10).toFixed(2))}
-        </b>
-      </h3>
-    </div>
+          {/* Display subtotal, tax, and total */}
+          <div className="bill-it" style={{ marginTop: '20px' }}>
+            <h5>
+              Sub Total: LKR <b>{subTotal.toFixed(2)}</b>
+            </h5>
+            <h4>
+              TAX (10%): LKR <b>{((subTotal / 100) * 10).toFixed(2)}</b>
+            </h4>
+            <h3>
+              GRAND TOTAL: LKR{" "}
+              <b>
+                {(Number(subTotal) + Number(((subTotal / 100) * 10).toFixed(2))).toFixed(2)}
+              </b>
+            </h3>
+          </div>
 
-    <div className="d-flex justify-content-end">
-      <Button type="primary" htmlType="submit">
-        Generate Bill
-      </Button>
-    </div>
-  </Form>
-</Modal>
-
-      
+          <div className="d-flex justify-content-end" style={{ marginTop: '20px' }}>
+            <Button type="primary" htmlType="submit">
+              Generate Bill
+            </Button>
+          </div>
+        </Form>
+      </Modal>
     </>
   );
 };

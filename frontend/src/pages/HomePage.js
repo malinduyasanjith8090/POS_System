@@ -213,12 +213,8 @@ const HomePage = () => {
     <div style={styles.container}>
       {/* Header Section */}
       <header style={styles.header}>
-        <img
-          src={companylogo} // Add your company logo here
-          alt="Cinnamon Red Hotel"
-          style={styles.logo}
-        />
-        <h1 style={styles.headerText}>Welcome to Cinnamon Red Hotel</h1>
+        
+        <h1 style={styles.headerText}>Welcome to the Hotel</h1>
         <p style={styles.subHeader}>Experience a luxurious stay like never before</p>
         <button style={styles.loginButton} onClick={handleLoginClick}>Login</button>
       </header>
@@ -303,7 +299,7 @@ const HomePage = () => {
 <br/><br/>
       {/* Footer Section */}
       <footer style={styles.footer}>
-        <p>2023 Cinnamon Red Hotel.© All Rights Reserved</p>
+        <p>2025 The Hotel.© All Rights Reserved</p>
         <div style={styles.footerLinks}>
           <a href="#" style={styles.footerLink}>Privacy</a>
           <a href="#" style={styles.footerLink}>Terms</a>
