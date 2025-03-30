@@ -249,12 +249,12 @@ export default function AddItems({ onItemAdded }) {
                 <option value="" disabled>
                   Select Category
                 </option>
-                <option value="restaurant">Restaurant</option>
-                <option value="bar">Bar</option>
-                <option value="hr">HR Department</option>
-                <option value="finance">Finance Department</option>
-                <option value="maintane">Maintenance department</option>
-                <option value="event">Event & Banquet Department</option>
+                <option value="Resturent">Restaurant</option>
+                <option value="Bar">Bar</option>
+                <option value="Hr">HR Department</option>
+                <option value="Finance">Finance Department</option>
+                <option value="Maintain">Maintenance department</option>
+                <option value="Event & Banquet">Event & Banquet Department</option>
               </select>
               {errors.category && (
                 <div className="error-message">{errors.category}</div>
