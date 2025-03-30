@@ -4,8 +4,7 @@ import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { FaPrint } from "react-icons/fa";
 import { Modal, Button, Table, Form, Input, Select, message } from "antd";
-import { jsPDF } from "jspdf"; // Import jsPDF
-import html2canvas from "html2canvas"; // Import html2canvas
+import { jsPDF } from "jspdf";
 import logo from '../../images/company.png';
 import SideBar from "../SideBar/BarSideBar";
 
@@ -14,7 +13,7 @@ const ItemPage = () => {
   const [itemsData, setItemsData] = useState([]);
   const [popupModal, setPopModal] = useState(false);
   const [editItem, SetEdititem] = useState(null);
-  const [searchTerm, setSearchTerm] = useState(""); // Search term state
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Function to fetch items
   const getAllItems = async () => {
@@ -38,8 +37,8 @@ const ItemPage = () => {
       dispatch({ type: "SHOW_LOADING" });
       await axios.delete(`/api/items/delete-item/${record._id}`);
       message.success("Item Deleted Successfully!");
-      getAllItems(); // Refresh items list
-      setPopModal(false); // Close modal
+      getAllItems();
+      setPopModal(false);
       dispatch({ type: "HIDE_LOADING" });
     } catch (error) {
       dispatch({ type: "HIDE_LOADING" });
@@ -50,85 +49,85 @@ const ItemPage = () => {
 
   // Filtered data based on search term
   const filteredItems = itemsData.filter((item) =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase())||
-    item.Bprice.toLowerCase().includes(searchTerm.toLowerCase()) || // Convert Bprice to string for search
-    item.Sprice.toLowerCase().includes(searchTerm.toLowerCase()) // Convert Sprice to string for search
+    item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    String(item.Bprice).includes(searchTerm) ||
+    String(item.Sprice).includes(searchTerm) ||
+    String(item.price).includes(searchTerm)
   );
 
- // Function to generate PDF
-const generatePDF = async () => {
-  const doc = new jsPDF();
+  // Function to generate PDF
+  const generatePDF = async () => {
+    const doc = new jsPDF();
 
-  // Add company logo
-  doc.addImage(logo, "PNG", 10, 10, 25, 13); // Ensure to import logo at the top
+    // Add company logo
+    doc.addImage(logo, "PNG", 10, 10, 25, 13);
 
-  // Add company details below the logo
-  doc.setFontSize(8);
-  doc.setTextColor(0);
-  doc.text("Your Company Name", 10, 30);
-  doc.text("Address: 1234 Event St, City, State, ZIP", 10, 35);
-  doc.text("Contact: (123) 456-7890", 10, 40);
-  doc.text("Email: info@yourcompany.com", 10, 45);
+    // Add company details
+    doc.setFontSize(8);
+    doc.setTextColor(0);
+    doc.text("Your Company Name", 10, 30);
+    doc.text("Address: 1234 Event St, City, State, ZIP", 10, 35);
+    doc.text("Contact: (123) 456-7890", 10, 40);
+    doc.text("Email: info@yourcompany.com", 10, 45);
 
-  // Add centered heading
-  doc.setFontSize(18);
-  doc.setTextColor(0);
-  const headingY = 60;
-  doc.text("Item Management", doc.internal.pageSize.getWidth() / 2, headingY, { align: "center" });
+    // Add centered heading
+    doc.setFontSize(18);
+    doc.setTextColor(0);
+    const headingY = 60;
+    doc.text("Item Management", doc.internal.pageSize.getWidth() / 2, headingY, { align: "center" });
 
-  // Draw underline for heading
-  const headingWidth = doc.getTextWidth("Item Management");
-  const underlineY = headingY + 1;
-  doc.setDrawColor(0);
-  doc.line(
-    (doc.internal.pageSize.getWidth() / 2) - (headingWidth / 2),
-    underlineY,
-    (doc.internal.pageSize.getWidth() / 2) + (headingWidth / 2),
-    underlineY
-  );
+    // Draw underline for heading
+    const headingWidth = doc.getTextWidth("Item Management");
+    const underlineY = headingY + 1;
+    doc.setDrawColor(0);
+    doc.line(
+      (doc.internal.pageSize.getWidth() / 2) - (headingWidth / 2),
+      underlineY,
+      (doc.internal.pageSize.getWidth() / 2) + (headingWidth / 2),
+      underlineY
+    );
 
-  // Add line break
-  doc.setFontSize(12);
-  doc.text("Item List", doc.internal.pageSize.getWidth() / 2, headingY + 10, { align: "center" });
+    // Add line break
+    doc.setFontSize(12);
+    doc.text("Item List", doc.internal.pageSize.getWidth() / 2, headingY + 10, { align: "center" });
 
-  // Define table columns and rows
-  const headers = [
-    "No","Name", "Bottle Price", "Shot Price", "Price"
-  ];
+    // Define table columns and rows
+    const headers = [
+      "No","Name", "Bottle Price", "Shot Price", "Price"
+    ];
 
-  const data = filteredItems.map((item, index) => [
-    index + 1,
-    item.name,
-    `$${item.Bprice}`,
-    `$${item.Sprice}`,
-    `$${item.price}`
-  ]);
+    const data = filteredItems.map((item, index) => [
+      index + 1,
+      item.name,
+      `$${item.Bprice}`,
+      `$${item.Sprice}`,
+      `$${item.price}`
+    ]);
 
-  // Add the table
-  doc.autoTable({
-    head: [headers],
-    body: data,
-    startY: 80, 
-    styles: {
-      fontSize: 8,
-    },
-  });
+    // Add the table
+    doc.autoTable({
+      head: [headers],
+      body: data,
+      startY: 80, 
+      styles: {
+        fontSize: 8,
+      },
+    });
 
-  // Add a professional ending
-  const endingY = doc.internal.pageSize.getHeight() - 30;
-  doc.setFontSize(10);
-  doc.text("Thank you for choosing our services.", doc.internal.pageSize.getWidth() / 2, endingY, { align: "center" });
-  doc.text("Contact us at: (123) 456-7890", doc.internal.pageSize.getWidth() / 2, endingY + 10, { align: "center" });
+    // Add a professional ending
+    const endingY = doc.internal.pageSize.getHeight() - 30;
+    doc.setFontSize(10);
+    doc.text("Thank you for choosing our services.", doc.internal.pageSize.getWidth() / 2, endingY, { align: "center" });
+    doc.text("Contact us at: (123) 456-7890", doc.internal.pageSize.getWidth() / 2, endingY + 10, { align: "center" });
 
-  // Draw page border
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
+    // Draw page border
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
 
-  // Save the PDF
-  doc.save("items_report.pdf");
-};
-
+    // Save the PDF
+    doc.save("items_report.pdf");
+  };
 
   // Table columns
   const columns = [
@@ -146,14 +145,17 @@ const generatePDF = async () => {
     {
       title: "Bottle Price",
       dataIndex: "Bprice",
+      render: (price) => `$${price}`
     },
     {
       title: "Shot Price",
       dataIndex: "Sprice",
+      render: (price) => `$${price}`
     },
     {
-      title: "Price", // Ensure price is displayed here
+      title: "Price",
       dataIndex: "price",
+      render: (price) => `$${price}`
     },
     {
       title: "Action",
@@ -187,8 +189,8 @@ const generatePDF = async () => {
         const res = await axios.post("/api/items/add-item", values);
         if (res.status === 200) {
           message.success("Item Added Successfully!");
-          getAllItems(); // Refresh items list
-          setPopModal(false); // Close modal
+          getAllItems();
+          setPopModal(false);
         } else {
           message.error("Failed to add item.");
         }
@@ -208,9 +210,9 @@ const generatePDF = async () => {
         });
 
         message.success("Item Updated Successfully!");
-        getAllItems(); // Refresh items list
-        setPopModal(false); // Close modal
-        SetEdititem(null); // Clear edit state
+        getAllItems();
+        setPopModal(false);
+        SetEdititem(null);
         dispatch({ type: "HIDE_LOADING" });
       } catch (error) {
         message.error("Something Went Wrong!");
@@ -220,16 +222,40 @@ const generatePDF = async () => {
     }
   };
 
+  // Prevent typing letters in price fields
+  const handlePriceChange = (e) => {
+    const value = e.target.value.replace(/[^0-9.]/g, '');
+    // Ensure only one decimal point
+    const decimalCount = value.split('.').length - 1;
+    if (decimalCount > 1) {
+      e.target.value = value.substring(0, value.lastIndexOf('.'));
+    } else {
+      e.target.value = value;
+    }
+    return value;
+  };
+
+  // Validate URL format
+  const validateUrl = (_, value) => {
+    try {
+      new URL(value);
+      return Promise.resolve();
+    } catch (_) {
+      return Promise.reject(new Error('Please enter a valid URL'));
+    }
+  };
+
   return (
     <>
-    <SideBar/>
+      <SideBar/>
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           marginBottom: "20px",
-          
+          marginLeft: "260px",
+          marginRight: "20px"
         }}
       >
         <h1>Item List</h1>
@@ -245,7 +271,10 @@ const generatePDF = async () => {
           />
           <Button
             type="primary"
-            onClick={() => setPopModal(true)}
+            onClick={() => {
+              SetEdititem(null);
+              setPopModal(true);
+            }}
             style={{
               backgroundColor: "#800000",
               borderColor: "#800000",
@@ -257,7 +286,7 @@ const generatePDF = async () => {
           </Button>
           <Button
             type="primary"
-            onClick={generatePDF} // Call generatePDF on button click
+            onClick={generatePDF}
             style={{
               backgroundColor: "#006400",
               borderColor: "#006400",
@@ -265,7 +294,7 @@ const generatePDF = async () => {
               boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.2)",
             }}
           >
-            <FaPrint/>Report
+            <FaPrint/> Report
           </Button>
         </div>
       </div>
@@ -276,15 +305,15 @@ const generatePDF = async () => {
         bordered
         rowKey="_id"
         sticky
-        scroll={{ y: 400 }} // Set the scroll height for the table content
+        scroll={{ y: 400 }}
         style={{
           backgroundColor: "#f5f5f5",
           borderRadius: "8px",
           padding: "20px",
           boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
-          marginLeft: "300px",
+          marginLeft: "260px",
           marginRight: "20px",
-          marginTop:"-20px"
+          marginTop: "-20px"
         }}
       />
 
@@ -296,12 +325,17 @@ const generatePDF = async () => {
             SetEdititem(null);
             setPopModal(false);
           }}
-          footer={false} // Remove default footer buttons
+          footer={false}
           style={{ borderRadius: "8px" }}
         >
           <Form
             layout="vertical"
-            initialValues={editItem}
+            initialValues={editItem || {
+              Bprice: '',
+              Sprice: '',
+              price: '',
+              image: ''
+            }}
             onFinish={handleSubmit}
           >
             <Form.Item
@@ -322,11 +356,12 @@ const generatePDF = async () => {
                 { required: true, message: "Please enter the bottle price" },
                 {
                   pattern: /^\d+(\.\d{1,2})?$/,
-                  message: "Please enter a valid number",
+                  message: "Please enter a valid number with up to 2 decimal places",
                 },
               ]}
+              getValueFromEvent={handlePriceChange}
             >
-              <Input />
+              <Input prefix="" />
             </Form.Item>
 
             <Form.Item
@@ -336,11 +371,12 @@ const generatePDF = async () => {
                 { required: true, message: "Please enter the shot price" },
                 {
                   pattern: /^\d+(\.\d{1,2})?$/,
-                  message: "Please enter a valid number",
+                  message: "Please enter a valid number with up to 2 decimal places",
                 },
               ]}
+              getValueFromEvent={handlePriceChange}
             >
-              <Input />
+              <Input prefix="" />
             </Form.Item>
 
             <Form.Item
@@ -350,11 +386,12 @@ const generatePDF = async () => {
                 { required: true, message: "Please enter the price" },
                 {
                   pattern: /^\d+(\.\d{1,2})?$/,
-                  message: "Please enter a valid number",
+                  message: "Please enter a valid number with up to 2 decimal places",
                 },
               ]}
+              getValueFromEvent={handlePriceChange}
             >
-              <Input />
+              <Input prefix="" />
             </Form.Item>
 
             <Form.Item
@@ -362,10 +399,32 @@ const generatePDF = async () => {
               label="Image URL"
               rules={[
                 { required: true, message: "Please enter the image URL" },
-                { type: "url", message: "Please enter a valid URL" },
+                { validator: validateUrl },
               ]}
             >
-              <Input />
+              <Input 
+                placeholder="https://example.com/image.jpg" 
+                onKeyDown={(e) => {
+                  // Allow shortcuts (Ctrl/Cmd + A, C, V, X) and arrow keys
+                  if (!(e.ctrlKey || e.metaKey) && 
+                      !['v', 'a', 'c', 'x', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Delete', 'Backspace', 'Tab'].includes(e.key)) {
+                    e.preventDefault();
+                    message.warning('Please paste a valid URL instead of typing');
+                  }
+                }}
+                onPaste={(e) => {
+                  // Validate immediately after paste
+                  setTimeout(() => {
+                    const url = e.target.value;
+                    try {
+                      new URL(url);
+                    } catch (_) {
+                      message.error('Please paste a valid URL');
+                      e.target.value = '';
+                    }
+                  }, 0);
+                }}
+              />
             </Form.Item>
 
             <Form.Item
@@ -404,8 +463,7 @@ const generatePDF = async () => {
           </Form>
         </Modal>
       )}
-      
-      </>
+    </>
   );
 };
 
