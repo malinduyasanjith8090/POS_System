@@ -1,46 +1,48 @@
 import { Router } from 'express';
-import Supply from '../models/supply.js'; // Corrected the import
+import Supply from '../models/supply.js';
 
 const router = Router();
 
-// Create supply
+// Create supplier
 router.post("/addSupply", async (req, res) => {
     try {
-        console.log('Request received:', req.body); // Log the request body
+        console.log('Request received:', req.body);
 
-        const { supplyId, itemName, unitPrice, description, initialQuantity, category } = req.body;
+        const { supplyId, supplierName, companyName, email, contactNumber, description } = req.body;
 
-        // Add basic validation
-        if (!supplyId || !itemName || !unitPrice || !initialQuantity || !category) {
+        // Add validation
+        if (!supplyId || !supplierName || !companyName || !email || !contactNumber) {
             return res.status(400).json({ message: "Error: All fields except description are required." });
         }
 
-        // Validate numeric fields
-        const initialQuantityNum = Number(initialQuantity);
-        const unitPriceNum = Number(unitPrice);
-        
-        if (isNaN(initialQuantityNum) || isNaN(unitPriceNum) || initialQuantityNum <= 0 || unitPriceNum <= 0) {
-            return res.status(400).json({ message: "Error: Quantity and price must be positive numbers." });
+        // Validate email format
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            return res.status(400).json({ message: "Error: Please enter a valid email address." });
+        }
+
+        // Validate phone number format
+        if (!/^[0-9]{10}$/.test(contactNumber)) {
+            return res.status(400).json({ message: "Error: Please enter a valid 10-digit phone number." });
         }
 
         const newSupply = new Supply({
             supplyId,
-            itemName,
-            unitPrice: unitPriceNum,
-            description,
-            initialQuantity: initialQuantityNum,
-            category
+            supplierName,
+            companyName,
+            email,
+            contactNumber,
+            description
         });
 
         const savedSupply = await newSupply.save();
-        res.status(201).json({ message: "Supply added!", supply: savedSupply });
+        res.status(201).json({ message: "Supplier added!", supply: savedSupply });
     } catch (err) {
-        console.error("Error while saving supply:", err); // Log the error
+        console.error("Error while saving supplier:", err);
         res.status(500).json({ message: "Error: " + err.message });
     }
 });
 
-// Read all supplies
+// Read all suppliers
 router.get("/", async (req, res) => {
     try {
         const supplies = await Supply.find();
@@ -50,50 +52,50 @@ router.get("/", async (req, res) => {
     }
 });
 
-// Update supply by ID
+// Update supplier by ID
 router.put("/update/:id", async (req, res) => {
     const supplyId = req.params.id;
-    const { supplyId: newSupplyId, itemName, unitPrice, description, initialQuantity, category } = req.body;
+    const { supplyId: newSupplyId, supplierName, companyName, email, contactNumber, description } = req.body;
 
     const updatedSupply = {
         supplyId: newSupplyId,
-        itemName,
-        unitPrice,
-        description,
-        initialQuantity,
-        category
+        supplierName,
+        companyName,
+        email,
+        contactNumber,
+        description
     };
 
     try {
         const updated = await Supply.findByIdAndUpdate(supplyId, updatedSupply, { new: true });
         if (!updated) {
-            return res.status(404).send({ message: "Error: Supply not found." });
+            return res.status(404).send({ message: "Error: Supplier not found." });
         }
-        res.status(200).send({ message: "Supply Updated", supply: updated });
+        res.status(200).send({ message: "Supplier Updated", supply: updated });
     } catch (err) {
         res.status(500).send({ message: "Error with updating data", error: err.message });
     }
 });
 
-// Delete supply by ID
+// Delete supplier by ID
 router.delete("/delete/:id", async (req, res) => {
     const supplyId = req.params.id;
     try {
         const deletedSupply = await Supply.findByIdAndDelete(supplyId);
         if (!deletedSupply) {
-            return res.status(404).send({ message: "Error: Supply not found." });
+            return res.status(404).send({ message: "Error: Supplier not found." });
         }
-        res.status(200).send({ message: "Supply Deleted" });
+        res.status(200).send({ message: "Supplier Deleted" });
     } catch (err) {
-        res.status(500).send({ message: "Error with deleting supply", error: err.message });
+        res.status(500).send({ message: "Error with deleting supplier", error: err.message });
     }
 });
 
-// Fetch all supplies
+// Fetch all suppliers
 router.get('/api/supplies', async (req, res) => {
     try {
         const supplies = await Supply.find();
-        console.log(supplies); // Log the supplies to check if _id is present
+        console.log(supplies);
         res.json(supplies);
     } catch (error) {
         res.status(500).json({ message: 'Server error' });

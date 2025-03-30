@@ -1,14 +1,13 @@
 import mongoose from 'mongoose';
 
-// Define the supply schema
+// Define the supplier schema
 const supplySchema = new mongoose.Schema({
     supplyId: { type: String, required: true },
-    itemName: { type: String, required: true },
-    initialQuantity: { type: Number, required: true },
-    unitPrice: { type: Number, required: true },
-    description: { type: String },
-    category: { type: String, required: true },
-    status: { type: String, default: 'Available' }
+    supplierName: { type: String, required: true },
+    companyName: { type: String, required: true },
+    email: { type: String, required: true },
+    contactNumber: { type: String, required: true },
+    description: { type: String }
 });
 
 // Create the Supply model

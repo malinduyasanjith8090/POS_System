@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { Modal, Button, Form, Input, Select, message } from "antd";
-import SupplyerHeader from "./SupplyerHeader";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import logo from "../../images/company.png";
@@ -11,27 +10,39 @@ import SideBar from "../SideBar/SupplySideBar";
 const { Option } = Select;
 
 const SupplierProfile = () => {
-  const [supplies, setSupplies] = useState([]);
-  const [orders, setOrders] = useState([]); // State for orders
+  const [suppliers, setSuppliers] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [error, setError] = useState(null);
   const [editItem, setEditItem] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // Fetch supplies data
+  // Fetch suppliers data
   useEffect(() => {
-    const fetchSupplies = async () => {
+    const fetchSuppliers = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/supply`);
-        setSupplies(response.data);
-        console.log("Fetched Supplies:", response.data); // Debugging: log fetched supplies
+        // Ensure all fields have default values
+        const sanitizedSuppliers = response.data.map(supplier => ({
+          _id: supplier._id || '',
+          supplyId: supplier.supplyId || '',
+          supplierName: supplier.supplierName || '',
+          companyName: supplier.companyName || '',
+          email: supplier.email || '',
+          contactNumber: supplier.contactNumber || '',
+          description: supplier.description || ''
+        }));
+        setSuppliers(sanitizedSuppliers);
       } catch (err) {
-        console.error("Error fetching supplies:", err);
+        console.error("Error fetching suppliers:", err);
         setError(err.message);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchSupplies();
+    fetchSuppliers();
   }, []);
 
   // Fetch orders data
@@ -41,14 +52,7 @@ const SupplierProfile = () => {
         const response = await axios.get("http://localhost:5000/api/inventory/orders/");
         if (response.data && Array.isArray(response.data.data)) {
           setOrders(response.data.data);
-          console.log("Fetched Orders:", response.data.data); // Debugging: log fetched orders
-
-          // Log each order's status for debugging
-          response.data.data.forEach((order, index) => {
-            console.log(`Order ${index + 1} Status:`, order.status);
-          });
         } else {
-          console.error("API response does not contain a 'data' array:", response.data);
           setOrders([]);
         }
       } catch (err) {
@@ -60,46 +64,44 @@ const SupplierProfile = () => {
     fetchOrders();
   }, []);
 
-  // Handle updating supply
+  // Handle updating supplier
   const handleUpdate = async (values) => {
     try {
       await axios.put(`http://localhost:5000/api/supply/update/${editItem._id}`, values);
-      message.success("Supply updated successfully!");
+      message.success("Supplier updated successfully!");
       setModalVisible(false);
       setEditItem(null);
-      // Refresh supplies
+      // Refresh suppliers
       const response = await axios.get(`http://localhost:5000/api/supply`);
-      setSupplies(response.data);
-      console.log("Updated Supplies:", response.data); // Debugging: log updated supplies
+      setSuppliers(response.data);
     } catch (error) {
-      message.error("Failed to update supply.");
+      message.error("Failed to update supplier.");
       console.error("Update error:", error);
     }
   };
 
-  // Handle deleting supply
-  const handleDelete = async (supplyId) => {
+  // Handle deleting supplier
+  const handleDelete = async (supplierId) => {
     try {
-      if (window.confirm("Are you sure you want to delete this supply?")) {
-        await axios.delete(`http://localhost:5000/api/supply/delete/${supplyId}`);
-        message.success("Supply deleted successfully!");
-        const updatedSupplies = supplies.filter((supply) => supply._id !== supplyId);
-        setSupplies(updatedSupplies);
-        console.log("Supplies after deletion:", updatedSupplies); // Debugging: log updated supplies
+      if (window.confirm("Are you sure you want to delete this supplier?")) {
+        await axios.delete(`http://localhost:5000/api/supply/delete/${supplierId}`);
+        message.success("Supplier deleted successfully!");
+        const updatedSuppliers = suppliers.filter((supplier) => supplier._id !== supplierId);
+        setSuppliers(updatedSuppliers);
       }
     } catch (error) {
-      message.error("Failed to delete supply.");
+      message.error("Failed to delete supplier.");
       console.error("Delete error:", error);
     }
   };
 
-  // Handle editing supply
-  const openEditModal = (supply) => {
-    setEditItem(supply);
+  // Handle editing supplier
+  const openEditModal = (supplier) => {
+    setEditItem(supplier);
     setModalVisible(true);
   };
 
-  // Generate PDF for supplies
+  // Generate PDF for suppliers
   const generatePDF = () => {
     const doc = new jsPDF();
     doc.addImage(logo, "PNG", 150, 10, 25, 13);
@@ -109,25 +111,25 @@ const SupplierProfile = () => {
     doc.text("Contact: (123) 456-7890", 10, 20);
     doc.text("Email: info@yourcompany.com", 10, 25);
     doc.setFontSize(18);
-    doc.text("Supplies List", doc.internal.pageSize.getWidth() / 2, 30, {
+    doc.text("Suppliers List", doc.internal.pageSize.getWidth() / 2, 30, {
       align: "center",
     });
 
     const headers = [
-      "Supply ID",
-      "Item Name",
-      "Unit Price",
-      "Initial Quantity",
+      "Supplier ID",
+      "Supplier Name",
+      "Company Name",
+      "Email",
+      "Contact Number",
       "Description",
-      "Category",
     ];
-    const data = supplies.map((supply) => [
-      supply.supplyId,
-      supply.itemName,
-      supply.unitPrice,
-      supply.initialQuantity,
-      supply.description,
-      supply.category,
+    const data = suppliers.map((supplier) => [
+      supplier.supplyId || 'N/A',
+      supplier.supplierName || 'N/A',
+      supplier.companyName || 'N/A',
+      supplier.email || 'N/A',
+      supplier.contactNumber || 'N/A',
+      supplier.description || 'N/A'
     ]);
 
     doc.autoTable({
@@ -158,22 +160,39 @@ const SupplierProfile = () => {
     const pageHeight = doc.internal.pageSize.getHeight();
     doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
 
-    doc.save("supplies_report.pdf");
+    doc.save("suppliers_report.pdf");
   };
+
+  // Filter suppliers based on search term
+  const filteredSuppliers = suppliers.filter((supplier) => {
+    if (!searchTerm) return true;
+    
+    const searchTermLower = searchTerm.toLowerCase();
+    const searchFields = [
+      supplier.supplyId,
+      supplier.supplierName,
+      supplier.companyName,
+      supplier.email,
+      supplier.contactNumber,
+      supplier.description
+    ].filter(field => field); // Remove undefined/null fields
+
+    return searchFields.some(
+      field => field.toString().toLowerCase().includes(searchTermLower)
+    );
+  });
 
   // Handle updating order status
   const handleStatusChange = (orderId, newStatus) => {
     axios
       .put(`http://localhost:5000/api/inventory/orders/updateStatus/${orderId}`, { status: newStatus })
       .then((response) => {
-        // Update the local state to reflect the change
         setOrders((prevOrders) =>
           prevOrders.map((order) =>
             order._id === orderId ? { ...order, status: newStatus } : order
           )
         );
         message.success("Order status updated successfully!");
-        console.log(`Order ${orderId} status updated to ${newStatus}`); // Debugging: confirm update
       })
       .catch((error) => {
         console.error("Error updating status:", error);
@@ -183,36 +202,20 @@ const SupplierProfile = () => {
       });
   };
 
-  // Filter supplies based on search term
-  const filteredSupplies = supplies.filter((supply) => {
-    const searchTermLower = searchTerm.toLowerCase();
-    return (
-      supply.itemName.toLowerCase().includes(searchTermLower) ||
-      supply.supplyId.toLowerCase().includes(searchTermLower) ||
-      supply.unitPrice.toString().toLowerCase().includes(searchTermLower) ||
-      supply.initialQuantity.toString().toLowerCase().includes(searchTermLower) ||
-      supply.description.toLowerCase().includes(searchTermLower) ||
-      supply.category.toLowerCase().includes(searchTermLower)
-    );
-  });
-
-  // No longer filtering to pending orders, using all orders
-  console.log("All Orders:", orders); // Debugging: log all orders
-
+  if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
-  if (supplies.length === 0 && orders.length === 0) return <div>Loading...</div>;
 
   return (
     <>
       <SideBar />
       <div style={containerStyle}>
-        {/* Supplies Section */}
-        <h1 style={headerStyle}>Supplies List</h1>
+        {/* Suppliers Section */}
+        <h1 style={headerStyle}>Suppliers List</h1>
 
         {/* Search Input */}
         <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
           <Input
-            placeholder="Search Supplies"
+            placeholder="Search Suppliers"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{ width: "300px" }}
@@ -229,47 +232,47 @@ const SupplierProfile = () => {
         <table style={tableStyle}>
           <thead>
             <tr>
-              <th style={tableHeaderStyle}>Supply ID</th>
-              <th style={tableHeaderStyle}>Item Name</th>
-              <th style={tableHeaderStyle}>Unit Price</th>
-              <th style={tableHeaderStyle}>Initial Quantity</th>
+              <th style={tableHeaderStyle}>Supplier ID</th>
+              <th style={tableHeaderStyle}>Supplier Name</th>
+              <th style={tableHeaderStyle}>Company Name</th>
+              <th style={tableHeaderStyle}>Email</th>
+              <th style={tableHeaderStyle}>Contact Number</th>
               <th style={tableHeaderStyle}>Description</th>
-              <th style={tableHeaderStyle}>Category</th>
               <th style={tableHeaderStyle}>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filteredSupplies.length === 0 ? (
+            {filteredSuppliers.length === 0 ? (
               <tr>
                 <td colSpan="7" style={{ textAlign: "center", padding: "20px" }}>
-                  No Supplies Found
+                  No Suppliers Found
                 </td>
               </tr>
             ) : (
-              filteredSupplies.map((supply) => (
-                <tr key={supply._id}>
-                  <td style={tableDataStyle}>{supply.supplyId}</td>
-                  <td style={tableDataStyle}>{supply.itemName}</td>
-                  <td style={tableDataStyle}>${supply.unitPrice}</td>
-                  <td style={tableDataStyle}>{supply.initialQuantity}</td>
-                  <td style={tableDataStyle}>{supply.description}</td>
-                  <td style={tableDataStyle}>{supply.category}</td>
+              filteredSuppliers.map((supplier) => (
+                <tr key={supplier._id}>
+                  <td style={tableDataStyle}>{supplier.supplyId || '-'}</td>
+                  <td style={tableDataStyle}>{supplier.supplierName || '-'}</td>
+                  <td style={tableDataStyle}>{supplier.companyName || '-'}</td>
+                  <td style={tableDataStyle}>{supplier.email || '-'}</td>
+                  <td style={tableDataStyle}>{supplier.contactNumber || '-'}</td>
+                  <td style={tableDataStyle}>{supplier.description || '-'}</td>
                   <td style={tableDataStyle}>
                     <div style={buttonContainerStyle}>
                       <Button
                         type="primary"
-                        onClick={() => openEditModal(supply)}
+                        onClick={() => openEditModal(supplier)}
                         style={{ ...actionButtonStyle, backgroundColor: "green" }}
                       >
                         Update
                       </Button>
-                      <Link
-                        to="#"
-                        style={{ ...linkStyle, ...actionButtonStyle, backgroundColor: "red" }}
-                        onClick={() => handleDelete(supply._id)}
+                      <Button
+                        danger
+                        onClick={() => handleDelete(supplier._id)}
+                        style={{ ...actionButtonStyle, backgroundColor: "red" }}
                       >
                         Delete
-                      </Link>
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -278,27 +281,40 @@ const SupplierProfile = () => {
           </tbody>
         </table>
 
-        {/* Edit Supply Modal */}
+        {/* Edit Supplier Modal */}
         {modalVisible && (
           <Modal
-            title="Edit Supply"
+            title="Edit Supplier"
             visible={modalVisible}
             onCancel={() => setModalVisible(false)}
             footer={null}
+            destroyOnClose
           >
-            <Form initialValues={editItem} onFinish={handleUpdate} layout="vertical">
+            <Form 
+              initialValues={editItem || {}} 
+              onFinish={handleUpdate} 
+              layout="vertical"
+            >
               <Form.Item
-                name="itemName"
-                label="Item Name"
+                name="supplyId"
+                label="Supplier ID"
+                rules={[{ required: true, message: "Please enter the supplier ID!" }]}
+              >
+                <Input />
+              </Form.Item>
+              
+              <Form.Item
+                name="supplierName"
+                label="Supplier Name"
                 rules={[
-                  { required: true, message: "Please enter the item name!" },
+                  { required: true, message: "Please enter the supplier name!" },
                   {
                     validator: (_, value) => {
                       if (!value) {
-                        return Promise.reject(new Error("Please enter the item name!"));
+                        return Promise.reject(new Error("Please enter the supplier name!"));
                       }
                       if (/^\d+$/.test(value)) {
-                        return Promise.reject(new Error("Item name must not be a number!"));
+                        return Promise.reject(new Error("Supplier name must not be a number!"));
                       }
                       return Promise.resolve();
                     },
@@ -307,34 +323,44 @@ const SupplierProfile = () => {
               >
                 <Input />
               </Form.Item>
+              
               <Form.Item
-                name="unitPrice"
-                label="Unit Price"
-                rules={[{ required: true, message: "Please enter the unit price!" }]}
+                name="companyName"
+                label="Company Name"
+                rules={[{ required: true, message: "Please enter the company name!" }]}
               >
-                <Input type="number" />
+                <Input />
               </Form.Item>
+              
               <Form.Item
-                name="initialQuantity"
-                label="Initial Quantity"
-                rules={[{ required: true, message: "Please enter the initial quantity!" }]}
+                name="email"
+                label="Email"
+                rules={[
+                  { required: true, message: "Please enter the email!" },
+                  { type: 'email', message: 'Please enter a valid email!' }
+                ]}
               >
-                <Input type="number" />
+                <Input />
               </Form.Item>
+              
+              <Form.Item
+                name="contactNumber"
+                label="Contact Number"
+                rules={[
+                  { required: true, message: "Please enter the contact number!" },
+                  { pattern: /^[0-9]{10}$/, message: "Please enter a valid 10-digit phone number!" }
+                ]}
+              >
+                <Input />
+              </Form.Item>
+              
               <Form.Item
                 name="description"
                 label="Description"
-                rules={[{ required: true, message: "Please enter a description!" }]}
               >
-                <Input />
+                <Input.TextArea rows={4} />
               </Form.Item>
-              <Form.Item
-                name="category"
-                label="Category"
-                rules={[{ required: true, message: "Please enter the category!" }]}
-              >
-                <Input />
-              </Form.Item>
+              
               <div style={{ display: "flex", justifyContent: "flex-end" }}>
                 <Button type="primary" htmlType="submit">
                   Update
@@ -349,9 +375,6 @@ const SupplierProfile = () => {
 
         {/* Orders Section */}
         <h1 style={{ ...headerStyle, marginTop: "40px" }}>All Orders</h1>
-        <div style={{ marginBottom: "20px" }}>
-          {/* You can add filters or actions related to orders here */}
-        </div>
         <table style={tableStyle}>
           <thead>
             <tr>
@@ -373,11 +396,13 @@ const SupplierProfile = () => {
             ) : (
               orders.map((order) => (
                 <tr key={order._id}>
-                  <td style={tableDataStyle}>{order.orderName}</td>
-                  <td style={tableDataStyle}>{order.supplier}</td>
-                  <td style={tableDataStyle}>{new Date(order.date).toLocaleDateString()}</td>
-                  <td style={tableDataStyle}>{order.noOfItems}</td>
-                  <td style={tableDataStyle}>{order.status}</td>
+                  <td style={tableDataStyle}>{order.orderName || '-'}</td>
+                  <td style={tableDataStyle}>{order.supplier || '-'}</td>
+                  <td style={tableDataStyle}>
+                    {order.date ? new Date(order.date).toLocaleDateString() : '-'}
+                  </td>
+                  <td style={tableDataStyle}>{order.noOfItems || '-'}</td>
+                  <td style={tableDataStyle}>{order.status || '-'}</td>
                   <td style={tableDataStyle}>
                     <Select
                       value={order.status}
@@ -440,17 +465,6 @@ const actionButtonStyle = {
   borderRadius: "4px",
   color: "#ffffff",
   cursor: "pointer",
-};
-
-const linkStyle = {
-  backgroundColor: "#800000",
-  color: "#ffffff",
-  textDecoration: "none",
-  display: "inline-block",
-  width: "80px",
-  textAlign: "center",
-  padding: "6px 0",
-  borderRadius: "4px",
 };
 
 const buttonContainerStyle = {
