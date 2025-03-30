@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { FaEdit, FaTrash, FaSearch } from "react-icons/fa";
+import { FaEdit, FaTrash, FaSearch, FaExclamationTriangle, FaTimes } from "react-icons/fa";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import UpdateItems from "../InventoryManagement/UpdateItems"; // Ensure the path is correct
@@ -83,8 +83,9 @@ export default function StockManage() {
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
-  const [itemIdToDelete, setItemIdToDelete] = useState(null); // ID of the item to delete
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [itemIdToDelete, setItemIdToDelete] = useState(null);
+  const [lowStockAlerts, setLowStockAlerts] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -93,6 +94,17 @@ export default function StockManage() {
       try {
         const response = await axios.get(`http://localhost:5000/api/inventory/stocks`);
         setItems(response.data.data);
+        
+        // Check for low stock items (stock < 5)
+        const lowStockItems = response.data.data.filter(item => item.inStock < 5);
+        if (lowStockItems.length > 0) {
+          setLowStockAlerts(prev => [
+            ...prev,
+            ...lowStockItems.filter(newItem => 
+              !prev.some(existingItem => existingItem._id === newItem._id)
+            )
+          ]);
+        }
       } catch (error) {
         console.error("Error fetching items:", error);
         alert("Failed to fetch items: " + error.message);
@@ -100,8 +112,28 @@ export default function StockManage() {
         setLoading(false);
       }
     };
+    
     fetchItems();
+    
+    // Set up interval for periodic checks (every 5 minutes)
+    const intervalId = setInterval(fetchItems, 300000);
+    
+    return () => clearInterval(intervalId);
   }, []);
+
+  // Auto-clear alerts after 5 seconds for each alert
+  useEffect(() => {
+    if (lowStockAlerts.length > 0) {
+      const timer = setTimeout(() => {
+        setLowStockAlerts(prev => prev.slice(1));
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [lowStockAlerts]);
+
+  const handleDismissAlert = (id) => {
+    setLowStockAlerts(prev => prev.filter(item => item._id !== id));
+  };
 
   const editItem = (item) => {
     navigate(`/update-items/${item}`);
@@ -126,38 +158,25 @@ export default function StockManage() {
   };
 
   const openDeleteModal = (itemId) => {
-    setItemIdToDelete(itemId); // Set the item ID to delete
-    setIsModalOpen(true); // Open the modal
-  };
-  const fetchItems = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`http://localhost:5000/api/inventory/stocks`);
-      setItems(response.data.data);
-    } catch (error) {
-      console.error("Error fetching items:", error);
-      alert("Failed to fetch items: " + error.message);
-    } finally {
-      setLoading(false);
-    }
+    setItemIdToDelete(itemId);
+    setIsModalOpen(true);
   };
 
   const confirmDelete = async () => {
     setLoading(true);
     try {
-      console.log("Attempting to delete item with ID:", itemIdToDelete); // Debugging log
+      console.log("Attempting to delete item with ID:", itemIdToDelete);
       await axios.delete(`http://localhost:5000/api/inventory/stocks/${itemIdToDelete}`);
-      alert("Item deleted successfully."); // Success message
-      fetchItems(); // Refetch items after deletion
+      alert("Item deleted successfully.");
+      setItems(items.filter(item => item._id !== itemIdToDelete));
     } catch (error) {
       console.error("Error deleting item:", error);
       alert("Failed to delete item: " + error.message);
     } finally {
       setLoading(false);
-      setIsModalOpen(false); // Close the modal after deletion
+      setIsModalOpen(false);
     }
   };
-  
 
   const filteredItems = items.filter(
     (item) =>
@@ -168,12 +187,12 @@ export default function StockManage() {
   const generateReport = () => {
     const doc = new jsPDF();
 
-    // Add logo image (if available)
-    doc.addImage(logo, "PNG", 10, 10, 25, 13); // Adjust the dimensions as necessary
+    // Add logo image
+    doc.addImage(logo, "PNG", 10, 10, 25, 13);
 
-    // Add company details below the logo
+    // Add company details
     doc.setFontSize(8);
-    doc.setTextColor(0); // Set a lighter color for professionalism
+    doc.setTextColor(0);
     doc.text("Cinnomon Red Colombo", 10, 30);
     doc.text("Address: 1234 Event St, City, State, ZIP", 10, 35);
     doc.text("Contact: (123) 456-7890", 10, 40);
@@ -181,20 +200,20 @@ export default function StockManage() {
 
     // Add centered heading
     doc.setFontSize(18);
-    doc.setTextColor(0); // Reset text color to black
-    const headingY = 60; // Adjusted position for heading
+    doc.setTextColor(0);
+    const headingY = 60;
     doc.text("Stock Management Report", doc.internal.pageSize.getWidth() / 2, headingY, { align: "center" });
 
     // Draw underline for heading
-    const headingWidth = doc.getTextWidth("Stock Management Report"); // Calculate the width of the heading
-    const underlineY = headingY + 1; // Position for underline
-    doc.setDrawColor(0); // Set color for the underline
+    const headingWidth = doc.getTextWidth("Stock Management Report");
+    const underlineY = headingY + 1;
+    doc.setDrawColor(0);
     doc.line(
       (doc.internal.pageSize.getWidth() / 2) - (headingWidth / 2),
       underlineY,
       (doc.internal.pageSize.getWidth() / 2) + (headingWidth / 2),
       underlineY
-    ); // Draw line
+    );
 
     // Add a line break
     doc.setFontSize(12);
@@ -214,30 +233,63 @@ export default function StockManage() {
     doc.autoTable({
       head: [columns],
       body: rows,
-      startY: 80, // Start position after the logo and company details
+      startY: 80,
     });
 
     // Add a professional ending
-    const endingY = doc.internal.pageSize.getHeight() - 30; // Fix position for ending at the bottom
+    const endingY = doc.internal.pageSize.getHeight() - 30;
     doc.setFontSize(10);
     doc.text("Thank you for choosing our services.", doc.internal.pageSize.getWidth() / 2, endingY, { align: "center" });
-
-    // Add contact number sample below the thank you message
     doc.text("Contact us at: (123) 456-7890", doc.internal.pageSize.getWidth() / 2, endingY + 10, { align: "center" });
 
     // Draw page border
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
-    doc.rect(5, 5, pageWidth - 10, pageHeight - 10); // Draw a border with 5 unit padding
+    doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
 
     // Save the PDF
     doc.save("stock_report.pdf");
   };
 
-
   return (
     <>
       <SideBar/>
+      
+      {/* Low Stock Notifications */}
+      <div style={{ 
+        position: 'fixed', 
+        top: '20px', 
+        right: '20px', 
+        zIndex: 1000,
+        maxWidth: '350px'
+      }}>
+        {lowStockAlerts.map((item) => (
+          <div key={item._id} style={{
+            backgroundColor: '#ff6b6b',
+            color: 'white',
+            padding: '10px 15px',
+            borderRadius: '4px',
+            marginBottom: '10px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+            animation: 'fadeIn 0.3s ease-in-out'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <FaExclamationTriangle style={{ marginRight: '8px' }} />
+              <span>
+                Low stock: {item.itemName} (Only {item.inStock} left)
+              </span>
+            </div>
+            <FaTimes 
+              style={{ cursor: 'pointer', marginLeft: '10px' }} 
+              onClick={() => handleDismissAlert(item._id)}
+            />
+          </div>
+        ))}
+      </div>
+
       <div>
         <h1 style={{ textAlign: "center", marginLeft: "250px", marginTop: "50px", fontSize: 32 }}>
           Manage Stock Items

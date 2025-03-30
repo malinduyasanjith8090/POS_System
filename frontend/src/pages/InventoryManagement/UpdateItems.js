@@ -172,7 +172,7 @@ export default function UpdateItems({ item, onSave, onClose }) {
                 onChange={(e) => setName(e.target.value)}
                 className="form-control"
                 id="itemName"
-                required
+                disabled
               />
               {errors.itemName && <div className="error-message">{errors.itemName}</div>}
             </div>
@@ -186,14 +186,18 @@ export default function UpdateItems({ item, onSave, onClose }) {
                 value={category}
                 className="form-control"
                 onChange={(e) => setCategory(e.target.value)}
-                required
+                disabled
               >
                 <option value="" disabled>
                   Select Category
                 </option>
                 <option value="restaurant">Restaurant</option>
                 <option value="bar">Bar</option>
-                <option value="both">Both</option>
+                <option value="both">HR Department</option>
+                <option value="both">Finance Department</option>
+                <option value="both">Maintenance department</option>
+                <option value="both">Event & Banquet Department</option>
+            
               </select>
               {errors.category && <div className="error-message">{errors.category}</div>}
             </div>

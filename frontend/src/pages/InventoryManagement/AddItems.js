@@ -8,8 +8,8 @@ export default function AddItems({ onItemAdded }) {
   const [itemName, setItemName] = useState("");
   const [category, setCategory] = useState("");
   const [inStock, setInStock] = useState("");
-  const [date, setDate] = useState("");
-  const [statusOfItem, setStatusOfItem] = useState("");
+  const [date, setDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [statusOfItem, setStatusOfItem] = useState("in-stock");
   const [errors, setErrors] = useState({});
 
   // Form validation logic
@@ -251,7 +251,10 @@ export default function AddItems({ onItemAdded }) {
                 </option>
                 <option value="restaurant">Restaurant</option>
                 <option value="bar">Bar</option>
-                <option value="both">Restaurant & Bar</option>
+                <option value="hr">HR Department</option>
+                <option value="finance">Finance Department</option>
+                <option value="maintane">Maintenance department</option>
+                <option value="event">Event & Banquet Department</option>
               </select>
               {errors.category && (
                 <div className="error-message">{errors.category}</div>
