@@ -75,13 +75,9 @@ function SideBar() {
       {/* Sidebar */}
       <div style={{ width: '250px', height: '100vh', backgroundColor: '#1a1a1a', padding: '15px', position: 'fixed', top: 0, left: 0 }}>
         <div style={logoStyle}>
-          <a href="/adminpannel" style={{ textDecoration: "none" }}>
-            <img
-              src={logo}
-              alt="Cinnamon Red Logo"
-              style={{ width: "100px", height: "auto" }}
-            />
-          </a>
+        <br />
+          <span style={redTextStyle}>POS</span> <br />
+          System
         </div>
         <ul style={{ listStyleType: 'none', padding: '30px 0 0 0' }}>
           <li>

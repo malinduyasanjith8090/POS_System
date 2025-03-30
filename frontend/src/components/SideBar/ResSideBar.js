@@ -106,9 +106,9 @@ const DefaultLayout = ({ children }) => {
         }}
       >
         <div style={logoStyle}>
-          Cinnamon <br />
-          <span style={redTextStyle}>Red</span> <br />
-          Colombo
+        <br />
+          <span style={redTextStyle}>POS</span> <br />
+          System
         </div>
         <ul style={{ listStyleType: "none", padding: "30px 0 0 0" }}>
           <li>

@@ -238,7 +238,7 @@ const IncomeTable = () => {
                   <td className="amount">{totals.totalCosts}</td>
                   <td></td>
                 </tr>
-                <tr>
+                {/* <tr>
                   <td className="description">Total Profits</td>
                   <td></td>
                   <td className="amount">{totals.totalProfits}</td>
@@ -247,7 +247,7 @@ const IncomeTable = () => {
                   <td className="description">Net Total</td>
                   <td></td>
                   <td className="amount">{totals.netTotal}</td>
-                </tr>
+                </tr> */}
               </tbody>
             </table>
           </div>

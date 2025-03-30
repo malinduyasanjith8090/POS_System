@@ -106,13 +106,9 @@ const DefaultLayout = ({ children }) => {
         }}
       >
         <div style={logoStyle}>
-          <a href="/adminpannel" style={{ textDecoration: "none" }}>
-            <img
-              src={logo}
-              alt="Cinnamon Red Logo"
-              style={{ width: "100px", height: "auto" }}
-            />
-          </a>
+        <br />
+          <span style={redTextStyle}>POS</span> <br />
+          System
         </div>
         <ul style={{ listStyleType: "none", padding: "30px 0 0 0" }}>
           <li>
