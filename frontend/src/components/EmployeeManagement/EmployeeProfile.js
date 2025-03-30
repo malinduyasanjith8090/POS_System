@@ -41,6 +41,7 @@ export default function UpdateEmployeeProfile() {
       });
   }, [id]);
 
+  // Prevent numbers in name field
   const handleNameInput = (e) => {
     const value = e.target.value;
     if (/^[A-Za-z\s]*$/.test(value)) {
@@ -51,6 +52,7 @@ export default function UpdateEmployeeProfile() {
     }
   };
 
+  // Prevent letters in mobile field
   const handleMobileInput = (e) => {
     const value = e.target.value;
     if (/^\d*$/.test(value) && value.length <= 10) {
@@ -61,24 +63,23 @@ export default function UpdateEmployeeProfile() {
     }
   };
 
+  // NIC validation (12 digits with optional V/v at end)
   const handleNicInput = (e) => {
     const value = e.target.value;
-    if (/^[0-9vV]*$/.test(value) && (value.length <= 12 && value.length >= 8)) {
+    // Allow only numbers and V/v at the end
+    if (/^[0-9]{0,12}$/.test(value) || 
+        (/^[0-9]{11}[vV]$/.test(value) && value.length === 12)) {
       setEmployee(prev => ({...prev, nic: value}));
       setNicError("");
     } else {
-      setNicError("NIC must be 8-12 digits with optional V/v at end");
+      setNicError("NIC must be 12 digits with optional V/v at end");
     }
   };
 
   const handleDesignationInput = (e) => {
     const value = e.target.value;
-    if (/^[A-Za-z\s]*$/.test(value)) {
-      setEmployee(prev => ({...prev, designation: value}));
-      setDesignationError("");
-    } else {
-      setDesignationError("Designation cannot contain numbers");
-    }
+    setEmployee(prev => ({...prev, designation: value}));
+    setDesignationError("");
   };
 
   const handleBasicsalInput = (e) => {
@@ -125,8 +126,8 @@ export default function UpdateEmployeeProfile() {
       isValid = false;
     }
 
-    if (!/^(?:\d{9}[vV]|\d{12})$/.test(employee.nic)) {
-      setNicError("NIC must be 9 digits with V/v or 12 digits");
+    if (!/^[0-9]{12}$|^[0-9]{11}[vV]$/.test(employee.nic)) {
+      setNicError("NIC must be 12 digits with optional V/v at end");
       isValid = false;
     }
 
@@ -229,13 +230,13 @@ export default function UpdateEmployeeProfile() {
     right: "20px",
     zIndex: 1000,
     width: "300px",
-    transform: "translateX(100%)",
   };
 
   const errorMessageStyle = {
     color: "red",
     fontSize: "14px",
-    marginTop: "5px"
+    marginTop: "5px",
+    height: "20px"
   };
 
   return (
@@ -263,11 +264,17 @@ export default function UpdateEmployeeProfile() {
                   placeholder="Enter Name"
                   value={employee.name}
                   onChange={handleNameInput}
+                  onKeyDown={(e) => {
+                    if (/\d/.test(e.key)) {
+                      e.preventDefault();
+                      setNameError("Numbers not allowed in name");
+                    }
+                  }}
                   onPaste={(e) => {
                     const pasteData = e.clipboardData.getData('text');
-                    if (!/^[A-Za-z\s]*$/.test(pasteData)) {
+                    if (/\d/.test(pasteData)) {
                       e.preventDefault();
-                      setNameError("Cannot paste numbers or special characters");
+                      setNameError("Cannot paste numbers");
                     }
                   }}
                   style={nameError ? invalidInputStyle : inputStyle}
@@ -288,6 +295,11 @@ export default function UpdateEmployeeProfile() {
                   placeholder="Enter Email"
                   value={employee.email}
                   onChange={handleEmailChange}
+                  onBlur={() => {
+                    if (!/^\S+@\S+\.\S+$/.test(employee.email)) {
+                      setEmailError("Please enter a valid email");
+                    }
+                  }}
                   style={emailError ? invalidInputStyle : inputStyle}
                   required
                 />
@@ -306,6 +318,13 @@ export default function UpdateEmployeeProfile() {
                   placeholder="Enter Mobile Number"
                   value={employee.mobile}
                   onChange={handleMobileInput}
+                  onKeyDown={(e) => {
+                    if (!/\d/.test(e.key) && 
+                        !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                      e.preventDefault();
+                      setMobileError("Only numbers allowed");
+                    }
+                  }}
                   onPaste={(e) => {
                     const pasteData = e.clipboardData.getData('text');
                     if (!/^\d+$/.test(pasteData)) {
@@ -323,20 +342,30 @@ export default function UpdateEmployeeProfile() {
               {/* NIC Field */}
               <div className="form-group">
                 <label htmlFor="nic" style={labelStyle}>
-                  NIC
+                  NIC (12 digits with optional V/v)
                 </label>
                 <input
                   type="text"
                   id="nic"
                   name="nic"
-                  placeholder="Enter NIC (9 digits with V/v or 12 digits)"
+                  placeholder="Enter NIC (12 digits with optional V/v)"
                   value={employee.nic}
                   onChange={handleNicInput}
+                  onKeyDown={(e) => {
+                    const currentValue = e.target.value;
+                    const isAtEnd = e.target.selectionStart === currentValue.length;
+                    
+                    if (!/\d/.test(e.key) && 
+                        !(isAtEnd && /[vV]/.test(e.key))) {
+                      e.preventDefault();
+                      setNicError("Only numbers allowed (V/v at end only)");
+                    }
+                  }}
                   onPaste={(e) => {
                     const pasteData = e.clipboardData.getData('text');
-                    if (!/^[0-9vV]+$/.test(pasteData)) {
+                    if (!/^[0-9]{0,12}$|^[0-9]{11}[vV]$/.test(pasteData)) {
                       e.preventDefault();
-                      setNicError("Cannot paste invalid NIC format");
+                      setNicError("Invalid NIC format");
                     }
                   }}
                   maxLength={12}
@@ -358,13 +387,6 @@ export default function UpdateEmployeeProfile() {
                   placeholder="Enter Designation"
                   value={employee.designation}
                   onChange={handleDesignationInput}
-                  onPaste={(e) => {
-                    const pasteData = e.clipboardData.getData('text');
-                    if (!/^[A-Za-z\s]*$/.test(pasteData)) {
-                      e.preventDefault();
-                      setDesignationError("Cannot paste numbers or special characters");
-                    }
-                  }}
                   style={designationError ? invalidInputStyle : inputStyle}
                   required
                 />
@@ -383,6 +405,12 @@ export default function UpdateEmployeeProfile() {
                   placeholder="Enter Basic Salary"
                   value={employee.basicsal}
                   onChange={handleBasicsalInput}
+                  onKeyDown={(e) => {
+                    if (!/\d/.test(e.key)) {
+                      e.preventDefault();
+                      setBasicsalError("Only numbers allowed");
+                    }
+                  }}
                   onPaste={(e) => {
                     const pasteData = e.clipboardData.getData('text');
                     if (!/^\d+$/.test(pasteData)) {
@@ -408,6 +436,12 @@ export default function UpdateEmployeeProfile() {
                   placeholder="Enter Employee ID"
                   value={employee.empid}
                   onChange={handleEmpidInput}
+                  onKeyDown={(e) => {
+                    if (!/\d/.test(e.key)) {
+                      e.preventDefault();
+                      setEmpidError("Only numbers allowed");
+                    }
+                  }}
                   onPaste={(e) => {
                     const pasteData = e.clipboardData.getData('text');
                     if (!/^\d+$/.test(pasteData)) {

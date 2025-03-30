@@ -46,13 +46,14 @@ export default function AddEmployee() {
     }
   };
 
+  // Updated NIC input handler to only allow numbers
   const handleNicInput = (e) => {
     const value = e.target.value;
-    if (/^[0-9vV]*$/.test(value) && (value.length <= 12 && value.length >= 8)) {
+    if (/^\d*$/.test(value) && value.length <= 12) {
       setNic(value);
       setNicError("");
     } else {
-      setNicError("NIC must be 8-12 digits with optional V/v at end");
+      setNicError("NIC must contain only numbers (max 12 digits)");
     }
   };
 
@@ -107,8 +108,9 @@ export default function AddEmployee() {
       isValid = false;
     }
 
-    if (!/^(?:\d{9}[vV]|\d{12})$/.test(nic)) {
-      setNicError("NIC must be 9 digits with V/v or 12 digits");
+    // Updated NIC validation to only check for numbers
+    if (!/^\d{12}$/.test(nic)) {
+      setNicError("NIC must be exactly 12 digits");
       isValid = false;
     }
 
@@ -253,23 +255,29 @@ export default function AddEmployee() {
               {mobileError && <div className="error-message" style={{color: 'red', fontSize: '15px'}}>{mobileError}</div>}
             </div>
 
-            {/* NIC Field */}
+            {/* NIC Field - Updated to only allow numbers */}
             <div className="mb-3">
               <label htmlFor="nic" className="form-label">
-                NIC
+                NIC (Numbers only)
               </label>
               <input
                 type="text"
                 className={`form-control ${nicError ? "is-invalid" : ""}`}
                 id="nic"
-                placeholder="Enter NIC (9 digits with V/v or 12 digits)"
+                placeholder="Enter NIC (12 digits)"
                 value={nic}
                 onChange={handleNicInput}
+                onKeyDown={(e) => {
+                  // Prevent non-numeric input
+                  if (!/[0-9]|Backspace|Delete|ArrowLeft|ArrowRight/.test(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
                 onPaste={(e) => {
                   const pasteData = e.clipboardData.getData('text');
-                  if (!/^[0-9vV]+$/.test(pasteData)) {
+                  if (!/^\d+$/.test(pasteData)) {
                     e.preventDefault();
-                    setNicError("Cannot paste invalid NIC format");
+                    setNicError("Cannot paste non-numeric characters");
                   }
                 }}
                 maxLength={12}
