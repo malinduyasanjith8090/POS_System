@@ -62,7 +62,8 @@ function SideBar() {             // Hover style for navigation items
     borderBottom: '1px solid #333',  // Optional: darker gray border at the bottom for better contrast
   };
 
-  const contentStyle = {
+
+  const contentStyle = {    //// Page content style (beneath the title bar)
     marginTop: '60px',  // Gap between the title bar and content
     padding: '20px',  // Additional padding around the content
   };
