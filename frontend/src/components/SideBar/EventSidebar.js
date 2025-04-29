@@ -21,7 +21,7 @@ function SideBar() {             // Hover style for navigation items
     transition: 'background-color 0.3s ease, color 0.3s ease, transform 0.3s ease',
   };
 
-  const activeStyle = {
+  const activeStyle = {            // Active link style (currently unused in the JSX)
     ...defaultStyle,
     backgroundColor: '#800000',  // Maroon for active
     color: '#fff',
