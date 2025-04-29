@@ -1,21 +1,25 @@
+/* Main container styling */
 .container {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    margin-top: 3rem;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    height: 100%; /* Full height */
+    margin-top: 3rem; /* Top margin */
 }
 
+/* Form container styling */
 .details {
-    width: 28rem;
+    width: 28rem; /* Fixed width */
 }
 
+/* Form layout */
 .details form {
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* Stack form elements vertically */
     justify-content: center;
 }
 
+/* Registration link container */
 .register {
     display: flex;
     justify-content: center;
@@ -24,6 +28,7 @@
     border-radius: 10px;
 }
 
+/* Registration link styling */
 .register a {
     color: rgb(0, 0, 0);
     font-weight: bold;
