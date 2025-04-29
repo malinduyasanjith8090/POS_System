@@ -7,15 +7,32 @@ import dayjs from 'dayjs';
 
 const { Option } = Select;
 
+/**
+ * AddCustomer Component - Form for adding new customers to the system
+ * Features:
+ * - Form validation for all fields
+ * - Real-time room availability checking
+ * - Input restrictions for different field types
+ * - Animated alerts for success/error messages
+ * - Responsive layout
+ */
 const AddCustomer = () => {
+  // Form instance for programmatic control
   const [form] = Form.useForm();
+  
+  // State for alert notification
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
+  
+  // State for room management
   const [availableRooms, setAvailableRooms] = useState([]);
   const [isFetchingRooms, setIsFetchingRooms] = useState(false);
   const [roomType, setRoomType] = useState('');
 
-  // Fetch available rooms whenever roomType changes
+  /**
+   * Effect to fetch available rooms when roomType changes
+   * Automatically resets roomNumber if the selected room becomes unavailable
+   */
   useEffect(() => {
     const fetchAvailableRooms = async () => {
       if (roomType) {
@@ -25,7 +42,8 @@ const AddCustomer = () => {
             params: { roomType: roomType }
           });
           setAvailableRooms(response.data);
-          // Reset roomNumber if it's no longer valid
+          
+          // Reset roomNumber if it's no longer available
           const currentRoomNumber = form.getFieldValue('roomNumber');
           if (currentRoomNumber && !response.data.includes(currentRoomNumber)) {
             form.setFieldsValue({ roomNumber: undefined });
@@ -49,6 +67,10 @@ const AddCustomer = () => {
     fetchAvailableRooms();
   }, [roomType, form]);
 
+  /**
+   * Form submission handler
+   * @param {object} values - Form values
+   */
   const onFinish = async (values) => {
     try {
       // Format the checkInDate to ISO string
@@ -57,19 +79,19 @@ const AddCustomer = () => {
         checkInDate: values.checkInDate.format('YYYY-MM-DD')
       };
 
-      // Optionally, you can first update the room status to "Booked"
+      // First update the room status to "Booked"
       await axios.patch(`http://localhost:5000/room/updateStatus/${formattedValues.roomNumber}`, {
         status: "Booked"
       });
 
-      // Then, add the customer
+      // Then add the customer
       await axios.post("http://localhost:5000/customer/add", formattedValues);
 
       setAlertMessage('Customer Added Successfully');
       setShowAlert(true);
       setTimeout(() => setShowAlert(false), 3000);
       
-      // Reset form
+      // Reset form after successful submission
       form.resetFields();
       setAvailableRooms([]);
       setRoomType('');
@@ -81,26 +103,41 @@ const AddCustomer = () => {
     }
   };
 
+  /**
+   * Form submission error handler
+   * @param {object} errorInfo - Error information
+   */
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
   };
 
+  /**
+   * Handler for room type selection change
+   * @param {string} value - Selected room type
+   */
   const handleRoomTypeChange = (value) => {
     setRoomType(value);
   };
 
-  // Prevent numbers and single character in name input
+  // Input handlers with validation
+
+  /**
+   * Prevents numbers in name input
+   * @param {Event} e - Key press event
+   */
   const handleNameInput = (e) => {
     const charCode = e.which ? e.which : e.keyCode;
-    // Allow only letters and spaces
     if (!(charCode >= 65 && charCode <= 90) && !(charCode >= 97 && charCode <= 122) && charCode !== 32) {
       e.preventDefault();
     }
   };
 
+  /**
+   * Validates name length on change
+   * @param {Event} e - Change event
+   */
   const handleNameChange = (e) => {
     const value = e.target.value;
-    // Prevent single character names
     if (value.length === 1) {
       form.setFields([{
         name: 'name',
@@ -114,54 +151,66 @@ const AddCustomer = () => {
     }
   };
 
-  // Format NIC/Passport input (only numbers and V/v at the end)
+  /**
+   * Restricts NIC/Passport input to numbers and V/v
+   * @param {Event} e - Key press event
+   */
   const handleNICInput = (e) => {
     const charCode = e.which ? e.which : e.keyCode;
-    // Allow only numbers (0-9) and V/v (86, 118)
     if (!(charCode >= 48 && charCode <= 57) && charCode !== 86 && charCode !== 118) {
       e.preventDefault();
     }
   };
 
-  // Prevent numbers in nationality input
+  /**
+   * Prevents numbers in nationality input
+   * @param {Event} e - Key press event
+   */
   const handleNationalityInput = (e) => {
     const charCode = e.which ? e.which : e.keyCode;
-    // Allow only letters and spaces
     if (!(charCode >= 65 && charCode <= 90) && !(charCode >= 97 && charCode <= 122) && charCode !== 32) {
       e.preventDefault();
     }
   };
 
-  // Prevent non-digit input in contact number
+  /**
+   * Restricts contact number input to digits only
+   * @param {Event} e - Key press event
+   */
   const handleContactNumberInput = (e) => {
     const charCode = e.which ? e.which : e.keyCode;
-    // Only allow numbers (0-9)
     if (charCode < 48 || charCode > 57) {
       e.preventDefault();
     }
   };
 
-  // Prevent non-digit input in price field
+  /**
+   * Restricts price input to numbers and decimal point
+   * @param {Event} e - Key press event
+   */
   const handlePriceInput = (e) => {
     const charCode = e.which ? e.which : e.keyCode;
-    // Allow numbers (0-9), decimal point (46), and backspace (8)
     if (!(charCode >= 48 && charCode <= 57) && charCode !== 46 && charCode !== 8) {
       e.preventDefault();
     }
   };
 
-  // Custom validation for NIC/Passport
+  // Custom validation functions
+
+  /**
+   * Validates NIC/Passport format
+   * @param {object} _ - Rule object
+   * @param {string} value - Input value
+   */
   const validateNIC = (_, value) => {
     if (!value) {
       return Promise.reject(new Error('Please input NIC/Passport number!'));
     }
     
-    // Check length (8-12 characters)
     if (value.length < 8 || value.length > 12) {
       return Promise.reject(new Error('NIC must be between 8-12 characters!'));
     }
     
-    // Check if it contains only digits or ends with V/v
     if (!/^[0-9]+$/.test(value) && !/^[0-9]+[Vv]$/.test(value)) {
       return Promise.reject(new Error('NIC can only contain numbers or end with V/v!'));
     }
@@ -169,7 +218,11 @@ const AddCustomer = () => {
     return Promise.resolve();
   };
 
-  // Custom validation for price
+  /**
+   * Validates price input
+   * @param {object} _ - Rule object
+   * @param {string} value - Input value
+   */
   const validatePrice = (_, value) => {
     if (!value) {
       return Promise.reject(new Error('Please input the price!'));
@@ -186,7 +239,11 @@ const AddCustomer = () => {
     return Promise.resolve();
   };
 
-  // Custom validation for name (minimum one word and at least 2 characters)
+  /**
+   * Validates name input
+   * @param {object} _ - Rule object
+   * @param {string} value - Input value
+   */
   const validateName = (_, value) => {
     if (!value) {
       return Promise.reject(new Error('Please input the customer name!'));
@@ -207,7 +264,11 @@ const AddCustomer = () => {
     return Promise.resolve();
   };
 
-  // Custom validation for contact number
+  /**
+   * Validates contact number format
+   * @param {object} _ - Rule object
+   * @param {string} value - Input value
+   */
   const validateContactNumber = (_, value) => {
     if (!value) {
       return Promise.reject(new Error('Please input the contact number!'));
@@ -222,9 +283,14 @@ const AddCustomer = () => {
 
   return (
     <>
+      {/* Sidebar navigation */}
       <SideBar />
+      
+      {/* Main form container */}
       <div style={formContainerStyle}>
         <h2>Add Customer</h2>
+        
+        {/* Customer form */}
         <Form
           form={form}
           name="addCustomer"
@@ -232,9 +298,11 @@ const AddCustomer = () => {
           onFinishFailed={onFinishFailed}
           layout="vertical"
         >
+          {/* Two-column layout */}
           <Row gutter={16}>
-            {/* Left Column */}
+            {/* Left column fields */}
             <Col span={12}>
+              {/* Name field */}
               <Form.Item
                 name="name"
                 label="Name"
@@ -254,6 +322,7 @@ const AddCustomer = () => {
                 />
               </Form.Item>
 
+              {/* Contact number field */}
               <Form.Item
                 name="contactNumber"
                 label="Contact Number"
@@ -273,20 +342,19 @@ const AddCustomer = () => {
                 />
               </Form.Item>
 
+              {/* Email field */}
               <Form.Item
                 name="email"
                 label="Email"
                 rules={[
                   { required: true, message: "Please input the email!" },
-                  {
-                    type: 'email',
-                    message: 'Please enter a valid email!',
-                  },
+                  { type: 'email', message: 'Please enter a valid email!' },
                 ]}
               >
                 <Input />
               </Form.Item>
 
+              {/* Gender selection */}
               <Form.Item
                 name="gender"
                 label="Gender"
@@ -299,6 +367,7 @@ const AddCustomer = () => {
                 </Select>
               </Form.Item>
 
+              {/* Nationality field */}
               <Form.Item
                 name="nationality"
                 label="Nationality"
@@ -324,8 +393,9 @@ const AddCustomer = () => {
               </Form.Item>
             </Col>
 
-            {/* Right Column */}
+            {/* Right column fields */}
             <Col span={12}>
+              {/* Address field */}
               <Form.Item
                 name="address"
                 label="Address"
@@ -334,6 +404,7 @@ const AddCustomer = () => {
                 <Input />
               </Form.Item>
 
+              {/* NIC/Passport field */}
               <Form.Item
                 name="nicPassport"
                 label="NIC/Passport Number"
@@ -353,6 +424,7 @@ const AddCustomer = () => {
                 />
               </Form.Item>
 
+              {/* Check-in date picker */}
               <Form.Item
                 name="checkInDate"
                 label="Check-In Date"
@@ -364,6 +436,7 @@ const AddCustomer = () => {
                 />
               </Form.Item>
 
+              {/* Price field */}
               <Form.Item
                 name="price"
                 label="Price"
@@ -385,6 +458,7 @@ const AddCustomer = () => {
                 />
               </Form.Item>
 
+              {/* Room type selection */}
               <Form.Item
                 name="roomType"
                 label="Room Type"
@@ -402,6 +476,7 @@ const AddCustomer = () => {
                 </Select>
               </Form.Item>
 
+              {/* Room number selection (dynamic based on room type) */}
               <Form.Item
                 name="roomNumber"
                 label="Room Number"
@@ -428,6 +503,7 @@ const AddCustomer = () => {
             </Col>
           </Row>
 
+          {/* Submit button */}
           <Form.Item>
             <Button 
               type="primary" 
@@ -439,6 +515,7 @@ const AddCustomer = () => {
           </Form.Item>
         </Form>
 
+        {/* Animated alert notification */}
         <AnimatePresence>
           {showAlert && (
             <motion.div
@@ -456,7 +533,7 @@ const AddCustomer = () => {
   );
 };
 
-// Styles
+// Style definitions
 const formContainerStyle = {
   maxWidth: '800px',
   padding: '20px',
