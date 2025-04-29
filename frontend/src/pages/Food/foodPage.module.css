@@ -1,3 +1,4 @@
+/* Main container styling */
 .container {
     display: flex;
     justify-content: center;
@@ -6,11 +7,13 @@
     margin: 3rem;
 }
 
+/* Child element sizing constraints */
 .container>* {
     min-width: 25rem;
     max-width: 40rem;
 }
 
+/* Food image styling */
 .image {
     border-radius: 3rem;
     flex: 1 0;
@@ -19,6 +22,7 @@
     margin: 1rem;
 }
 
+/* Details section styling */
 .details {
     width: 100%;
     display: flex;
@@ -30,31 +34,37 @@
     margin-left: 1rem;
 }
 
+/* Header section (name + favorite) */
 .header {
     display: flex;
     justify-content: space-between;
 }
 
+/* Food name styling */
 .name {
     font-size: 2rem;
     font-weight: bold;
 }
 
+/* Favorite icon styling */
 .favorite {
     color: #e72929;
     font-size: 2.5rem;
 }
 
+/* Non-favorite state */
 .favorite.not {
     color: gray;
 }
 
+/* Origins tags container */
 .origins {
     display: flex;
     flex-wrap: wrap;
     margin: 0.7rem 0;
 }
 
+/* Individual origin tag */
 .origins>span {
     padding: 0.5rem;
     font-size: 1.2rem;
@@ -63,22 +73,25 @@
     background-color: aliceblue;
 }
 
+/* Cooking time section */
 .cook_time {
     margin-top: 1rem;
 }
 
-.cook_time {
+.cook_time span {
     padding: 0.6rem 2rem 0.6rem 0;
     border-radius: 10rem;
     font-size: 1.3rem;
 }
 
+/* Price styling */
 .price {
     font-size: 1.8rem;
     margin: 2rem 2rem 2rem 0;
     color: green;
 }
 
+/* Add to cart button */
 .container button {
     color: white;
     background-color: #e72929;
@@ -89,6 +102,7 @@
     padding: 1rem;
 }
 
+/* Button hover effect */
 .container button:hover {
     cursor: pointer;
     opacity: 0.9;
