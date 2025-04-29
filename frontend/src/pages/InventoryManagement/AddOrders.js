@@ -210,7 +210,7 @@ export default function AddOrders() {
             `}
           </style>
           <h1 style={{ textAlign: "center", fontSize: 32 }}>Add Order Details</h1>
-
+          
           <form onSubmit={sendData}>
             <div className="form-group">
               <label htmlFor="Name" className="form-label">
