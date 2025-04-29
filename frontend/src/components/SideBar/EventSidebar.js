@@ -2,14 +2,15 @@ import React from "react";
 import { Link } from "react-router-dom";
 import logo from '../../images/company.png'
 
-function SideBar() {
+
+function SideBar() {             // Hover style for navigation items
   const hoverStyle = {
     backgroundColor: '#b30000',  // Darker red for hover
     color: '#fff',
     transform: 'scale(1.05)',
   };
 
-  const defaultStyle = {
+  const defaultStyle = {         // Default link style for sidebar items
     display: 'block',
     padding: '15px',
     marginBottom: '10px',
