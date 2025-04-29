@@ -3,13 +3,13 @@ import { Link } from "react-router-dom";
 import logo from '../../images/company.png'
 
 function SideBar() {
-  const hoverStyle = {
+  const hoverStyle = {       // Style applied when a link is hovered
     backgroundColor: '#b30000',  // Darker red for hover
     color: '#fff',
     transform: 'scale(1.05)',
   };
 
-  const defaultStyle = {
+  const defaultStyle = {    // Default style for all sidebar links
     display: 'block',
     padding: '15px',
     marginBottom: '10px',
@@ -20,13 +20,13 @@ function SideBar() {
     transition: 'background-color 0.3s ease, color 0.3s ease, transform 0.3s ease',
   };
 
-  const activeStyle = {
+  const activeStyle = {  // Style to indicate an active link (not currently in use)
     ...defaultStyle,
     backgroundColor: '#800000',  // Maroon for active
     color: '#fff',
   };
 
-  const disabledStyle = {
+  const disabledStyle = {       //Style for disabled link (currently not used)
     ...defaultStyle,
     backgroundColor: '#666666',  // Medium gray for disabled
     color: '#ccc',  // Light gray text for disabled
@@ -34,7 +34,7 @@ function SideBar() {
     cursor: 'not-allowed',
   };
 
-  const logoStyle = {
+  const logoStyle = {      // Style for the sidebar logo text
     color: '#fff',
     textAlign: 'center',  // Center align text
     lineHeight: '1.5',
@@ -42,28 +42,28 @@ function SideBar() {
     fontSize: '1.5em',  // Increased text size
   };
 
-  const redTextStyle = {
+  const redTextStyle = {   // Red colored large "POS" text in logo
     color: 'red',
     fontSize: '2.5em',  // Larger text size for better visibility
   };
 
-  const titleBarStyle = {
+  const titleBarStyle = {   // Title bar style at the top of the page
     backgroundColor: '#1a1a1a',  // Match sidebar color
     padding: '10px',  // Increased padding for better appearance
     margin: 0,
-    width: 'calc(100% - 250px)',  // Full width minus sidebar width
+    width: 'calc(100% - 250px)',        // Full width minus sidebar width
     position: 'fixed',
-    top: 0,  // Align with the top of the viewport
-    left: '250px',  // Position to the right of the sidebar
+    top: 0,                             // Align with the top of the viewport
+    left: '250px',                      // Position to the right of the sidebar
     boxSizing: 'border-box',
-    textAlign: 'center',  // Center the title text
-    color: '#fff',  // White text for contrast on dark background
-    borderBottom: '1px solid #333',  // Optional: darker gray border at the bottom for better contrast
+    textAlign: 'center',               // Center the title text
+    color: '#fff',                    // White text for contrast on dark background
+    borderBottom: '1px solid #333',   // Optional: darker gray border at the bottom for better contrast
   };
 
   const contentStyle = {
-    marginTop: '60px',  // Gap between the title bar and content
-    padding: '20px',  // Additional padding around the content
+    marginTop: '60px',              // Gap between the title bar and content
+    padding: '20px',                // Additional padding around the content
   };
 
   return (

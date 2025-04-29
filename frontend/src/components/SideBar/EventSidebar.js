@@ -7,8 +7,9 @@ function SideBar() {             // Hover style for navigation items
   const hoverStyle = {
     backgroundColor: '#b30000',  // Darker red for hover
     color: '#fff',
-    transform: 'scale(1.05)',
+    transform: 'scale(1.05)',   
   };
+  
 
   const defaultStyle = {         // Default link style for sidebar items
     display: 'block',
@@ -48,7 +49,7 @@ function SideBar() {             // Hover style for navigation items
     fontSize: '2.5em',  // Larger text size for better visibility
   };
 
-  const titleBarStyle = {
+  const titleBarStyle = {         // // Top title bar style (header next to sidebar)
     backgroundColor: '#1a1a1a',  // Match sidebar color
     padding: '10px',  // Increased padding for better appearance
     margin: 0,
@@ -62,7 +63,8 @@ function SideBar() {             // Hover style for navigation items
     borderBottom: '1px solid #333',  // Optional: darker gray border at the bottom for better contrast
   };
 
-  const contentStyle = {
+
+  const contentStyle = {    //// Page content style (beneath the title bar)
     marginTop: '60px',  // Gap between the title bar and content
     padding: '20px',  // Additional padding around the content
   };
