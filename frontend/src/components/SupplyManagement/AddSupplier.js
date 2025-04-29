@@ -212,7 +212,7 @@ const AddSupplier = () => {
         setShowAlert(true);
         setTimeout(() => setShowAlert(false), 3000);
         
-        // Reset form
+        // Reset form inputs
         setSupplierData({
           supplyId: "",
           supplierName: "",
