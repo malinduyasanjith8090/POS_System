@@ -12,7 +12,7 @@ const AddManager = () => {
     department: "",
     contactNo: "",
   });
-
+  //add alerts update
   const [errors, setErrors] = useState({});
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
