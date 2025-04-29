@@ -6,22 +6,47 @@ import { Form, Input, Select, Button, Row, Col } from 'antd';
 
 const { Option } = Select;
 
+/**
+ * AddRoom Component - Form for adding new rooms to the system
+ * Features:
+ * - Form validation for all fields
+ * - Input restrictions for different field types
+ * - Animated alerts for success/error messages
+ * - Two-column responsive layout
+ * - Loading state during submission
+ */
 const AddRoom = () => {
+  // Form instance for programmatic control
   const [form] = Form.useForm();
+  
+  // State for alert notification
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
+  
+  // State for submission loading
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  /**
+   * Form submission handler
+   * @param {object} values - Form values
+   */
   const onFinish = async (values) => {
     setIsSubmitting(true);
     try {
+      // Send room data to server
       await axios.post("http://localhost:5000/room/add", values);
+      
+      // Show success alert
       setAlertMessage('Room Added Successfully');
       setShowAlert(true);
       setTimeout(() => setShowAlert(false), 3000);
+      
+      // Reset form fields
       form.resetFields();
     } catch (err) {
       console.error(err);
+      
+      // Show error alert
       setAlertMessage('Error Adding Room');
       setShowAlert(true);
       setTimeout(() => setShowAlert(false), 3000);
@@ -30,11 +55,20 @@ const AddRoom = () => {
     }
   };
 
+  /**
+   * Form submission error handler
+   * @param {object} errorInfo - Error information
+   */
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
   };
 
-  // Prevent non-numeric input in price field
+  // Input handlers with validation
+
+  /**
+   * Prevents non-numeric input in price field
+   * @param {Event} e - Key press event
+   */
   const handlePriceInput = (e) => {
     const charCode = e.which ? e.which : e.keyCode;
     // Allow numbers (0-9), decimal point (46), and backspace (8)
@@ -43,7 +77,10 @@ const AddRoom = () => {
     }
   };
 
-  // Prevent non-numeric input in room number field
+  /**
+   * Prevents non-numeric input in room number field
+   * @param {Event} e - Key press event
+   */
   const handleRoomNumberInput = (e) => {
     const charCode = e.which ? e.which : e.keyCode;
     // Only allow numbers (0-9) and backspace (8)
@@ -52,7 +89,10 @@ const AddRoom = () => {
     }
   };
 
-  // Prevent numeric input in facilities field
+  /**
+   * Prevents numeric input in facilities field
+   * @param {Event} e - Key press event
+   */
   const handleFacilitiesInput = (e) => {
     const charCode = e.which ? e.which : e.keyCode;
     // Allow letters (a-z, A-Z), spaces (32), commas (44), and backspace (8)
@@ -65,7 +105,13 @@ const AddRoom = () => {
     }
   };
 
-  // Custom validation for price
+  // Custom validation functions
+
+  /**
+   * Validates price input
+   * @param {object} _ - Rule object
+   * @param {string} value - Input value
+   */
   const validatePrice = (_, value) => {
     if (!value) {
       return Promise.reject('Price is required');
@@ -76,7 +122,11 @@ const AddRoom = () => {
     return Promise.resolve();
   };
 
-  // Custom validation for room number
+  /**
+   * Validates room number input
+   * @param {object} _ - Rule object
+   * @param {string} value - Input value
+   */
   const validateRoomNumber = (_, value) => {
     if (!value) {
       return Promise.reject('Room number is required');
@@ -87,7 +137,11 @@ const AddRoom = () => {
     return Promise.resolve();
   };
 
-  // Custom validation for facilities
+  /**
+   * Validates facilities input
+   * @param {object} _ - Rule object
+   * @param {string} value - Input value
+   */
   const validateFacilities = (_, value) => {
     if (!value) {
       return Promise.reject('Facilities are required');
@@ -100,9 +154,14 @@ const AddRoom = () => {
 
   return (
     <>
+      {/* Sidebar navigation */}
       <SideBar/>
+      
+      {/* Main form container */}
       <div style={formContainerStyle}>
         <h2>Add Room</h2>
+        
+        {/* Room form */}
         <Form
           form={form}
           name="addRoom"
@@ -110,9 +169,11 @@ const AddRoom = () => {
           onFinishFailed={onFinishFailed}
           layout="vertical"
         >
+          {/* Two-column layout */}
           <Row gutter={16}>
-            {/* Left Column */}
+            {/* Left column fields */}
             <Col span={12}>
+              {/* Room type selection */}
               <Form.Item
                 name="roomType"
                 label="Room Type"
@@ -127,6 +188,7 @@ const AddRoom = () => {
                 </Select>
               </Form.Item>
 
+              {/* Price input */}
               <Form.Item
                 name="price"
                 label="Price"
@@ -146,6 +208,7 @@ const AddRoom = () => {
                 />
               </Form.Item>
 
+              {/* Room number input */}
               <Form.Item
                 name="roomNumber"
                 label="Room Number"
@@ -165,8 +228,9 @@ const AddRoom = () => {
               </Form.Item>
             </Col>
 
-            {/* Right Column */}
+            {/* Right column fields */}
             <Col span={12}>
+              {/* Facilities input */}
               <Form.Item
                 name="facilities"
                 label="Facilities (comma-separated)"
@@ -183,6 +247,7 @@ const AddRoom = () => {
                 />
               </Form.Item>
 
+              {/* Bed type selection */}
               <Form.Item
                 name="bedType"
                 label="Bed Type"
@@ -194,6 +259,7 @@ const AddRoom = () => {
                 </Select>
               </Form.Item>
 
+              {/* Status selection */}
               <Form.Item
                 name="status"
                 label="Status"
@@ -208,6 +274,7 @@ const AddRoom = () => {
             </Col>
           </Row>
 
+          {/* Submit button */}
           <Form.Item>
             <Button 
               type="primary" 
@@ -220,6 +287,7 @@ const AddRoom = () => {
           </Form.Item>
         </Form>
 
+        {/* Animated alert notification */}
         <AnimatePresence>
           {showAlert && (
             <motion.div
@@ -237,7 +305,7 @@ const AddRoom = () => {
   );
 };
 
-// Styles
+// Style definitions
 const formContainerStyle = {
   maxWidth: '800px',
   padding: '20px',
