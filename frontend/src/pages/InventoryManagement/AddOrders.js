@@ -153,7 +153,7 @@ export default function AddOrders() {
             borderRadius: "10px",
             boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
             border: "1px solid black"
-          }}
+          }} //add style for add order
         >
           <style>
             {`
