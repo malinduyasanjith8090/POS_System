@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import logo from '../../images/company.png'
 
 function SideBar() {
-  const hoverStyle = {
+  const hoverStyle = {       //// Style applied when a link is hovered
     backgroundColor: '#b30000',  // Darker red for hover
     color: '#fff',
     transform: 'scale(1.05)',
