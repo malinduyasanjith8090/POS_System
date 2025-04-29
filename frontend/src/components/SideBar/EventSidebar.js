@@ -9,6 +9,7 @@ function SideBar() {             // Hover style for navigation items
     color: '#fff',
     transform: 'scale(1.05)',   
   };
+  
 
   const defaultStyle = {         // Default link style for sidebar items
     display: 'block',
