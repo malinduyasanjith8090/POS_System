@@ -1,4 +1,6 @@
+/* Cart page styles */
 .container {
+    /* Flex layout for responsive design */
     display: flex;
     flex-wrap: wrap;
     align-items: flex-start;
@@ -6,10 +8,11 @@
     margin-top: 0.5rem;
 }
 
+/* Styling for the cart items list */
 .list {
     display: flex;
     flex-direction: column;
-    flex: 3 0;
+    flex: 3 0; /* Takes 3 parts of available space */
     justify-content: space-evenly;
     border: 1px solid red;
     border-radius: 1rem;
@@ -18,62 +21,71 @@
     padding: 0;
 }
 
+/* Individual cart item styling */
 .list li {
     display: flex;
     justify-content: space-around;
     align-items: center;
     flex-wrap: wrap;
-    border-bottom: 1px solid #e4e4e4;
+    border-bottom: 1px solid #e4e4e4; /* Divider between items */
 }
 
+/* Remove border from last item */
 .list li:last-child {
     border: none;
 }
 
+/* Food image styling */
 .list li img {
     width: 5rem;
     height: 5rem;
-    border-radius: 100rem;
-    object-fit: cover;
+    border-radius: 100rem; /* Circular image */
+    object-fit: cover; /* Ensure image covers space */
 }
 
+/* General padding for list items */
 .list li div {
     padding: 1rem;
 }
 
+/* Specific width for non-image elements */
 .list li div:not(:first-child) {
     flex-basis: 18%;
 }
 
+/* Quantity selector styling */
 .list li select {
     width: 3rem;
     outline: none;
     border: none;
-    border-bottom: 1px solid lightgrey;
+    border-bottom: 1px solid lightgrey; /* Underline style */
     font-size: 1.1rem;
     font-weight: 100;
 }
 
+/* Remove button styling */
 .list .remove_button {
     border-radius: 1rem;
     border: none;
     padding: 0.5rem;
-    color: #e72929;
+    color: #e72929; /* Red color for remove action */
     opacity: 0.7;
     outline: none;
 }
 
+/* Hover effect for remove button */
 .list .remove_button:hover {
     opacity: 1;
     cursor: pointer;
 }
 
+/* Checkout section styling */
 .checkout {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    flex: 1 3;
+    flex: 1 3; /* Takes 1 part of available space */
     height: 20rem;
     border: 1px solid red;
     border-radius: 1rem;
@@ -81,6 +93,7 @@
     margin: 0.5rem;
 }
 
+/* Checkout content container */
 .checkout>div {
     font-size: 1.4rem;
     margin: 1rem;
@@ -91,24 +104,28 @@
     align-items: flex-start;
 }
 
+/* Food count styling */
 .checkout .foods_count {
     margin-bottom: 1.5rem;
 }
 
+/* Pseudo-element for count label */
 .checkout .foods_count::before {
     content: 'Count: ';
     color: grey;
 }
 
+/* Pseudo-element for price label */
 .checkout .total_price::before {
     content: 'Price: ';
     color: grey;
 }
 
+/* Checkout button styling */
 .checkout a {
     padding: 1rem;
     color: white;
-    background: #e72929;
+    background: #e72929; /* Red background */
     display: block;
     width: 99%;
     border-radius: 1rem;
@@ -116,6 +133,7 @@
     justify-self: center;
 }
 
+/* Checkout button hover effect */
 .checkout a:hover {
     opacity: 0.8;
     cursor: pointer;
