@@ -26,7 +26,7 @@ export default function AddOrders() {
         console.error("Error fetching orders:", error);
       });
   };
-
+// use effect update
   useEffect(() => {
     fetchOrders();
   }, []);
