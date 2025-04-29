@@ -42,7 +42,7 @@ function SideBar() {
     fontSize: '1.5em',  // Increased text size
   };
 
-  const redTextStyle = {
+  const redTextStyle = {   // Red colored large "POS" text in logo
     color: 'red',
     fontSize: '2.5em',  // Larger text size for better visibility
   };
