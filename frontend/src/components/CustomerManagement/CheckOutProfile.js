@@ -6,20 +6,35 @@ import jsPDF from "jspdf";
 import SideBar from "../SideBar/CustomerSideBar";
 import dayjs from 'dayjs';
 
+/**
+ * CheckOutProfile Component - Displays detailed customer information for checkout
+ * Features:
+ * - View complete customer details
+ * - Print receipt functionality
+ * - Export receipt as PDF
+ * - Confirm checkout with dialog confirmation
+ * - Animated alerts for success/error messages
+ */
 export default function CheckOutProfile() {
-  const [customer, setCustomer] = useState(null);
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const { id } = useParams();
-  const navigate = useNavigate();
+  // State management
+  const [customer, setCustomer] = useState(null); // Stores current customer data
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false); // Controls confirmation dialog visibility
+  const [showAlert, setShowAlert] = useState(false); // Controls alert visibility
+  const [alertMessage, setAlertMessage] = useState(""); // Stores alert message
 
+  // Router hooks
+  const { id } = useParams(); // Gets customer ID from URL
+  const navigate = useNavigate(); // Navigation function
+
+  /**
+   * Fetches customer data on component mount
+   */
   useEffect(() => {
     axios
       .get(`http://localhost:5000/customer/get/${id}`)
       .then((res) => {
         const customerData = res.data.customer;
-        // Format dates if they exist
+        // Format check-in date if it exists
         if (customerData.checkInDate) {
           customerData.formattedCheckInDate = dayjs(customerData.checkInDate).format('YYYY-MM-DD');
         }
@@ -28,10 +43,14 @@ export default function CheckOutProfile() {
       .catch((err) => alert(err.message));
   }, [id]);
 
+  /**
+   * Handles printing the receipt
+   */
   const handlePrint = () => {
     const printContents = document.getElementById("printable-container").innerHTML;
     const originalContents = document.body.innerHTML;
 
+    // Create print-specific styles
     const printStyle = `
       @media print {
         body * {
@@ -53,17 +72,22 @@ export default function CheckOutProfile() {
       }
     `;
 
+    // Apply print styles
     const styleSheet = document.createElement("style");
     styleSheet.type = "text/css";
     styleSheet.innerText = printStyle;
     document.head.appendChild(styleSheet);
 
+    // Print and restore original content
     document.body.innerHTML = printContents;
     window.print();
     document.body.innerHTML = originalContents;
     window.location.reload();
   };
 
+  /**
+   * Generates and downloads a PDF receipt
+   */
   const handleExportPDF = () => {
     const doc = new jsPDF();
     let yPosition = 20;
@@ -99,13 +123,20 @@ export default function CheckOutProfile() {
     yPosition += 10;
     doc.text("Cinnamon Red Colombo", 105, yPosition, { align: "center" });
 
+    // Save PDF
     doc.save(`checkout-receipt-${customer?.name || 'customer'}.pdf`);
   };
 
+  /**
+   * Initiates checkout process
+   */
   const handleCheckOut = () => {
     setShowConfirmDialog(true);
   };
 
+  /**
+   * Confirms and processes checkout
+   */
   const confirmCheckOut = () => {
     axios
       .delete(`http://localhost:5000/customer/delete/${id}`)
@@ -125,10 +156,14 @@ export default function CheckOutProfile() {
     setShowConfirmDialog(false);
   };
 
+  /**
+   * Cancels checkout process
+   */
   const cancelCheckOut = () => {
     setShowConfirmDialog(false);
   };
 
+  // Customer details configuration for rendering
   const details = [
     { label: "Name", value: customer?.name },
     { label: "Contact Number", value: customer?.contactNumber },
@@ -145,10 +180,14 @@ export default function CheckOutProfile() {
 
   return (
     <>
+      {/* Sidebar navigation */}
       <SideBar/>
+      
+      {/* Main content container */}
       <div style={{ padding: "50px", width: "calc(100% - 250px)", boxSizing: "border-box", marginLeft: "250px" }}>
         <h1 style={{ textAlign: "left" }}>Customer Check-Out</h1>
         
+        {/* Customer details section */}
         {customer ? (
           <div id="printable-container" style={containerStyle}>
             <div style={profileContainerStyle}>
@@ -163,10 +202,10 @@ export default function CheckOutProfile() {
               </div>
             </div>
 
+            {/* Action buttons (hidden when printing) */}
             <div style={buttonContainerStyle} className="no-print">
-              
-              <button onClick={handleExportPDF} style={buttonStyle}>
-              Print Receipt
+              <button onClick={handlePrint} style={buttonStyle}>
+                Print Receipt
               </button>
               <button onClick={handleCheckOut} style={checkOutButtonStyle}>
                 Confirm Check-Out
@@ -177,7 +216,7 @@ export default function CheckOutProfile() {
           <p>Loading customer data...</p>
         )}
 
-        {/* Confirmation Dialog */}
+        {/* Checkout confirmation dialog */}
         {showConfirmDialog && (
           <div style={dialogOverlayStyle}>
             <div style={dialogStyle}>
@@ -195,7 +234,7 @@ export default function CheckOutProfile() {
           </div>
         )}
 
-        {/* Alert Notification */}
+        {/* Alert notification (animated) */}
         <AnimatePresence>
           {showAlert && (
             <motion.div
