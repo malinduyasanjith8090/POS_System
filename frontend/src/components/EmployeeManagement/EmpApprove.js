@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios"; // Import axios for making requests
+import axios from "axios";
 import SideBar from "../SideBar/EmployeeSideBar copy";
 
 export default function EmpApprove() {
+  // Get employee ID from URL parameters
   const { id } = useParams();
+  // State for employee data
   const [employee, setEmployee] = useState(null);
-  const [leaves, setLeaves] = useState([]); // State to hold leave data
-  const [loading, setLoading] = useState(true); // State to manage loading status
+  // State for leave data
+  const [leaves, setLeaves] = useState([]);
+  // State for loading status
+  const [loading, setLoading] = useState(true);
 
+  // Fetch employee and leave data when component mounts
   useEffect(() => {
     // Retrieve employee data from sessionStorage
     const storedEmployee = JSON.parse(sessionStorage.getItem('employee'));
@@ -17,21 +22,22 @@ export default function EmpApprove() {
     if (storedEmployee) {
       setEmployee(storedEmployee);
       
-      // Fetch leave requests from the backend for the employee's email
+      // Fetch leave requests for the employee
       axios.get(`http://localhost:5000/leave?email=${storedEmployee.email}`)
         .then((res) => {
-          setLeaves(res.data); // Set the fetched leave data
-          setLoading(false); // Set loading to false when data is fetched
+          setLeaves(res.data);
+          setLoading(false);
         })
         .catch((err) => {
           console.error(err);
           setLoading(false);
         });
     } else {
-      setLoading(false); // In case employee data is not found
+      setLoading(false);
     }
   }, [id]);
 
+  // Style definitions
   const containerStyle = {
     padding: "50px",
     marginLeft: "250px",
@@ -60,6 +66,7 @@ export default function EmpApprove() {
       <SideBar />
       <div style={containerStyle}>
         <h1>Employee Profile</h1>
+        {/* Display employee profile */}
         {employee ? (
           <table style={tableStyle}>
             <thead>
@@ -100,6 +107,7 @@ export default function EmpApprove() {
         )}
 
         <h2>Leave Requests</h2>
+        {/* Display leave requests */}
         {loading ? (
           <p>Loading leave requests...</p>
         ) : (
@@ -113,11 +121,13 @@ export default function EmpApprove() {
               </tr>
             </thead>
             <tbody>
+              {/* Show "No leave requests" message if empty */}
               {leaves.length === 0 ? (
                 <tr>
                   <td colSpan="4" style={tdStyle}>No leave requests found</td>
                 </tr>
               ) : (
+                // Display leave requests
                 leaves.map((leave) => (
                   <tr key={leave._id}>
                     <td style={tdStyle}>{new Date(leave.startdate).toLocaleDateString()}</td>
