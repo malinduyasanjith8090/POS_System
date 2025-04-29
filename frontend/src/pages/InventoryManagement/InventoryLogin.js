@@ -31,7 +31,7 @@ const Login = () => {
     color: '#fff',  // White text for contrast on dark background
     borderBottom: '1px solid #333',  // Optional: darker gray border at the bottom for better contrast
   };
-
+  // update inventory page login
 
   return (
     <div>
