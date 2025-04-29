@@ -34,7 +34,7 @@ function SideBar() {
     cursor: 'not-allowed',
   };
 
-  const logoStyle = {
+  const logoStyle = {      // Style for the sidebar logo text
     color: '#fff',
     textAlign: 'center',  // Center align text
     lineHeight: '1.5',
