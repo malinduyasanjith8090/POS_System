@@ -6,7 +6,7 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import UpdateItems from "../InventoryManagement/UpdateItems"; // Ensure the path is correct
 import logo from "../images/company.png"
-import SideBar from "../../components/SideBar/InventoryManagementSidebar";
+import SideBar from "../../components/SideBar/InventoryManagementSidebar"; //that path is correct
 
 const Modal = ({ isOpen, onClose, onConfirm }) => {
   if (!isOpen) return null;
@@ -124,7 +124,7 @@ export default function StockManage() {
       setLoading(false);
     }
   };
-
+  //sets order items
   const openDeleteModal = (itemId) => {
     setItemIdToDelete(itemId); // Set the item ID to delete
     setIsModalOpen(true); // Open the modal
@@ -234,7 +234,7 @@ export default function StockManage() {
     doc.save("stock_report.pdf");
   };
 
-
+  // slide bar added
   return (
     <>
       <SideBar/>
@@ -313,7 +313,7 @@ export default function StockManage() {
   );
 }
 
-// Styles for the components
+// Styles for a components
 const containerStyle = {
   padding: "20px",
   boxSizing: "border-box",
@@ -370,7 +370,7 @@ const deleteButtonStyle = {
   padding: "5px 10px",
   borderRadius: "5px",
 };
-
+//update button in components
 const generateButtonWrapperStyle = {
   display: "flex",
   justifyContent: "center",
