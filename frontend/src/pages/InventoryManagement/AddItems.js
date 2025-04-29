@@ -74,7 +74,7 @@ export default function AddItems({ onItemAdded }) {
         }));
       }
     }
-
+    // Real-time validation for In Date
     if (field === "date") {
       if (!date) {
         setErrors((prevErrors) => ({
