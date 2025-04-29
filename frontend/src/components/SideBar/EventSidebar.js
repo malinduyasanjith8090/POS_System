@@ -21,13 +21,13 @@ function SideBar() {             // Hover style for navigation items
     transition: 'background-color 0.3s ease, color 0.3s ease, transform 0.3s ease',
   };
 
-  const activeStyle = {
+  const activeStyle = {            // Active link style (currently unused in the JSX)
     ...defaultStyle,
     backgroundColor: '#800000',  // Maroon for active
     color: '#fff',
   };
 
-  const disabledStyle = {
+  const disabledStyle = {        // Disabled link style (currently unused in the JSX)
     ...defaultStyle,
     backgroundColor: '#666666',  // Medium gray for disabled
     color: '#ccc',  // Light gray text for disabled
@@ -35,7 +35,7 @@ function SideBar() {             // Hover style for navigation items
     cursor: 'not-allowed',
   };
 
-  const logoStyle = {
+  const logoStyle = {             // Styling for the sidebar logo/text
     color: '#fff',
     textAlign: 'center',  // Center align text
     lineHeight: '1.5',
@@ -43,7 +43,7 @@ function SideBar() {             // Hover style for navigation items
     fontSize: '1.5em',  // Increased text size
   };
 
-  const redTextStyle = {
+  const redTextStyle = {     // Style specifically for red text ("POS")
     color: 'red',
     fontSize: '2.5em',  // Larger text size for better visibility
   };
