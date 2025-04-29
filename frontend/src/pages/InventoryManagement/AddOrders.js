@@ -78,7 +78,7 @@ export default function AddOrders() {
     setErrors(formErrors);
     return valid;
   }
-
+  // function edits
   function sendData(e) {
     e.preventDefault();
 
