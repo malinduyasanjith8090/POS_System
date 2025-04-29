@@ -1,27 +1,31 @@
+/* Main container styling */
 .container {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    flex-direction: column; /* Stack children vertically */
 }
 
+/* Shared max-width for status tabs and order summaries */
 .all_status,
 .order_summary {
     max-width: 45rem;
     width: 100%;
 }
 
+/* Status filter tabs container */
 .all_status {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-around; /* Evenly space tabs */
     align-items: center;
     height: 3rem;
     border: 1px solid whitesmoke;
     font-size: 1.1rem;
     margin-top: 1rem;
-    border-radius: 1rem;
+    border-radius: 1rem; /* Rounded corners */
 }
 
+/* Individual status tab styling */
 .all_status a {
     color: grey;
     width: 100%;
@@ -32,6 +36,7 @@
     justify-content: center;
 }
 
+/* Active tab and hover effects */
 .all_status a.selected,
 .all_status a:hover {
     color: white;
@@ -39,52 +44,60 @@
     opacity: 0.8;
 }
 
+/* Order summary card styling */
 .order_summary {
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* Stack elements vertically */
     border: 1px solid #d4d4d4;
-    border-radius: 1rem;
+    border-radius: 1rem; /* Rounded corners */
     margin-top: 2rem;
 }
 
+/* Padding for all direct children */
 .order_summary>* {
     padding: 0.8rem;
 }
 
+/* Order header styling */
 .header {
     display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid whitesmoke;
-    border-radius: 1rem 1rem 0 0;
+    justify-content: space-between; /* Space out header elements */
+    border-bottom: 1px solid whitesmoke; /* Divider line */
+    border-radius: 1rem 1rem 0 0; /* Rounded top corners */
     color: grey;
 }
 
+/* Order items container */
 .items {
     display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
+    flex-wrap: nowrap; /* Prevent wrapping */
+    overflow-x: auto; /* Horizontal scrolling */
     margin: 0.5rem 0;
 }
 
+/* Food item image styling */
 .items img {
     width: 5rem;
     height: 5rem;
-    border-radius: 2rem;
+    border-radius: 2rem; /* Circular images */
     margin-right: 1rem;
-    object-fit: cover;
+    object-fit: cover; /* Maintain aspect ratio */
 }
 
+/* Image hover effect */
 .items img:hover {
     opacity: 0.8;
 }
 
+/* Order footer styling */
 .footer {
     display: flex;
-    justify-content: space-between;
-    border-top: 1px solid whitesmoke;
-    border-radius: 0 0 1rem 1rem;
+    justify-content: space-between; /* Space out elements */
+    border-top: 1px solid whitesmoke; /* Divider line */
+    border-radius: 0 0 1rem 1rem; /* Rounded bottom corners */
 }
 
+/* Price styling */
 .price {
-    color: green;
+    color: green; /* Green color for price */
 }
