@@ -5,10 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import SideBar from "../SideBar/CustomerSideBar";
 
 export default function UpdateCustomerProfile() {
+  // Get customer ID from URL parameters
   const { id } = useParams();
+  // Navigation hook for programmatic routing
   const navigate = useNavigate();
   
-  // Customer state
+  // State for customer data with all fields initialized
   const [customer, setCustomer] = useState({
     name: "",
     contactNumber: "",
@@ -23,11 +25,11 @@ export default function UpdateCustomerProfile() {
     price: "",
   });
 
-  // Alert state
+  // Alert state for showing success/error messages
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   
-  // Validation state
+  // Validation error states for each field
   const [nameError, setNameError] = useState("");
   const [contactNumberError, setContactNumberError] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -40,11 +42,13 @@ export default function UpdateCustomerProfile() {
   const [roomNumberError, setRoomNumberError] = useState("");
   const [priceError, setPriceError] = useState("");
 
+  // Fetch customer data when component mounts or ID changes
   useEffect(() => {
     axios
       .get(`http://localhost:5000/customer/get/${id}`)
       .then((res) => {
         const customerData = res.data.customer;
+        // Format check-in date if it exists
         if (customerData.checkInDate) {
           const date = new Date(customerData.checkInDate);
           const formattedDate = date.toISOString().split('T')[0];
@@ -61,7 +65,9 @@ export default function UpdateCustomerProfile() {
       });
   }, [id]);
 
-  // Input handlers with validation
+  // Input handlers with validation for each field
+
+  // Name input handler - only allows letters and spaces
   const handleNameInput = (e) => {
     const value = e.target.value;
     if (/^[A-Za-z\s]*$/.test(value)) {
@@ -72,6 +78,7 @@ export default function UpdateCustomerProfile() {
     }
   };
 
+  // Contact number input handler - only allows numbers (max 10 digits)
   const handleContactNumberInput = (e) => {
     const value = e.target.value;
     if (/^\d*$/.test(value) && value.length <= 10) {
@@ -82,6 +89,7 @@ export default function UpdateCustomerProfile() {
     }
   };
 
+  // Email input handler with email format validation
   const handleEmailChange = (e) => {
     const value = e.target.value;
     setCustomer(prev => ({...prev, email: value}));
@@ -92,12 +100,14 @@ export default function UpdateCustomerProfile() {
     }
   };
 
+  // Gender select handler
   const handleGenderChange = (e) => {
     const value = e.target.value;
     setCustomer(prev => ({...prev, gender: value}));
     setGenderError("");
   };
 
+  // Nationality input handler - only allows letters and spaces
   const handleNationalityInput = (e) => {
     const value = e.target.value;
     if (/^[A-Za-z\s]*$/.test(value)) {
@@ -108,12 +118,14 @@ export default function UpdateCustomerProfile() {
     }
   };
 
+  // Address input handler
   const handleAddressChange = (e) => {
     const value = e.target.value;
     setCustomer(prev => ({...prev, address: value}));
     setAddressError("");
   };
 
+  // NIC/Passport input handler - validates Sri Lankan NIC format
   const handleNicPassportInput = (e) => {
     const value = e.target.value;
     if (/^[0-9vV]*$/.test(value) && (value.length <= 12 && value.length >= 8)) {
@@ -124,12 +136,14 @@ export default function UpdateCustomerProfile() {
     }
   };
 
+  // Check-in date handler
   const handleCheckInDateChange = (e) => {
     const value = e.target.value;
     setCustomer(prev => ({...prev, checkInDate: value}));
     setCheckInDateError("");
   };
 
+  // Room type input handler - only allows letters and spaces
   const handleRoomTypeInput = (e) => {
     const value = e.target.value;
     if (/^[A-Za-z\s]*$/.test(value)) {
@@ -140,12 +154,14 @@ export default function UpdateCustomerProfile() {
     }
   };
 
+  // Room number input handler
   const handleRoomNumberChange = (e) => {
     const value = e.target.value;
     setCustomer(prev => ({...prev, roomNumber: value}));
     setRoomNumberError("");
   };
 
+  // Price input handler - validates numeric input
   const handlePriceInput = (e) => {
     const value = e.target.value;
     if (/^\d*\.?\d*$/.test(value)) {
@@ -156,10 +172,11 @@ export default function UpdateCustomerProfile() {
     }
   };
 
-  // Validate entire form
+  // Validate entire form before submission
   function validateForm() {
     let isValid = true;
 
+    // Validate each field and set appropriate error messages
     if (!customer.name) {
       setNameError("Name is required");
       isValid = false;
@@ -218,34 +235,39 @@ export default function UpdateCustomerProfile() {
     return isValid;
   }
 
-  // Handle form submission
+  // Form submission handler
   function handleSubmit(e) {
     e.preventDefault();
 
+    // Only proceed if form validation passes
     if (validateForm()) {
       axios
         .put(`http://localhost:5000/customer/update/${id}`, customer)
         .then(() => {
+          // Show success message and navigate back after 3 seconds
           setAlertMessage("Customer updated successfully!");
           setShowAlert(true);
           setTimeout(() => setShowAlert(false), 3000);
           navigate(`/customer/${id}`);
         })
         .catch((err) => {
+          // Show error message if update fails
           setAlertMessage("Error updating customer.");
           setShowAlert(true);
           setTimeout(() => setShowAlert(false), 3000);
         });
     } else {
+      // Show validation error message
       setAlertMessage("Please fix the form errors");
       setShowAlert(true);
       setTimeout(() => setShowAlert(false), 3000);
     }
   }
 
+  // Inline styles for components
   const containerStyle = {
     display: "grid",
-    gridTemplateColumns: "1fr 1fr",
+    gridTemplateColumns: "1fr 1fr", // Two-column layout
     gap: "20px",
     marginBottom: "20px",
   };
@@ -276,7 +298,7 @@ export default function UpdateCustomerProfile() {
 
   const invalidInputStyle = {
     ...inputStyle,
-    borderColor: "red"
+    borderColor: "red" // Highlight invalid fields in red
   };
 
   const errorMessageStyle = {
@@ -286,7 +308,7 @@ export default function UpdateCustomerProfile() {
   };
 
   const buttonStyle = {
-    backgroundColor: "#800000",
+    backgroundColor: "#800000", // Maroon color
     color: "#ffffff",
     border: "none",
     padding: "10px 20px",
@@ -307,23 +329,29 @@ export default function UpdateCustomerProfile() {
     right: "20px",
     zIndex: 1000,
     width: "300px",
-    transform: "translateX(100%)",
+    transform: "translateX(100%)", // Initial position off-screen
   };
 
   return (
     <>
+      {/* Sidebar component */}
       <SideBar/>
+      
+      {/* Main content area */}
       <div
         style={{
           padding: "50px",
-          width: "calc(100% - 250px)",
+          width: "calc(100% - 250px)", // Account for sidebar width
           boxSizing: "border-box",
-          marginLeft: "250px",
+          marginLeft: "250px", // Make space for sidebar
         }}
       >
         <h1>Update Customer Profile</h1>
+        
+        {/* Form container */}
         <div style={formStyle}>
           <form onSubmit={handleSubmit}>
+            {/* Two-column form layout */}
             <div style={containerStyle}>
               {/* Name Field */}
               <div className="form-group">
@@ -338,6 +366,7 @@ export default function UpdateCustomerProfile() {
                   value={customer.name}
                   onChange={handleNameInput}
                   onPaste={(e) => {
+                    // Validate pasted content for name field
                     const pasteData = e.clipboardData.getData('text');
                     if (!/^[A-Za-z\s]*$/.test(pasteData)) {
                       e.preventDefault();
@@ -363,6 +392,7 @@ export default function UpdateCustomerProfile() {
                   value={customer.contactNumber}
                   onChange={handleContactNumberInput}
                   onPaste={(e) => {
+                    // Validate pasted content for contact number
                     const pasteData = e.clipboardData.getData('text');
                     if (!/^\d+$/.test(pasteData)) {
                       e.preventDefault();
@@ -428,6 +458,7 @@ export default function UpdateCustomerProfile() {
                   value={customer.nationality}
                   onChange={handleNationalityInput}
                   onPaste={(e) => {
+                    // Validate pasted content for nationality
                     const pasteData = e.clipboardData.getData('text');
                     if (!/^[A-Za-z\s]*$/.test(pasteData)) {
                       e.preventDefault();
@@ -471,6 +502,7 @@ export default function UpdateCustomerProfile() {
                   value={customer.nicPassport}
                   onChange={handleNicPassportInput}
                   onPaste={(e) => {
+                    // Validate pasted content for NIC
                     const pasteData = e.clipboardData.getData('text');
                     if (!/^[0-9vV]+$/.test(pasteData)) {
                       e.preventDefault();
@@ -496,7 +528,7 @@ export default function UpdateCustomerProfile() {
                   value={customer.checkInDate}
                   onChange={handleCheckInDateChange}
                   style={checkInDateError ? invalidInputStyle : inputStyle}
-                  min={new Date().toISOString().split('T')[0]}
+                  min={new Date().toISOString().split('T')[0]} // Prevent past dates
                   required
                 />
                 {checkInDateError && <div style={errorMessageStyle}>{checkInDateError}</div>}
@@ -515,6 +547,7 @@ export default function UpdateCustomerProfile() {
                   value={customer.roomType}
                   onChange={handleRoomTypeInput}
                   onPaste={(e) => {
+                    // Validate pasted content for room type
                     const pasteData = e.clipboardData.getData('text');
                     if (!/^[A-Za-z\s]*$/.test(pasteData)) {
                       e.preventDefault();
@@ -558,14 +591,15 @@ export default function UpdateCustomerProfile() {
                   value={customer.price}
                   onChange={handlePriceInput}
                   onPaste={(e) => {
+                    // Validate pasted content for price
                     const pasteData = e.clipboardData.getData('text');
                     if (!/^\d+\.?\d*$/.test(pasteData)) {
                       e.preventDefault();
                       setPriceError("Cannot paste non-numeric characters");
                     }
                   }}
-                  step="0.01"
-                  min="0.01"
+                  step="0.01" // Allow decimal values
+                  min="0.01" // Minimum value
                   style={priceError ? invalidInputStyle : inputStyle}
                   required
                 />
@@ -573,19 +607,21 @@ export default function UpdateCustomerProfile() {
               </div>
             </div>
 
+            {/* Submit button */}
             <button type="submit" style={buttonStyle}>
               Update
             </button>
           </form>
         </div>
 
+        {/* Animated alert notification */}
         <AnimatePresence>
           {showAlert && (
             <motion.div
               style={alertStyle}
-              initial={{ opacity: 0, x: "100%" }}
-              animate={{ opacity: 1, x: "0%" }}
-              exit={{ opacity: 0, x: "100%" }}
+              initial={{ opacity: 0, x: "100%" }} // Start off-screen
+              animate={{ opacity: 1, x: "0%" }} // Slide in
+              exit={{ opacity: 0, x: "100%" }} // Slide out
             >
               {alertMessage}
             </motion.div>
