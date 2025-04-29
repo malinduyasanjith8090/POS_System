@@ -51,14 +51,14 @@ function SideBar() {
     backgroundColor: '#1a1a1a',  // Match sidebar color
     padding: '10px',  // Increased padding for better appearance
     margin: 0,
-    width: 'calc(100% - 250px)',  // Full width minus sidebar width
+    width: 'calc(100% - 250px)',        // Full width minus sidebar width
     position: 'fixed',
-    top: 0,  // Align with the top of the viewport
-    left: '250px',  // Position to the right of the sidebar
+    top: 0,                             // Align with the top of the viewport
+    left: '250px',                      // Position to the right of the sidebar
     boxSizing: 'border-box',
-    textAlign: 'center',  // Center the title text
-    color: '#fff',  // White text for contrast on dark background
-    borderBottom: '1px solid #333',  // Optional: darker gray border at the bottom for better contrast
+    textAlign: 'center',               // Center the title text
+    color: '#fff',                    // White text for contrast on dark background
+    borderBottom: '1px solid #333',   // Optional: darker gray border at the bottom for better contrast
   };
 
   const contentStyle = {
