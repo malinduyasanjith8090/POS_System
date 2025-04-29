@@ -1,6 +1,6 @@
-import React, { useState } from 'react'; // Import React and useState
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
-import image1 from '../images/view1.jpg';
+import React, { useState } from 'react'; // Import React and useState hook
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for programmatic navigation
+import image1 from '../images/view1.jpg'; // Import various image assets
 import image2 from '../images/view2.jpg';
 import image3 from '../images/view3.jpg';
 import image4 from '../images/view4.jpg';
@@ -11,7 +11,7 @@ import twitterlogo from '../images/t.png';
 import companylogo from '../images/company.png';
 import headingImage from '../images/view2.jpg'; // Path to your larger heading image
 
-// Inline CSS for modern look
+// Inline CSS styles for the component
 const styles = {
   container: {
     fontFamily: 'Arial, sans-serif',
@@ -186,34 +186,36 @@ const styles = {
   },
 };
 
+// Main HomePage component
 const HomePage = () => {
-  const navigate = useNavigate(); // Use the useNavigate hook
+  const navigate = useNavigate(); // Hook for programmatic navigation
 
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
 
+  // Handler for order button click
   const handleOrderClick = () => {
-    navigate('/login'); // Navigate to /order route
+    navigate('/login'); // Navigate to /login route
   };
 
+  // Handler for login button click
   const handleLoginClick = () => {
     setShowModal(true); // Show the modal when Login button is clicked
   };
 
+  // Handler for admin login selection
   const handleAdminLogin = () => {
     navigate('/adminlogin'); // Navigate to admin login page
   };
 
+  // Handler for customer login selection
   const handleCustomerLogin = () => {
     navigate('/login'); // Navigate to customer login page
   };
-
-  
 
   return (
     <div style={styles.container}>
       {/* Header Section */}
       <header style={styles.header}>
-        
         <h1 style={styles.headerText}>Welcome to the Hotel</h1>
         <p style={styles.subHeader}>Experience a luxurious stay like never before</p>
         <button style={styles.loginButton} onClick={handleLoginClick}>Login</button>
@@ -221,7 +223,7 @@ const HomePage = () => {
 
       {/* Large Heading Image */}
       <img
-        src={headingImage} // Path to your larger heading image
+        src={headingImage}
         alt="Cinnamon Red Hotel"
         style={styles.largeHeadingImage}
       />
@@ -238,11 +240,11 @@ const HomePage = () => {
         </button>
       </section>
 
-      {/* Hotel Features Section */}
+      {/* Hotel Features Section with cards */}
       <section style={styles.cardSection}>
         <div style={styles.card}>
           <img
-            src={image1} // Hotel View 1 Image
+            src={image1}
             alt="Luxurious Rooms"
             style={styles.cardImage}
           />
@@ -256,7 +258,7 @@ const HomePage = () => {
 
         <div style={styles.card}>
           <img
-            src={image5} // Hotel View 2 Image
+            src={image5}
             alt="Exclusive Spa"
             style={styles.cardImage}
           />
@@ -270,7 +272,7 @@ const HomePage = () => {
 
         <div style={styles.card}>
           <img
-            src={image3} // Hotel View 3 Image
+            src={image3}
             alt="Poolside Relaxation"
             style={styles.cardImage}
           />
@@ -284,7 +286,7 @@ const HomePage = () => {
 
         <div style={styles.card}>
           <img
-            src={image4} // Hotel View 4 Image
+            src={image4}
             alt="Gourmet Dining"
             style={styles.cardImage}
           />
@@ -296,7 +298,8 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-<br/><br/>
+      <br/><br/>
+
       {/* Footer Section */}
       <footer style={styles.footer}>
         <p>2025 The Hotel.© All Rights Reserved</p>
@@ -316,6 +319,8 @@ const HomePage = () => {
           </a>
         </div>
       </footer>
+
+      {/* Modal for login selection */}
       {showModal && (
         <div style={styles.modal}>
           <div style={styles.modalContent}>
@@ -330,7 +335,6 @@ const HomePage = () => {
               Close
             </button>
           </div>
-          
         </div>
       )}
     </div>
