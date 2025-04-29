@@ -313,7 +313,7 @@ export default function StockManage() {
   );
 }
 
-// Styles for the components
+// Styles for a components
 const containerStyle = {
   padding: "20px",
   boxSizing: "border-box",
