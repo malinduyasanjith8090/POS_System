@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import SideBar from "../../components/SideBar/InventoryManagementSidebar";
-import { toast } from "react-toastify";
-import { delay } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function AddItems({ onItemAdded }) {
   const [itemName, setItemName] = useState("");
@@ -11,6 +10,9 @@ export default function AddItems({ onItemAdded }) {
   const [date, setDate] = useState(() => new Date().toISOString().split("T")[0]);
   const [statusOfItem, setStatusOfItem] = useState("in-stock");
   const [errors, setErrors] = useState({});
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("success");
 
   // Form validation logic
   function validateForm() {
@@ -105,6 +107,10 @@ export default function AddItems({ onItemAdded }) {
 
     // Validate form before submitting
     if (!validateForm()) {
+      setAlertMessage("Please fix the errors in the form");
+      setAlertType("error");
+      setShowAlert(true);
+      setTimeout(() => setShowAlert(false), 3000);
       return; // Stop if the form is invalid
     }
 
@@ -121,14 +127,17 @@ export default function AddItems({ onItemAdded }) {
     axios
       .post("http://localhost:5000/api/inventory/stocks/send", newItem)
       .then((response) => {
-        alert("Item added successfully");
+        setAlertMessage("Item added successfully");
+        setAlertType("success");
+        setShowAlert(true);
+        setTimeout(() => setShowAlert(false), 3000);
+        
         // Reset form fields after successful submission
         setItemName("");
         setCategory("");
         setInStock("");
-        setDate("");
-        setStatusOfItem("");
-
+        setDate(new Date().toISOString().split("T")[0]);
+        setStatusOfItem("in-stock");
 
         // Call callback function if it exists
         if (typeof onItemAdded === "function") {
@@ -136,7 +145,19 @@ export default function AddItems({ onItemAdded }) {
         }
       })
       .catch((err) => {
-        alert("Error: " + err.response?.data?.message || err.message);
+        let errorMessage = "Error adding item";
+        if (err.response) {
+          errorMessage = err.response.data?.message || `Request failed with status ${err.response.status}`;
+        } else if (err.request) {
+          errorMessage = "No response from server";
+        } else {
+          errorMessage = err.message;
+        }
+
+        setAlertMessage(errorMessage);
+        setAlertType("error");
+        setShowAlert(true);
+        setTimeout(() => setShowAlert(false), 3000);
       });
   }
 
@@ -166,7 +187,7 @@ export default function AddItems({ onItemAdded }) {
             backgroundColor: "#f9f9f9",
             borderRadius: "10px",
             boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-          }} //Add styles
+          }}
         >
           <style>{`
           .form-group {
@@ -333,6 +354,33 @@ export default function AddItems({ onItemAdded }) {
             </div>
           </form>
         </div>
+
+        {/* Alert notification */}
+        <AnimatePresence>
+          {showAlert && (
+            <motion.div 
+              style={{
+                padding: '10px',
+                borderRadius: '5px',
+                marginTop: '20px',
+                textAlign: 'center',
+                position: 'fixed',
+                top: '20px',
+                right: '20px',
+                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                zIndex: 1000,
+                width: '300px',
+                backgroundColor: alertType === "error" ? "#ffebee" : "#e8f5e9",
+                color: alertType === "error" ? "#c62828" : "#2e7d32",
+              }} 
+              initial={{ opacity: 0, x: '100%' }}
+              animate={{ opacity: 1, x: '0%' }} 
+              exit={{ opacity: 0, x: '100%' }}
+            >
+              {alertMessage}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </>
   );
