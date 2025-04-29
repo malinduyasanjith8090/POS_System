@@ -142,7 +142,7 @@ const AddSupplier = () => {
       newErrors.supplyId = "Supply ID must be less than 20 characters";
       isValid = false;
     }
-
+    //supplier data checked
     if (!supplierData.supplierName.trim()) {
       newErrors.supplierName = "Supplier name is required";
       isValid = false;
