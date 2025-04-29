@@ -1,13 +1,33 @@
 import React from 'react';
-import { useAuth } from '../../hooks/useAuth';
-import { Pie, Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend, Title } from 'chart.js';
-import classes from './dashboard.module.css';
+import { useAuth } from '../../hooks/useAuth'; // Custom hook for authentication
+import { Pie, Line } from 'react-chartjs-2'; // Chart components
+import { 
+  Chart as ChartJS, 
+  CategoryScale, 
+  LinearScale, 
+  PointElement, 
+  LineElement, 
+  ArcElement, 
+  Tooltip, 
+  Legend, 
+  Title 
+} from 'chart.js'; // Chart.js components
+import classes from './dashboard.module.css'; // CSS module for styling
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Title, Tooltip, Legend);
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale, 
+  LinearScale, 
+  PointElement, 
+  LineElement, 
+  ArcElement, 
+  Title, 
+  Tooltip, 
+  Legend
+);
 
 const Dashboard = () => {
-    const { user } = useAuth();
+    const { user } = useAuth(); // Get user data from auth context
 
     // Data for Pie Chart (Order Status Distribution)
     const orderStatusData = {
@@ -15,7 +35,7 @@ const Dashboard = () => {
         datasets: [
             {
                 data: [30, 60, 10], // Example data for status distribution
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'], // Colors for each segment
             },
         ],
     };
@@ -27,17 +47,21 @@ const Dashboard = () => {
             {
                 label: 'Total Sales',
                 data: [500, 800, 600, 1000, 900, 1200, 1400, 1100, 1300, 1500], // Example sales data
-                borderColor: 'rgba(75, 192, 192, 1)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)', // Line color
+                backgroundColor: 'rgba(75, 192, 192, 0.2)', // Area fill color
             },
         ],
     };
 
+    // Options for Line Chart
     const salesOptions = {
-        responsive: true,
+        responsive: true, // Make chart responsive
         plugins: {
-            legend: { position: 'top' },
-            title: { display: true, text: 'Sales Over Time' },
+            legend: { position: 'top' }, // Legend position
+            title: { 
+                display: true, 
+                text: 'Sales Over Time' // Chart title
+            },
         },
     };
 
@@ -65,8 +89,9 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            {/* Menu Items */}
+            {/* Menu Items Section */}
             <div className={classes.menu}>
+                {/* Filter and map through menu items based on user admin status */}
                 {allItems
                     .filter(item => user.isAdmin || !item.forAdmin)
                     .map(item => (
@@ -87,6 +112,7 @@ const Dashboard = () => {
     );
 };
 
+// Array of menu items with their properties
 const allItems = [
     {
         title: 'Orders',
@@ -106,7 +132,7 @@ const allItems = [
         title: 'Users',
         imageUrl: '/icons/users.svg',
         url: '/admin/users',
-        forAdmin: true,
+        forAdmin: true, // Only visible to admins
         bgColor: 'grey',
         color: 'white',
     },
@@ -114,7 +140,7 @@ const allItems = [
         title: 'Foods',
         imageUrl: '/icons/foods.svg',
         url: '/admin/foods',
-        forAdmin: true,
+        forAdmin: true, // Only visible to admins
         bgColor: 'green',
         color: 'white',
     },
