@@ -27,7 +27,7 @@ function SideBar() {             // Hover style for navigation items
     color: '#fff',
   };
 
-  const disabledStyle = {
+  const disabledStyle = {        // Disabled link style (currently unused in the JSX)
     ...defaultStyle,
     backgroundColor: '#666666',  // Medium gray for disabled
     color: '#ccc',  // Light gray text for disabled
