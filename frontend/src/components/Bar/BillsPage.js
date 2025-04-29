@@ -8,36 +8,54 @@ import SideBar from "../SideBar/BarSideBar";
 
 const { Title, Text } = Typography;
 
+/**
+ * BillsPage Component - Displays and manages invoice/bill records
+ * Features:
+ * - View list of all bills
+ * - View bill details in modal
+ * - Delete bills
+ * - Generate PDF invoices
+ */
 const BillsPage = () => {
+  // Redux dispatch hook for state management
   const dispatch = useDispatch();
-  const [billsData, setBillsData] = useState([]);
-  const [popupModal, setPopModal] = useState(false);
-  const [selectedBill, setSelectedBill] = useState(null);
+  
+  // Component state variables
+  const [billsData, setBillsData] = useState([]); // Stores all bill records
+  const [popupModal, setPopModal] = useState(false); // Controls modal visibility
+  const [selectedBill, setSelectedBill] = useState(null); // Stores currently selected bill details
 
-  // Function to fetch bills
+  /**
+   * Fetches all bills from the API
+   * Updates the billsData state with fetched data
+   */
   const getAllBills = async () => {
     try {
-      dispatch({ type: "SHOW_LOADING" });
+      dispatch({ type: "SHOW_LOADING" }); // Show loading indicator
       const { data } = await axios.get("/api/bills/get-bills");
-      setBillsData(data);
-      dispatch({ type: "HIDE_LOADING" });
+      setBillsData(data); // Update state with fetched data
+      dispatch({ type: "HIDE_LOADING" }); // Hide loading indicator
     } catch (error) {
       console.error("Error fetching bills data", error);
       dispatch({ type: "HIDE_LOADING" });
     }
   };
 
+  // Fetch bills when component mounts
   useEffect(() => {
     getAllBills();
   }, []);
 
-  // Function to delete a bill
+  /**
+   * Deletes a bill record
+   * @param {string} id - ID of the bill to delete
+   */
   const deleteBill = async (id) => {
     try {
       dispatch({ type: "SHOW_LOADING" });
       await axios.delete(`/api/bills/delete-bills/${id}`);
       message.success("Bill deleted successfully");
-      getAllBills(); // Refresh the list after deletion
+      getAllBills(); // Refresh the bill list
       dispatch({ type: "HIDE_LOADING" });
     } catch (error) {
       console.error("Error deleting bill", error);
@@ -46,7 +64,15 @@ const BillsPage = () => {
     }
   };
 
-  // Function to generate and download a PDF invoice
+  /**
+   * Generates a PDF invoice for the selected bill
+   * Creates a professional-looking invoice with:
+   * - Header with business name
+   * - Customer details
+   * - Invoice summary
+   * - Itemized list of purchased items
+   * - Footer with thank you message
+   */
   const generatePDF = () => {
     if (!selectedBill) return;
   
@@ -62,7 +88,7 @@ const BillsPage = () => {
     const pageHeight = doc.internal.pageSize.height;
     doc.rect(margin, margin, pageWidth - 2 * margin, pageHeight - 2 * margin); // Page border
   
-    // Header section
+    // Header section with business name
     doc.setFontSize(18);
     doc.setTextColor(40);
   
@@ -153,12 +179,12 @@ const BillsPage = () => {
     doc.setFont("helvetica", "italic"); // Italic font for footer
     doc.text("Thank you for shopping with us!", 105, pageHeight - margin, { align: "center" });
   
-    // Save the PDF
+    // Save the PDF with customer name in filename
     doc.save(`invoice_${selectedBill.customerName}.pdf`);
   };
   
 
-  // Table columns with Delete and View buttons
+  // Columns configuration for the bills table
   const columns = [
     {
       title: "Customer Name",
@@ -199,6 +225,7 @@ const BillsPage = () => {
       key: "action",
       render: (record) => (
         <>
+          {/* View button - opens modal with bill details */}
           <Button
             icon={<EyeOutlined />}
             type="primary"
@@ -215,6 +242,7 @@ const BillsPage = () => {
           >
             View
           </Button>
+          {/* Delete button - removes the bill record */}
           <Button
             icon={<DeleteOutlined />}
             type="primary"
@@ -230,27 +258,37 @@ const BillsPage = () => {
 
   return (
     <>
-      
       <div>
-      <SideBar />
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "20px",marginLeft:"800px" }}>
+        {/* Sidebar navigation */}
+        <SideBar />
+        
+        {/* Page header */}
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "20px", marginLeft: "800px" }}>
           <Title level={3}>Invoice List</Title>
         </div>
 
+        {/* Main bills table */}
         <Table
           columns={columns}
           dataSource={billsData}
           bordered
-          pagination={{ pageSize: 5 }}
-          style={{ backgroundColor: "#f5f5f5", padding: "20px", borderRadius: "10px",marginLeft:"300px" }}
+          pagination={{ pageSize: 5 }} // Show 5 records per page
+          style={{ 
+            backgroundColor: "#f5f5f5", 
+            padding: "20px", 
+            borderRadius: "10px",
+            marginLeft: "300px" 
+          }}
         />
 
+        {/* Modal for viewing bill details */}
         {popupModal && (
           <Modal
             title="Invoice Details"
             visible={popupModal}
             onCancel={() => setPopModal(false)}
             footer={[
+              // Close button
               <Button
                 key="cancel"
                 style={{ backgroundColor: "#800000", borderColor: "#800000", color: "#fff" }}
@@ -258,6 +296,7 @@ const BillsPage = () => {
               >
                 Close
               </Button>,
+              // PDF export button
               <Button
                 key="export"
                 type="primary"
@@ -269,6 +308,7 @@ const BillsPage = () => {
               </Button>,
             ]}
           >
+            {/* Bill details content */}
             {selectedBill && (
               <div style={{ lineHeight: "1.8" }}>
                 <p>
@@ -290,7 +330,7 @@ const BillsPage = () => {
                   <Text strong>Total Amount:</Text> LKR {selectedBill.totalAmount}
                 </p>
 
-                {/* Display Cart Items */}
+                {/* Cart items table */}
                 <Title level={4}>Cart Items</Title>
                 <Table
                   dataSource={selectedBill.cartItems}
@@ -314,15 +354,12 @@ const BillsPage = () => {
                         );
                       },
                     },
-
                   ]}
                   pagination={false}
                   rowKey="_id"
                 />
               </div>
             )}
-
-
           </Modal>
         )}
       </div>
