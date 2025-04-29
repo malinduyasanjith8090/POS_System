@@ -370,7 +370,7 @@ const deleteButtonStyle = {
   padding: "5px 10px",
   borderRadius: "5px",
 };
-
+//update button in components
 const generateButtonWrapperStyle = {
   display: "flex",
   justifyContent: "center",
