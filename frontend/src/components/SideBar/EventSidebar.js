@@ -35,7 +35,7 @@ function SideBar() {             // Hover style for navigation items
     cursor: 'not-allowed',
   };
 
-  const logoStyle = {
+  const logoStyle = {             // Styling for the sidebar logo/text
     color: '#fff',
     textAlign: 'center',  // Center align text
     lineHeight: '1.5',
