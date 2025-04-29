@@ -20,7 +20,7 @@ function SideBar() {
     transition: 'background-color 0.3s ease, color 0.3s ease, transform 0.3s ease',
   };
 
-  const activeStyle = {  //// Style to indicate an active link (not currently in use)
+  const activeStyle = {  // Style to indicate an active link (not currently in use)
     ...defaultStyle,
     backgroundColor: '#800000',  // Maroon for active
     color: '#fff',
