@@ -1,7 +1,9 @@
+// Login component (appears to be separate but included in the same file)
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+  // State for form fields and error handling
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -9,6 +11,7 @@ const Login = () => {
   const [isFocusedPassword, setIsFocusedPassword] = useState(false);
   const navigate = useNavigate();
 
+  // Form submission handler
   const handleSubmit = (e) => {
     e.preventDefault();
     
@@ -19,71 +22,79 @@ const Login = () => {
       setError('Invalid username or password');
     }
   };
-  const titleBarStyle = {
-    backgroundColor: '#1a1a1a',  // Match sidebar color
-    padding: '10px',  // Increased padding for better appearance
-    margin: 0,
-    width: '100%',  // Full width minus sidebar width
-    position: 'fixed',
-    top: 0,  // Align with the top of the viewport
-    boxSizing: 'border-box',
-    textAlign: 'center',  // Center the title text
-    color: '#fff',  // White text for contrast on dark background
-    borderBottom: '1px solid #333',  // Optional: darker gray border at the bottom for better contrast
-  };
 
+  // Style for title bar
+  const titleBarStyle = {
+    backgroundColor: '#1a1a1a',
+    padding: '10px',
+    margin: 0,
+    width: '100%',
+    position: 'fixed',
+    top: 0,
+    boxSizing: 'border-box',
+    textAlign: 'center',
+    color: '#fff',
+    borderBottom: '1px solid #333',
+  };
 
   return (
     <div>
-    <div style={titleBarStyle}>
+      {/* Title bar at the top */}
+      <div style={titleBarStyle}>
         <h1 style={{ margin: 0, padding: 0 }}>Admin Pannel</h1>
       </div>
-    <div style={styles.container}>
-      <div style={styles.formContainer}>
-        <h2 style={styles.title}>Admin Login</h2>
-        <p style={styles.subtitle}>Please log in to your system</p>
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <label style={styles.label}>Username</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            onFocus={() => setIsFocusedUsername(true)}
-            onBlur={() => setIsFocusedUsername(false)}
-            style={{
-              ...styles.input,
-              ...(isFocusedUsername ? styles.inputFocus : {}),
-            }}
-            placeholder="Enter your username"
-            required
-          />
+      
+      {/* Main login container */}
+      <div style={styles.container}>
+        <div style={styles.formContainer}>
+          <h2 style={styles.title}>Admin Login</h2>
+          <p style={styles.subtitle}>Please log in to your system</p>
           
-          <label style={styles.label}>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onFocus={() => setIsFocusedPassword(true)}
-            onBlur={() => setIsFocusedPassword(false)}
-            style={{
-              ...styles.input,
-              ...(isFocusedPassword ? styles.inputFocus : {}),
-            }}
-            placeholder="Enter your password"
-            required
-          />
-          
-          {error && <p style={styles.error}>{error}</p>}
-          
-          <button type="submit" style={styles.button}>Login</button>
-        </form>
+          {/* Login form */}
+          <form onSubmit={handleSubmit} style={styles.form}>
+            <label style={styles.label}>Username</label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              onFocus={() => setIsFocusedUsername(true)}
+              onBlur={() => setIsFocusedUsername(false)}
+              style={{
+                ...styles.input,
+                ...(isFocusedUsername ? styles.inputFocus : {}),
+              }}
+              placeholder="Enter your username"
+              required
+            />
+            
+            <label style={styles.label}>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onFocus={() => setIsFocusedPassword(true)}
+              onBlur={() => setIsFocusedPassword(false)}
+              style={{
+                ...styles.input,
+                ...(isFocusedPassword ? styles.inputFocus : {}),
+              }}
+              placeholder="Enter your password"
+              required
+            />
+            
+            {/* Error message display */}
+            {error && <p style={styles.error}>{error}</p>}
+            
+            {/* Submit button */}
+            <button type="submit" style={styles.button}>Login</button>
+          </form>
+        </div>
       </div>
-      </div>
-      </div>
+    </div>
   );
 };
 
-// Updated inline styles for a more modern look
+// Styles for the Login component
 const styles = {
   container: {
     display: 'flex',
