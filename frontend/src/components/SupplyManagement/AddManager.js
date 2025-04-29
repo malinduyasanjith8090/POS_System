@@ -71,7 +71,7 @@ const AddManager = () => {
     return Object.keys(tempErrors).length === 0;
 };
 
-
+  //update validation
   const handleSubmit = (e) => {
     e.preventDefault();
 
