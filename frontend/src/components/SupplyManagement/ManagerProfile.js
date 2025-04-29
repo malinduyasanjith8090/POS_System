@@ -10,7 +10,7 @@ import SideBar from "../SideBar/SupplySideBar";
 
 const ManagerProfile = () => {
   const [managers, setManagers] = useState([]); // State to hold all managers
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(null); //errors handeling
   const [editItem, setEditItem] = useState(null); // State for the manager to be edited
   const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
   const [searchTerm, setSearchTerm] = useState(""); // State for search input
