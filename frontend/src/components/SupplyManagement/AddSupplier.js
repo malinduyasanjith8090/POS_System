@@ -108,7 +108,7 @@ const AddSupplier = () => {
 
   const handleBlur = (e) => {
     const { name } = e.target;
-    // Mark field as touched when user leaves it
+    // Mark field as touched when user leaves it field
     if (!touchedFields[name]) {
       setTouchedFields({
         ...touchedFields,
