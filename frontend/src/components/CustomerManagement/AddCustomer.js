@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 
 const { Option } = Select;
 
-/**
+/**Comment
  * AddCustomer Component - Form for adding new customers to the system
  * Features:
  * - Form validation for all fields
@@ -19,11 +19,13 @@ const { Option } = Select;
 const AddCustomer = () => {
   // Form instance for programmatic control
   const [form] = Form.useForm();
-  
+  /**Comment*/
+
   // State for alert notification
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
-  
+  /**Comment*/
+
   // State for room management
   const [availableRooms, setAvailableRooms] = useState([]);
   const [isFetchingRooms, setIsFetchingRooms] = useState(false);
