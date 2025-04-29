@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import logo from '../../images/company.png'
 
+// Hover style for navigation items
 function SideBar() {
   const hoverStyle = {
     backgroundColor: '#b30000',  // Darker red for hover
