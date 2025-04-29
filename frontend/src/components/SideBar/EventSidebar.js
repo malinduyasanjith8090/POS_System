@@ -10,7 +10,7 @@ function SideBar() {             // Hover style for navigation items
     transform: 'scale(1.05)',
   };
 
-  const defaultStyle = {
+  const defaultStyle = {         // Default link style for sidebar items
     display: 'block',
     padding: '15px',
     marginBottom: '10px',
