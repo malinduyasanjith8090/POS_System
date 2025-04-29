@@ -12,7 +12,7 @@ const AddManager = () => {
     department: "",
     contactNo: "",
   });
-
+  //add alerts update
   const [errors, setErrors] = useState({});
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -71,7 +71,7 @@ const AddManager = () => {
     return Object.keys(tempErrors).length === 0;
 };
 
-
+  //update validation
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -140,7 +140,7 @@ const AddManager = () => {
   );
 };
 
-// Styles
+// update style
 const formContainerStyle = {
   maxWidth: '800px',
   padding: '20px',

@@ -108,7 +108,7 @@ const AddSupplier = () => {
 
   const handleBlur = (e) => {
     const { name } = e.target;
-    // Mark field as touched when user leaves it
+    // Mark field as touched when user leaves it field
     if (!touchedFields[name]) {
       setTouchedFields({
         ...touchedFields,
@@ -142,7 +142,7 @@ const AddSupplier = () => {
       newErrors.supplyId = "Supply ID must be less than 20 characters";
       isValid = false;
     }
-
+    //supplier data checked
     if (!supplierData.supplierName.trim()) {
       newErrors.supplierName = "Supplier name is required";
       isValid = false;
@@ -212,7 +212,7 @@ const AddSupplier = () => {
         setShowAlert(true);
         setTimeout(() => setShowAlert(false), 3000);
         
-        // Reset form
+        // Reset form inputs
         setSupplierData({
           supplyId: "",
           supplierName: "",
@@ -305,7 +305,7 @@ const AddSupplier = () => {
             Add Supplier
           </button>
         </form>
-
+        
         <AnimatePresence>
           {showAlert && (
             <motion.div 

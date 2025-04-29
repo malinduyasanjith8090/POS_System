@@ -5,18 +5,30 @@ import logo from '../../images/company.png';
 import SideBar from "../SideBar/CustomerSideBar";
 
 export default function RoomList() {
+  // State for storing room data
   const [rooms, setRooms] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(""); // State for search query
+  // State for search functionality
+  const [searchQuery, setSearchQuery] = useState("");
+  // State for alert notifications
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  // State for delete confirmation dialog
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [roomToDelete, setRoomToDelete] = useState(null);
-  const [availability, setAvailability] = useState({ checkIn: "", checkOut: "", adults: 1, children: 0 });
+  // State for availability filtering
+  const [availability, setAvailability] = useState({ 
+    checkIn: "", 
+    checkOut: "", 
+    adults: 1, 
+    children: 0 
+  });
 
+  // Fetch rooms data when component mounts or availability changes
   useEffect(() => {
     fetchRooms();
   }, [availability]);
 
+  // Function to fetch rooms from API
   const fetchRooms = () => {
     axios.get("http://localhost:5000/room/", { params: availability })
       .then((res) => {
@@ -33,6 +45,7 @@ export default function RoomList() {
       });
   };
 
+  // Helper function to determine status color
   const getStatusStyle = (status) => {
     switch (status) {
       case "Available":
@@ -46,14 +59,17 @@ export default function RoomList() {
     }
   };
 
+  // Handle delete button click
   const handleDelete = (id) => {
     setRoomToDelete(id);
     setShowConfirmDialog(true);
   };
 
+  // Confirm and execute room deletion
   const confirmDelete = () => {
     axios.delete(`http://localhost:5000/room/delete/${roomToDelete}`)
       .then((res) => {
+        // Remove deleted room from state
         setRooms(rooms.filter(room => room._id !== roomToDelete));
         setAlertMessage("Room Deleted Successfully");
         setShowAlert(true);
@@ -66,16 +82,19 @@ export default function RoomList() {
         setTimeout(() => setShowAlert(false), 3000);
       })
       .finally(() => {
+        // Reset dialog state
         setShowConfirmDialog(false);
         setRoomToDelete(null);
       });
   };
 
+  // Handle availability filter changes
   const handleAvailabilityChange = (e) => {
     const { name, value } = e.target;
     setAvailability(prevState => ({ ...prevState, [name]: value }));
   };
 
+  // Handle guest count changes
   const handleGuestChange = (e) => {
     const { name, value } = e.target;
     setAvailability(prevState => ({ ...prevState, [name]: parseInt(value, 10) }));
@@ -92,160 +111,170 @@ export default function RoomList() {
       room.status.toLowerCase().includes(searchQuery.toLowerCase())
     );
   });
-    // Export rooms data as PDF
-    const exportPDF = () => {
-      const doc = new jsPDF();
-    
-      // Add the company logo
-      doc.addImage(logo, "PNG", 10, 10, 25, 13);
-    
-      // Add company details below the logo
-      doc.setFontSize(8);
-      doc.setTextColor(0);
-      doc.text("Cinnomon Red Colombo", 10, 30);
-      doc.text("Address: 1234 Event St, City, State, ZIP", 10, 35);
-      doc.text("Contact: (123) 456-7890", 10, 40);
-      doc.text("Email: info@cinnomred.com", 10, 45);
-    
-      // Add centered heading
-      doc.setFontSize(18);
-      doc.setTextColor(0); 
-      const headingY = 60;
-      doc.text("Room List Report", doc.internal.pageSize.getWidth() / 2, headingY, { align: "center" });
-    
-      // Draw underline for heading
-      const headingWidth = doc.getTextWidth("Room List Report");
-      const underlineY = headingY + 1;
-      doc.setDrawColor(0);
-      doc.line((doc.internal.pageSize.getWidth() / 2) - (headingWidth / 2), underlineY,
-        (doc.internal.pageSize.getWidth() / 2) + (headingWidth / 2), underlineY);
-    
-      // Add line break
-      doc.setFontSize(12);
-      doc.text("Report", doc.internal.pageSize.getWidth() / 2, headingY + 10, { align: "center" });
-    
-      // Define table columns and rows
-      const headers = ["Room Type", "Price", "Room Number", "Facilities", "Bed Type", "Status"];
-    
-      const data = rooms.map(room => [
-        room.roomType,
-        `$${room.price}`,
-        room.roomNumber,
-        room.facilities,
-        room.bedType,
-        room.status
-      ]);
-    
-      // Add the table
-      doc.autoTable({
-        head: [headers],
-        body: data,
-        startY: 80, 
-        styles: {
-          fontSize: 8,
-        },
-      });
-    
-      // Add a professional ending
-      const endingY = doc.internal.pageSize.getHeight() - 30;
-      doc.setFontSize(10);
-      doc.text("Thank you for choosing our services.", doc.internal.pageSize.getWidth() / 2, endingY, { align: "center" });
-      doc.text("Contact us at: (123) 456-7890", doc.internal.pageSize.getWidth() / 2, endingY + 10, { align: "center" });
-    
-      // Draw page border
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
-    
-      // Save the PDF
-      doc.save("room_list_report.pdf");
-    };
+
+  // Export rooms data as PDF
+  const exportPDF = () => {
+    const doc = new jsPDF();
+  
+    // Add company logo
+    doc.addImage(logo, "PNG", 10, 10, 25, 13);
+  
+    // Add company details
+    doc.setFontSize(8);
+    doc.setTextColor(0);
+    doc.text("Cinnomon Red Colombo", 10, 30);
+    doc.text("Address: 1234 Event St, City, State, ZIP", 10, 35);
+    doc.text("Contact: (123) 456-7890", 10, 40);
+    doc.text("Email: info@cinnomred.com", 10, 45);
+  
+    // Add report title
+    doc.setFontSize(18);
+    doc.setTextColor(0); 
+    const headingY = 60;
+    doc.text("Room List Report", doc.internal.pageSize.getWidth() / 2, headingY, { align: "center" });
+  
+    // Add title underline
+    const headingWidth = doc.getTextWidth("Room List Report");
+    const underlineY = headingY + 1;
+    doc.setDrawColor(0);
+    doc.line((doc.internal.pageSize.getWidth() / 2) - (headingWidth / 2), underlineY,
+      (doc.internal.pageSize.getWidth() / 2) + (headingWidth / 2), underlineY);
+  
+    // Add report subtitle
+    doc.setFontSize(12);
+    doc.text("Report", doc.internal.pageSize.getWidth() / 2, headingY + 10, { align: "center" });
+  
+    // Prepare table data
+    const headers = ["Room Type", "Price", "Room Number", "Facilities", "Bed Type", "Status"];
+    const data = rooms.map(room => [
+      room.roomType,
+      `$${room.price}`,
+      room.roomNumber,
+      room.facilities,
+      room.bedType,
+      room.status
+    ]);
+  
+    // Generate table
+    doc.autoTable({
+      head: [headers],
+      body: data,
+      startY: 80, 
+      styles: {
+        fontSize: 8,
+      },
+    });
+  
+    // Add footer
+    const endingY = doc.internal.pageSize.getHeight() - 30;
+    doc.setFontSize(10);
+    doc.text("Thank you for choosing our services.", doc.internal.pageSize.getWidth() / 2, endingY, { align: "center" });
+    doc.text("Contact us at: (123) 456-7890", doc.internal.pageSize.getWidth() / 2, endingY + 10, { align: "center" });
+  
+    // Add page border
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
+  
+    // Save PDF file
+    doc.save("room_list_report.pdf");
+  };
 
   return (
-    <><SideBar/>
-    <div style={containerStyle}>
-      <h1 style={titleStyle}>Room List</h1>
+    <>
+      {/* Sidebar component */}
+      <SideBar/>
+      
+      {/* Main content container */}
+      <div style={containerStyle}>
+        <h1 style={titleStyle}>Room List</h1>
 
-      {/* Search Input */}
-      <input
-        type="text"
-        placeholder="Search rooms..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        style={searchInputStyle}
-      />
-       <button onClick={exportPDF} style={confirmDialogButtonStyle}>
-        Export as PDF
-      </button>
+        {/* Search input field */}
+        <input
+          type="text"
+          placeholder="Search rooms..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={searchInputStyle}
+        />
+        
+        {/* PDF export button */}
+        <button onClick={exportPDF} style={confirmDialogButtonStyle}>
+          Export as PDF
+        </button>
 
-      <table style={tableStyle}>
-        <thead>
-          <tr>
-            <th style={thStyle}>Room Name</th>
-            <th style={thStyle}>Price</th>
-            <th style={thStyle}>Room Number</th>
-            <th style={thStyle}>Facilities</th>
-            <th style={thStyle}>Bed Type</th>
-            <th style={thStyle}>Status</th>
-            <th style={thStyle}>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredRooms.length > 0 ? (
-            filteredRooms.map((room) => (
-              <tr key={room._id}>
-                <td style={tdStyle}>{room.roomType}</td>
-                <td style={tdStyle}>Rs.{room.price}</td>
-                <td style={tdStyle}>{room.roomNumber}</td>
-                <td style={tdStyle}>{room.facilities}</td>
-                <td style={tdStyle}>{room.bedType}</td>
-                <td style={{ ...tdStyle, ...getStatusStyle(room.status) }}>{room.status}</td>
-                <td style={tdStyle}>
-                  <button style={confirmDialogButtonStyle} onClick={() => handleDelete(room._id)}>
-                    Delete
-                  </button>
+        {/* Rooms table */}
+        <table style={tableStyle}>
+          <thead>
+            <tr>
+              <th style={thStyle}>Room Name</th>
+              <th style={thStyle}>Price</th>
+              <th style={thStyle}>Room Number</th>
+              <th style={thStyle}>Facilities</th>
+              <th style={thStyle}>Bed Type</th>
+              <th style={thStyle}>Status</th>
+              <th style={thStyle}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {/* Display filtered rooms or "No data" message */}
+            {filteredRooms.length > 0 ? (
+              filteredRooms.map((room) => (
+                <tr key={room._id}>
+                  <td style={tdStyle}>{room.roomType}</td>
+                  <td style={tdStyle}>Rs.{room.price}</td>
+                  <td style={tdStyle}>{room.roomNumber}</td>
+                  <td style={tdStyle}>{room.facilities}</td>
+                  <td style={tdStyle}>{room.bedType}</td>
+                  <td style={{ ...tdStyle, ...getStatusStyle(room.status) }}>{room.status}</td>
+                  <td style={tdStyle}>
+                    <button style={confirmDialogButtonStyle} onClick={() => handleDelete(room._id)}>
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7" style={{ textAlign: "center", padding: "20px", fontSize: "18px", color: "red" }}>
+                  No data found
                 </td>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="7" style={{ textAlign: "center", padding: "20px", fontSize: "18px", color: "red" }}>
-                No data found
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            )}
+          </tbody>
+        </table>
 
-      {showAlert && (
-        <div style={alertStyle}>
-          {alertMessage}
-        </div>
-      )}
+        {/* Alert notification */}
+        {showAlert && (
+          <div style={alertStyle}>
+            {alertMessage}
+          </div>
+        )}
 
-      {showConfirmDialog && (
-        <div style={confirmDialogOverlayStyle}>
-          <div style={confirmDialogStyle}>
-            <h2 style={confirmDialogTitleStyle}>Confirm Delete</h2>
-            <p>Are you sure you want to delete this room?</p>
-            <div style={confirmDialogButtonContainerStyle}>
-              <button style={confirmDialogButtonStyle} onClick={confirmDelete}>Yes</button>
-              <button style={confirmDialogButtonStyle} onClick={() => setShowConfirmDialog(false)}>No</button>
+        {/* Delete confirmation dialog */}
+        {showConfirmDialog && (
+          <div style={confirmDialogOverlayStyle}>
+            <div style={confirmDialogStyle}>
+              <h2 style={confirmDialogTitleStyle}>Confirm Delete</h2>
+              <p>Are you sure you want to delete this room?</p>
+              <div style={confirmDialogButtonContainerStyle}>
+                <button style={confirmDialogButtonStyle} onClick={confirmDelete}>Yes</button>
+                <button style={confirmDialogButtonStyle} onClick={() => setShowConfirmDialog(false)}>No</button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
       </div>
-      </>
+    </>
   );
 }
 
-// Styles
+// Style definitions
 const containerStyle = {
   padding: '50px',
-  width: 'calc(100% - 250px)',
+  width: 'calc(100% - 250px)', // Account for sidebar width
   boxSizing: 'border-box',
-  marginLeft: '250px',
+  marginLeft: '250px', // Make space for sidebar
 };
 
 const searchInputStyle = {
@@ -269,7 +298,7 @@ const tableStyle = {
 
 const thStyle = {
   padding: '10px',
-  backgroundColor: '#800000',
+  backgroundColor: '#800000', // Maroon color
   color: '#fff',
   textAlign: 'left',
 };
@@ -301,7 +330,7 @@ const confirmDialogOverlayStyle = {
   left: 0,
   width: '100%',
   height: '100%',
-  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
@@ -331,7 +360,7 @@ const confirmDialogButtonContainerStyle = {
 const confirmDialogButtonStyle = {
   marginLeft:'10px',
   padding: '8px 15px',
-  backgroundColor: '#800000',
+  backgroundColor: '#800000', // Maroon color
   color: '#fff',
   border: 'none',
   borderRadius: '5px',

@@ -5,10 +5,14 @@ import SideBar from "../SideBar/AdminEmployeeSideBar";
 import "./AddEmployee.css";
 
 export default function AddEmployee() {
+  // State for hover effect on submit button
   const [isHovering, setIsHovering] = useState(false);
+  
+  // State for alert notifications
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
 
+  // Form field states
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
@@ -17,7 +21,7 @@ export default function AddEmployee() {
   const [basicsal, setBasicsal] = useState("");
   const [empid, setEmpid] = useState("");
 
-  // Validation states for each field
+  // Validation error states
   const [nameError, setNameError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [mobileError, setMobileError] = useState("");
@@ -26,6 +30,7 @@ export default function AddEmployee() {
   const [basicsalError, setBasicsalError] = useState("");
   const [empidError, setEmpidError] = useState("");
 
+  // Name input handler with validation
   const handleNameInput = (e) => {
     const value = e.target.value;
     if (/^[A-Za-z\s]*$/.test(value)) {
@@ -36,6 +41,7 @@ export default function AddEmployee() {
     }
   };
 
+  // Mobile input handler with validation
   const handleMobileInput = (e) => {
     const value = e.target.value;
     if (/^\d*$/.test(value) && value.length <= 10) {
@@ -46,7 +52,7 @@ export default function AddEmployee() {
     }
   };
 
-  // Updated NIC input handler to only allow numbers
+  // NIC input handler (only allows numbers)
   const handleNicInput = (e) => {
     const value = e.target.value;
     if (/^\d*$/.test(value) && value.length <= 12) {
@@ -57,6 +63,7 @@ export default function AddEmployee() {
     }
   };
 
+  // Designation input handler with validation
   const handleDesignationInput = (e) => {
     const value = e.target.value;
     if (/^[A-Za-z\s]*$/.test(value)) {
@@ -67,6 +74,7 @@ export default function AddEmployee() {
     }
   };
 
+  // Basic salary input handler with validation
   const handleBasicsalInput = (e) => {
     const value = e.target.value;
     if (/^\d*$/.test(value)) {
@@ -77,6 +85,7 @@ export default function AddEmployee() {
     }
   };
 
+  // Employee ID input handler with validation
   const handleEmpidInput = (e) => {
     const value = e.target.value;
     if (/^\d*$/.test(value)) {
@@ -87,6 +96,7 @@ export default function AddEmployee() {
     }
   };
 
+  // Form submission handler
   const sendData = (e) => {
     e.preventDefault();
 
@@ -108,7 +118,6 @@ export default function AddEmployee() {
       isValid = false;
     }
 
-    // Updated NIC validation to only check for numbers
     if (!/^\d{12}$/.test(nic)) {
       setNicError("NIC must be exactly 12 digits");
       isValid = false;
@@ -136,6 +145,7 @@ export default function AddEmployee() {
       return;
     }
 
+    // Prepare employee data for submission
     const newEmployee = {
       name,
       email,
@@ -146,13 +156,14 @@ export default function AddEmployee() {
       empid,
     };
 
+    // Send data to backend
     axios
       .post("http://localhost:5000/employee/add", newEmployee)
       .then(() => {
         setAlertMessage("Employee Added Successfully");
         setShowAlert(true);
 
-        // Clear form fields
+        // Reset form fields
         setName("");
         setEmail("");
         setMobile("");
@@ -161,7 +172,7 @@ export default function AddEmployee() {
         setBasicsal("");
         setEmpid("");
 
-        // Clear errors
+        // Clear error messages
         setNameError("");
         setEmailError("");
         setMobileError("");
@@ -255,7 +266,7 @@ export default function AddEmployee() {
               {mobileError && <div className="error-message" style={{color: 'red', fontSize: '15px'}}>{mobileError}</div>}
             </div>
 
-            {/* NIC Field - Updated to only allow numbers */}
+            {/* NIC Field */}
             <div className="mb-3">
               <label htmlFor="nic" className="form-label">
                 NIC (Numbers only)
@@ -359,6 +370,7 @@ export default function AddEmployee() {
             </div>
           </div>
 
+          {/* Submit Button */}
           <button
             type="submit"
             className="submit-button"
@@ -369,6 +381,7 @@ export default function AddEmployee() {
           </button>
         </form>
 
+        {/* Alert Notification */}
         <AnimatePresence>
           {showAlert && (
             <motion.div

@@ -5,7 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import SideBar from "../SideBar/AdminEmployeeSideBar.js";
 
 export default function UpdateEmployeeProfile() {
+  // Get employee ID from URL parameters
   const { id } = useParams();
+  // State for employee data
   const [employee, setEmployee] = useState({
     name: "",
     email: "",
@@ -16,10 +18,11 @@ export default function UpdateEmployeeProfile() {
     empid: "",
   });
 
+  // State for alert notifications
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
 
-  // Error states for each field
+  // State for validation errors
   const [nameError, setNameError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [mobileError, setMobileError] = useState("");
@@ -28,6 +31,7 @@ export default function UpdateEmployeeProfile() {
   const [basicsalError, setBasicsalError] = useState("");
   const [empidError, setEmpidError] = useState("");
 
+  // Fetch employee data when component mounts
   useEffect(() => {
     axios
       .get(`http://localhost:5000/employee/get/${id}`)
@@ -41,7 +45,7 @@ export default function UpdateEmployeeProfile() {
       });
   }, [id]);
 
-  // Prevent numbers in name field
+  // Handle name input with validation
   const handleNameInput = (e) => {
     const value = e.target.value;
     if (/^[A-Za-z\s]*$/.test(value)) {
@@ -52,7 +56,7 @@ export default function UpdateEmployeeProfile() {
     }
   };
 
-  // Prevent letters in mobile field
+  // Handle mobile input with validation
   const handleMobileInput = (e) => {
     const value = e.target.value;
     if (/^\d*$/.test(value) && value.length <= 10) {
@@ -63,10 +67,9 @@ export default function UpdateEmployeeProfile() {
     }
   };
 
-  // NIC validation (12 digits with optional V/v at end)
+  // Handle NIC input with validation
   const handleNicInput = (e) => {
     const value = e.target.value;
-    // Allow only numbers and V/v at the end
     if (/^[0-9]{0,12}$/.test(value) || 
         (/^[0-9]{11}[vV]$/.test(value) && value.length === 12)) {
       setEmployee(prev => ({...prev, nic: value}));
@@ -76,12 +79,14 @@ export default function UpdateEmployeeProfile() {
     }
   };
 
+  // Handle designation input
   const handleDesignationInput = (e) => {
     const value = e.target.value;
     setEmployee(prev => ({...prev, designation: value}));
     setDesignationError("");
   };
 
+  // Handle basic salary input with validation
   const handleBasicsalInput = (e) => {
     const value = e.target.value;
     if (/^\d*$/.test(value)) {
@@ -92,6 +97,7 @@ export default function UpdateEmployeeProfile() {
     }
   };
 
+  // Handle employee ID input with validation
   const handleEmpidInput = (e) => {
     const value = e.target.value;
     if (/^\d*$/.test(value)) {
@@ -102,12 +108,14 @@ export default function UpdateEmployeeProfile() {
     }
   };
 
+  // Handle email input
   const handleEmailChange = (e) => {
     const value = e.target.value;
     setEmployee(prev => ({...prev, email: value}));
     setEmailError("");
   };
 
+  // Validate entire form
   function validateForm() {
     let isValid = true;
 
@@ -149,6 +157,7 @@ export default function UpdateEmployeeProfile() {
     return isValid;
   }
 
+  // Handle form submission
   function handleSubmit(e) {
     e.preventDefault();
 
@@ -159,6 +168,7 @@ export default function UpdateEmployeeProfile() {
       return;
     }
 
+    // Update employee data
     axios
       .put(`http://localhost:5000/employee/update/${id}`, employee)
       .then(() => {
@@ -173,6 +183,7 @@ export default function UpdateEmployeeProfile() {
       });
   }
 
+  // Style definitions
   const containerStyle = {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
@@ -456,12 +467,14 @@ export default function UpdateEmployeeProfile() {
               </div>
             </div>
 
+            {/* Submit Button */}
             <button type="submit" style={buttonStyle}>
               Update
             </button>
           </form>
         </div>
 
+        {/* Alert Notification */}
         <AnimatePresence>
           {showAlert && (
             <motion.div
