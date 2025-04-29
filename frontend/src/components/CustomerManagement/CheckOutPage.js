@@ -6,10 +6,22 @@ import 'jspdf-autotable';
 import logo from '../../images/company.png';
 import SideBar from "../SideBar/CustomerSideBar";
 
+/**
+ * CheckOutPage Component - Displays customer checkout information
+ * Features:
+ * - View all customer records in a table
+ * - Search functionality across multiple fields
+ * - Export customer data as PDF report
+ * - Link to individual checkout pages
+ */
 export default function CheckOutPage() {
-  const [customers, setCustomers] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  // State management
+  const [customers, setCustomers] = useState([]); // Stores all customer records
+  const [searchQuery, setSearchQuery] = useState(""); // Stores search term
 
+  /**
+   * Fetches all customers on component mount
+   */
   useEffect(() => {
     function getCustomers() {
       axios.get("http://localhost:5000/customer")
@@ -20,10 +32,17 @@ export default function CheckOutPage() {
     getCustomers();
   }, []);
 
+  /**
+   * Handles search input changes
+   * @param {Event} event - Input change event
+   */
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
+  /**
+   * Filters customers based on search query across multiple fields
+   */
   const filteredCustomers = customers.filter((customer) => {
     return (
       customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -39,9 +58,13 @@ export default function CheckOutPage() {
     );
   });
 
+  /**
+   * Generates and downloads a PDF report of customer data
+   */
   const exportPDF = () => {
     const doc = new jsPDF();
 
+    // Add company logo and details
     doc.addImage(logo, "PNG", 10, 10, 25, 13);
     doc.setFontSize(8);
     doc.setTextColor(0);
@@ -50,17 +73,20 @@ export default function CheckOutPage() {
     doc.text("Contact: (123) 456-7890", 10, 40);
     doc.text("Email: info@cinnomred.com", 10, 45);
 
+    // Add report title
     doc.setFontSize(18);
     doc.setTextColor(0);
     const headingY = 60;
     doc.text("Customer Checkout Report", doc.internal.pageSize.getWidth() / 2, headingY, { align: "center" });
 
+    // Add underline to title
     const headingWidth = doc.getTextWidth("Customer Checkout Report");
     const underlineY = headingY + 1;
     doc.setDrawColor(0);
     doc.line((doc.internal.pageSize.getWidth() / 2) - (headingWidth / 2), underlineY,
       (doc.internal.pageSize.getWidth() / 2) + (headingWidth / 2), underlineY);
 
+    // Define table columns and data
     const headers = ["Name", "Email", "Contact Number", "Room Type", "Room Number", "Price", "Gender", "Nationality"];
     const data = customers.map(customer => [
       customer.name,
@@ -73,6 +99,7 @@ export default function CheckOutPage() {
       customer.nationality
     ]);
 
+    // Generate the table
     doc.autoTable({
       head: [headers],
       body: data,
@@ -82,22 +109,32 @@ export default function CheckOutPage() {
       },
     });
 
+    // Add footer text
     const endingY = doc.internal.pageSize.getHeight() - 30;
     doc.setFontSize(10);
     doc.text("Thank you for choosing our services.", doc.internal.pageSize.getWidth() / 2, endingY, { align: "center" });
     doc.text("Contact us at: (123) 456-7890", doc.internal.pageSize.getWidth() / 2, endingY + 10, { align: "center" });
 
+    // Add page border
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
+    
+    // Save the PDF
     doc.save("customer_checkout_report.pdf");
   };
 
   return (
     <>
+      {/* Sidebar navigation */}
       <SideBar />
+      
+      {/* Main content container */}
       <div style={containerStyle}>
+        {/* Page header */}
         <h1 style={headerStyle}>Check-Out</h1>
+        
+        {/* Search input */}
         <input
           type="text"
           placeholder="Search..."
@@ -105,9 +142,13 @@ export default function CheckOutPage() {
           onChange={handleSearchChange}
           style={searchInputStyle}
         />
+        
+        {/* Export button */}
         <button onClick={exportPDF} style={buttonStyle}>
           Export as PDF
         </button>
+        
+        {/* Customers table */}
         <table style={tableStyle}>
           <thead>
             <tr>
@@ -126,6 +167,7 @@ export default function CheckOutPage() {
             </tr>
           </thead>
           <tbody>
+            {/* Render filtered customers or "No data found" message */}
             {filteredCustomers.length > 0 ? (
               filteredCustomers.map(customer => (
                 <tr key={customer._id} style={tableRowStyle}>
