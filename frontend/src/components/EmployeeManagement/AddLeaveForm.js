@@ -1,23 +1,27 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useParams } from 'react-router-dom'; // Import useParams to get empid
+import { useParams } from 'react-router-dom';
 import SideBar from '../SideBar/EmployeeSideBar copy';
 
 function AddLeaveForm() {
-  const { empid } = useParams(); // Get empid from the URL parameters
+  // Get employee ID from URL parameters
+  const { empid } = useParams();
+  
+  // Form data state
   const [formData, setFormData] = useState({
-    empid:"", // Initialize empid with the prop or empty string
+    empid: empid || "", // Initialize with URL parameter or empty string
     email: "",
     startdate: "",
     enddate: "",
     reason: ""
   });
 
+  // Alert state
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
 
-  // Styles
+  // Inline styles
   const formContainerStyle = {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     padding: '20px',
@@ -76,7 +80,7 @@ function AddLeaveForm() {
     width: '300px',
   };
 
-  // Handle form input changes
+  // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -91,30 +95,31 @@ function AddLeaveForm() {
     return emailRegex.test(email);
   };
 
-  // Handle form submission to add new leave
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Check for email validity
+    // Validate email
     if (!isValidEmail(formData.email)) {
       setAlertMessage('Please enter a valid email address.');
       setShowAlert(true);
       setTimeout(() => {
         setShowAlert(false);
       }, 3000);
-      return; // Stop form submission
+      return;
     }
 
-    // Check if start date is before end date
+    // Validate date range
     if (new Date(formData.startdate) >= new Date(formData.enddate)) {
       setAlertMessage('Start date must be before the end date.');
       setShowAlert(true);
       setTimeout(() => {
         setShowAlert(false);
       }, 3000);
-      return; // Stop form submission
+      return;
     }
 
+    // Submit leave request
     axios.post('http://localhost:5000/leave/add', formData)
       .then((res) => {
         setAlertMessage('Leave request added successfully');
@@ -122,9 +127,9 @@ function AddLeaveForm() {
         setTimeout(() => {
           setShowAlert(false);
         }, 3000);
-        // Reset form fields
+        // Reset form
         setFormData({
-          empid: "", // Keep empid
+          empid: empid || "",
           email: "",
           startdate: "",
           enddate: "",
@@ -143,78 +148,101 @@ function AddLeaveForm() {
   return (
     <>
       <SideBar/>
-    <div style={{ padding: '50px', marginLeft: '250px', marginTop: '60px', boxSizing: 'border-box', width: 'calc(100% - 250px)', height: 'calc(100vh - 60px)' }}>
-      <form style={formContainerStyle} onSubmit={handleSubmit}>
-        <h1>Add New Leave Request</h1>
-        <div style={formGridStyle}>
-          <div className="mb-3">
-            <label style={labelStyle}>Employee ID:</label>
-            <input
-              type="text"
-              name="empid"
-              value={formData.empid}
-              onChange={handleInputChange}
-              style={inputStyle}
-              required
-              // Locking the input field
-            />
+      <div style={{ 
+        padding: '50px', 
+        marginLeft: '250px', 
+        marginTop: '60px', 
+        boxSizing: 'border-box', 
+        width: 'calc(100% - 250px)', 
+        height: 'calc(100vh - 60px)' 
+      }}>
+        <form style={formContainerStyle} onSubmit={handleSubmit}>
+          <h1>Add New Leave Request</h1>
+          <div style={formGridStyle}>
+            {/* Employee ID Field */}
+            <div className="mb-3">
+              <label style={labelStyle}>Employee ID:</label>
+              <input
+                type="text"
+                name="empid"
+                value={formData.empid}
+                onChange={handleInputChange}
+                style={inputStyle}
+                required
+              />
+            </div>
+
+            {/* Email Field */}
+            <div className="mb-3">
+              <label style={labelStyle}>Email:</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                style={inputStyle}
+                required
+              />
+            </div>
+
+            {/* Start Date Field */}
+            <div className="mb-3">
+              <label style={labelStyle}>Start Date:</label>
+              <input
+                type="date"
+                name="startdate"
+                value={formData.startdate}
+                onChange={handleInputChange}
+                style={inputStyle}
+                required
+              />
+            </div>
+
+            {/* End Date Field */}
+            <div className="mb-3">
+              <label style={labelStyle}>End Date:</label>
+              <input
+                type="date"
+                name="enddate"
+                value={formData.enddate}
+                onChange={handleInputChange}
+                style={inputStyle}
+                required
+              />
+            </div>
+
+            {/* Reason Field */}
+            <div className="mb-3">
+              <label style={labelStyle}>Reason:</label>
+              <textarea
+                name="reason"
+                value={formData.reason}
+                onChange={handleInputChange}
+                style={{ ...inputStyle, height: '100px' }}
+                required
+              ></textarea>
+            </div>
           </div>
-          <div className="mb-3">
-            <label style={labelStyle}>Email:</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              style={inputStyle}
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <label style={labelStyle}>Start Date:</label>
-            <input
-              type="date"
-              name="startdate"
-              value={formData.startdate}
-              onChange={handleInputChange}
-              style={inputStyle}
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <label style={labelStyle}>End Date:</label>
-            <input
-              type="date"
-              name="enddate"
-              value={formData.enddate}
-              onChange={handleInputChange}
-              style={inputStyle}
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <label style={labelStyle}>Reason:</label>
-            <textarea
-              name="reason"
-              value={formData.reason}
-              onChange={handleInputChange}
-              style={{ ...inputStyle, height: '100px' }}
-              required
-            ></textarea>
-          </div>
-        </div>
-        <button type="submit" style={buttonStyle}>Submit Leave Request</button>
-      </form>
-      <AnimatePresence>
-        {showAlert && (
-          <motion.div style={alertStyle} initial={{ opacity: 0, x: '100%' }}
-            animate={{ opacity: 1, x: '0%' }} exit={{ opacity: 0, x: '100%' }}>
-            {alertMessage}
-          </motion.div>
-        )}
-      </AnimatePresence>
+
+          {/* Submit Button */}
+          <button type="submit" style={buttonStyle}>Submit Leave Request</button>
+        </form>
+
+        {/* Alert Notification */}
+        <AnimatePresence>
+          {showAlert && (
+            <motion.div 
+              style={alertStyle} 
+              initial={{ opacity: 0, x: '100%' }}
+              animate={{ opacity: 1, x: '0%' }} 
+              exit={{ opacity: 0, x: '100%' }}
+            >
+              {alertMessage}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-      </>
+    </>
   );
 }
 
