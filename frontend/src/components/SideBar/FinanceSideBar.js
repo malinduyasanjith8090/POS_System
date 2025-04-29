@@ -47,7 +47,7 @@ function SideBar() {
     fontSize: '2.5em',  // Larger text size for better visibility
   };
 
-  const titleBarStyle = {
+  const titleBarStyle = {   // Title bar style at the top of the page
     backgroundColor: '#1a1a1a',  // Match sidebar color
     padding: '10px',  // Increased padding for better appearance
     margin: 0,
