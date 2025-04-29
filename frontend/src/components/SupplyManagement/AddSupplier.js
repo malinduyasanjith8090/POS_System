@@ -305,7 +305,7 @@ const AddSupplier = () => {
             Add Supplier
           </button>
         </form>
-
+        
         <AnimatePresence>
           {showAlert && (
             <motion.div 
