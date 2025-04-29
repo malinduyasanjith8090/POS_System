@@ -7,14 +7,27 @@ import 'jspdf-autotable';
 import logo from '../../images/company.png';
 import SideBar from "../SideBar/CustomerSideBar";
 
+/**
+ * CustomerList Component - Displays and manages customer records
+ * Features:
+ * - View all customer records in a table
+ * - Search functionality across multiple fields
+ * - Delete customers with confirmation dialog
+ * - Export customer data as PDF
+ * - View customer profiles
+ */
 export default function CustomerList() {
-  const [customers, setCustomers] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [confirmDialogData, setConfirmDialogData] = useState(null);
+  // State management
+  const [customers, setCustomers] = useState([]); // Stores all customer records
+  const [searchQuery, setSearchQuery] = useState(""); // Stores search term
+  const [showAlert, setShowAlert] = useState(false); // Controls alert visibility
+  const [alertMessage, setAlertMessage] = useState(""); // Stores alert message
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false); // Controls confirmation dialog visibility
+  const [confirmDialogData, setConfirmDialogData] = useState(null); // Stores customer to delete
 
+  /**
+   * Fetches all customers on component mount
+   */
   useEffect(() => {
     function getCustomers() {
       axios.get("http://localhost:5000/customer")
@@ -25,18 +38,26 @@ export default function CustomerList() {
     getCustomers();
   }, []);
 
+  /**
+   * Handles delete button click - shows confirmation dialog
+   * @param {object} customer - Customer to delete
+   */
   const handleDeleteClick = (customer) => {
     setConfirmDialogData(customer);
     setShowConfirmDialog(true);
   };
 
+  /**
+   * Handles customer deletion after confirmation
+   */
   const handleDelete = () => {
     if (confirmDialogData) {
       axios.delete(`http://localhost:5000/customer/delete/${confirmDialogData._id}`)
         .then(() => {
           setAlertMessage("Customer deleted successfully!");
           setShowAlert(true);
-          setTimeout(() => setShowAlert(false), 3000); // Hide after 3 seconds
+          setTimeout(() => setShowAlert(false), 3000);
+          // Remove deleted customer from state
           setCustomers(customers.filter(customer => customer._id !== confirmDialogData._id));
         })
         .catch((err) => {
@@ -48,11 +69,16 @@ export default function CustomerList() {
     }
   };
 
+  /**
+   * Handles cancel action in confirmation dialog
+   */
   const handleCancel = () => {
     setShowConfirmDialog(false);
   };
 
-  // Filter customers based on search query for multiple fields
+  /**
+   * Filters customers based on search query across multiple fields
+   */
   const filteredCustomers = customers.filter((customer) => {
     const search = searchQuery.toLowerCase();
     return (
@@ -69,12 +95,13 @@ export default function CustomerList() {
     );
   });
 
-  // Export customer data as PDF
+  /**
+   * Exports customer data as a PDF report
+   */
   const exportPDF = () => {
     const doc = new jsPDF();
 
     // Add the company logo
-
     doc.addImage(logo, "PNG", 10, 10, 25, 13);
 
     // Add company details below the logo
@@ -144,13 +171,18 @@ export default function CustomerList() {
     doc.save("customers_report.pdf");
   };
 
-
   return (
-    <><SideBar />
+    <>
+      {/* Sidebar navigation */}
+      <SideBar />
+      
+      {/* Main content container */}
       <div style={containerStyle}>
+        {/* Header section with title, search and export */}
         <div style={headerContainerStyle}>
           <h1 style={headerStyle}>All Customers</h1>
           <div style={searchExportContainerStyle}>
+            {/* Search input */}
             <input
               type="text"
               placeholder="Search.."
@@ -158,12 +190,14 @@ export default function CustomerList() {
               onChange={(e) => setSearchQuery(e.target.value)}
               style={searchInputStyle}
             />
+            {/* Export button */}
             <button onClick={exportPDF} style={buttonStyle}>
               Export as PDF
             </button>
           </div>
         </div>
 
+        {/* Customers table */}
         <table style={tableStyle}>
           <thead>
             <tr>
@@ -183,6 +217,7 @@ export default function CustomerList() {
             </tr>
           </thead>
           <tbody>
+            {/* Render filtered customers or "No data found" message */}
             {filteredCustomers.length > 0 ? (
               filteredCustomers.map((customer) => (
                 <tr key={customer._id} style={tableRowStyle}>
@@ -223,10 +258,9 @@ export default function CustomerList() {
               </tr>
             )}
           </tbody>
-
         </table>
 
-        {/* Alert Box */}
+        {/* Alert notification */}
         <AnimatePresence>
           {showAlert && (
             <motion.div
@@ -240,7 +274,7 @@ export default function CustomerList() {
           )}
         </AnimatePresence>
 
-        {/* Confirmation Dialog */}
+        {/* Confirmation dialog for delete action */}
         {showConfirmDialog && (
           <div style={confirmDialogOverlayStyle}>
             <div style={confirmDialogStyle}>
@@ -299,7 +333,7 @@ const searchInputStyle = {
   borderRadius: '5px',
   border: '1px solid #ccc',
   width: '200px',
-  marginRight: '10px', // Add some space between the input and the button
+  marginRight: '10px',
 };
 
 const tableStyle = {
@@ -388,4 +422,3 @@ const confirmDialogButtonStyle = {
   borderRadius: '5px',
   cursor: 'pointer',
 };
-
