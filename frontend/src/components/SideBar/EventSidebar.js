@@ -7,7 +7,7 @@ function SideBar() {             // Hover style for navigation items
   const hoverStyle = {
     backgroundColor: '#b30000',  // Darker red for hover
     color: '#fff',
-    transform: 'scale(1.05)',
+    transform: 'scale(1.05)',   
   };
 
   const defaultStyle = {         // Default link style for sidebar items
