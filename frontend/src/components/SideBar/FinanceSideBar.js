@@ -62,8 +62,8 @@ function SideBar() {
   };
 
   const contentStyle = {
-    marginTop: '60px',  // Gap between the title bar and content
-    padding: '20px',  // Additional padding around the content
+    marginTop: '60px',              // Gap between the title bar and content
+    padding: '20px',                // Additional padding around the content
   };
 
   return (
