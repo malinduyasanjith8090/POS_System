@@ -26,7 +26,7 @@ function SideBar() {
     color: '#fff',
   };
 
-  const disabledStyle = {
+  const disabledStyle = {       //// Style for disabled link (currently not used)
     ...defaultStyle,
     backgroundColor: '#666666',  // Medium gray for disabled
     color: '#ccc',  // Light gray text for disabled
