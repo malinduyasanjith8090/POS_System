@@ -1,45 +1,55 @@
+/* Main container styling */
 .container {
     display: flex;
-    justify-content: center;
+    justify-content: center; /* Center horizontally */
     margin-top: 1rem;
-    margin-bottom: 10rem;
+    margin-bottom: 10rem; /* Prevent footer overlap */
 }
 
+/* Food list container */
 .list {
     margin: 1rem;
-    max-width: 70rem;
+    max-width: 70rem; /* Maximum width */
 }
 
+/* Add food button styling */
 a.add_food {
     display: inline-block;
     background: darkred;
     color: white;
     padding: 0.7rem;
     margin: 0.8rem 0;
-    border-radius: 1.5rem;
+    border-radius: 1.5rem; /* Rounded corners */
 }
 
+/* Add food button hover effect */
 a.add_food:hover {
     opacity: 0.9;
 }
 
+/* Individual food item styling */
 .list_item {
     display: grid;
     grid-template-columns:
-        minmax(5rem, 7rem) minmax(10rem, 20rem) minmax(5rem, 10rem) minmax(5rem, 10rem);
+        minmax(5rem, 7rem) /* Image column */
+        minmax(10rem, 20rem) /* Name column */
+        minmax(5rem, 10rem) /* Price column */
+        minmax(5rem, 10rem); /* Actions column */
     font-size: 1.2rem;
     height: 5rem;
     align-items: center;
     justify-content: center;
 }
 
+/* Food image styling */
 .list_item img {
     width: 4rem;
     height: 4rem;
-    border-radius: 100rem;
-    object-fit: cover;
+    border-radius: 100rem; /* Circular image */
+    object-fit: cover; /* Maintain aspect ratio */
 }
 
+/* Action links styling */
 .actions>a {
     margin-right: 1rem;
     color: darkblue;
