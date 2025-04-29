@@ -9,7 +9,7 @@ function SideBar() {
     transform: 'scale(1.05)',
   };
 
-  const defaultStyle = {
+  const defaultStyle = {    // Default style for all sidebar links
     display: 'block',
     padding: '15px',
     marginBottom: '10px',
