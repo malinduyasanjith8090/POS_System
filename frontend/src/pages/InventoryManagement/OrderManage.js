@@ -124,7 +124,7 @@ export default function StockManage() {
       setLoading(false);
     }
   };
-
+  //sets order items
   const openDeleteModal = (itemId) => {
     setItemIdToDelete(itemId); // Set the item ID to delete
     setIsModalOpen(true); // Open the modal
