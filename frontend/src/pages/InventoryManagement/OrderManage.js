@@ -234,7 +234,7 @@ export default function StockManage() {
     doc.save("stock_report.pdf");
   };
 
-
+  // slide bar added
   return (
     <>
       <SideBar/>
