@@ -48,7 +48,7 @@ function SideBar() {             // Hover style for navigation items
     fontSize: '2.5em',  // Larger text size for better visibility
   };
 
-  const titleBarStyle = {
+  const titleBarStyle = {         // // Top title bar style (header next to sidebar)
     backgroundColor: '#1a1a1a',  // Match sidebar color
     padding: '10px',  // Increased padding for better appearance
     margin: 0,
