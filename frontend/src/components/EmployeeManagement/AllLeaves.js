@@ -4,16 +4,23 @@ import { motion, AnimatePresence } from "framer-motion";
 import SideBar from "../SideBar/AdminEmployeeSideBar";
 
 export default function AllLeaves() {
+  // State for storing leave data
   const [leaves, setLeaves] = useState([]);
+  // State for alert notifications
   const [showAlert, setShowAlert] = useState(false);
+  // State for alert messages
   const [alertMessage, setAlertMessage] = useState("");
+  // State for delete confirmation dialog
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  // State for storing leave to be deleted
   const [confirmDialogData, setConfirmDialogData] = useState(null);
 
+  // Fetch leaves when component mounts
   useEffect(() => {
     fetchLeaves();
   }, []);
 
+  // Function to fetch leave data
   const fetchLeaves = () => {
     axios.get("http://localhost:5000/leave/all")
       .then((res) => setLeaves(res.data))
@@ -23,12 +30,13 @@ export default function AllLeaves() {
       });
   };
 
+  // Handle leave approval status update
   const handleUpdateApproval = (leaveId, status) => {
     axios.put(`http://localhost:5000/leave/update-approval/${leaveId}`, { approval: status })
       .then((res) => {
         setAlertMessage(`Leave ${status.toLowerCase()} successfully!`);
         setShowAlert(true);
-        // Update the leave in the local state
+        // Update local state with new approval status
         setLeaves(leaves.map(leave => 
           leave._id === leaveId ? { ...leave, approval: status } : leave
         ));
@@ -42,17 +50,20 @@ export default function AllLeaves() {
       });
   };
 
+  // Handle delete button click
   const handleDeleteClick = (leave) => {
     setConfirmDialogData(leave);
     setShowConfirmDialog(true);
   };
 
+  // Confirm and execute leave deletion
   const handleDelete = () => {
     if (confirmDialogData) {
       axios.delete(`http://localhost:5000/leave/delete/${confirmDialogData._id}`)
         .then(() => {
           setAlertMessage("Leave request deleted successfully!");
           setShowAlert(true);
+          // Remove deleted leave from state
           setLeaves(leaves.filter(leave => leave._id !== confirmDialogData._id));
           setTimeout(() => setShowAlert(false), 3000);
         })
@@ -67,6 +78,7 @@ export default function AllLeaves() {
     }
   };
 
+  // Cancel delete operation
   const handleCancel = () => {
     setShowConfirmDialog(false);
     setConfirmDialogData(null);
@@ -78,6 +90,7 @@ export default function AllLeaves() {
       <div style={containerStyle}>
         <h1 style={headerStyle}>All Leaves</h1>
 
+        {/* Leaves table */}
         <table style={tableStyle}>
           <thead>
             <tr>
@@ -91,6 +104,7 @@ export default function AllLeaves() {
             </tr>
           </thead>
           <tbody>
+            {/* Display leaves data */}
             {leaves.map(leave => (
               <tr key={leave._id} style={tableRowStyle}>
                 <td style={tableCellStyle}>{leave.empid}</td>
@@ -112,6 +126,7 @@ export default function AllLeaves() {
                   </span>
                 </td>
                 <td style={tableCellStyle}>
+                  {/* Show approve/reject buttons for pending leaves */}
                   {leave.approval === 'Pending' && (
                     <>
                       <button
@@ -128,6 +143,7 @@ export default function AllLeaves() {
                       </button>
                     </>
                   )}
+                  {/* Show "No Actions" for approved/rejected leaves */}
                   {(leave.approval === 'Approved' || leave.approval === 'Rejected') && (
                     <span style={{ color: '#555' }}>No Actions</span>
                   )}
@@ -143,6 +159,7 @@ export default function AllLeaves() {
           </tbody>
         </table>
 
+        {/* Alert notification */}
         <AnimatePresence>
           {showAlert && (
             <motion.div
@@ -154,6 +171,7 @@ export default function AllLeaves() {
               {alertMessage}
             </motion.div>
           )}
+          {/* Delete confirmation dialog */}
           {showConfirmDialog && (
             <motion.div
               style={confirmDialogStyle}
@@ -173,7 +191,7 @@ export default function AllLeaves() {
   );
 }
 
-// Styles
+// Style definitions
 const containerStyle = {
   padding: '20px',
   width: 'calc(100% - 250px)',
@@ -222,7 +240,6 @@ const actionButtonStyle = {
   marginRight: '5px',
 };
 
-// Alert Styles
 const alertStyle = {
   backgroundColor: '#ffffff',
   color: '#800000',
@@ -237,7 +254,6 @@ const alertStyle = {
   transform: 'translateX(100%)',
 };
 
-// Confirmation Dialog Styles
 const confirmDialogStyle = {
   position: 'fixed',
   top: '50%',
