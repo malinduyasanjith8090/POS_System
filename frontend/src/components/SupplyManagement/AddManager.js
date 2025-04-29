@@ -140,7 +140,7 @@ const AddManager = () => {
   );
 };
 
-// Styles
+// update style
 const formContainerStyle = {
   maxWidth: '800px',
   padding: '20px',
