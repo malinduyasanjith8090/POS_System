@@ -1,105 +1,162 @@
 /* AddEmployee.css */
 
-/* Container for the entire form */
+/* Main container for the entire form */
 .form-container {
-    background-color: rgba(255, 255, 255, 0.95);
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-    max-width: 900px;
-    width: 100%;
-    display: flex;
-    margin-top: 80px;
-    margin-left: 450px;
-    flex-direction: column;
-    gap: 2rem;
-    transition: background-color 0.3s ease;
-  }
-  
-  .form-container:hover {
-    background-color: rgba(255, 255, 255, 1);
-  }
-  
-  /* Grid layout for form fields */
+  /* Semi-transparent white background */
+  background-color: rgba(255, 255, 255, 0.95);
+  /* Padding around the form */
+  padding: 2rem;
+  /* Rounded corners */
+  border-radius: 12px;
+  /* Shadow effect */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  /* Maximum width with full width within constraints */
+  max-width: 900px;
+  width: 100%;
+  /* Flex layout for vertical arrangement */
+  display: flex;
+  /* Top margin to account for fixed header */
+  margin-top: 80px;
+  /* Left margin to account for sidebar */
+  margin-left: 450px;
+  /* Vertical flex direction */
+  flex-direction: column;
+  /* Gap between form elements */
+  gap: 2rem;
+  /* Smooth transition for hover effects */
+  transition: background-color 0.3s ease;
+}
+
+/* Hover state for form container */
+.form-container:hover {
+  /* Solid white background on hover */
+  background-color: rgba(255, 255, 255, 1);
+}
+
+/* Grid layout for form fields */
+.form-grid {
+  /* CSS Grid layout */
+  display: grid;
+  /* Responsive columns - minimum 250px, maximum equal width */
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  /* Gap between grid items */
+  gap: 1.5rem;
+}
+
+/* Label styling */
+.form-label {
+  /* Block display for proper spacing */
+  display: block;
+  /* Bottom margin */
+  margin-bottom: 0.5rem;
+  /* Dark gray text color */
+  color: #333;
+  /* Bold text */
+  font-weight: 600;
+  /* Font size */
+  font-size: 1rem;
+}
+
+/* Input field styling */
+.form-control {
+  /* Full width within container */
+  width: 100%;
+  /* Padding inside input */
+  padding: 0.75rem 1rem;
+  /* Border styling */
+  border: 1px solid #ccc;
+  /* Rounded corners */
+  border-radius: 8px;
+  /* Light gray background */
+  background-color: #f9f9f9;
+  /* Smooth transitions for focus effects */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  /* Font size */
+  font-size: 1rem;
+}
+
+/* Focus state for input fields */
+.form-control:focus {
+  /* Maroon border on focus */
+  border-color: #800000;
+  /* Glow effect */
+  box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.2);
+  /* Remove default outline */
+  outline: none;
+}
+
+/* Submit button styling */
+.submit-button {
+  /* Align to the right */
+  align-self: flex-end;
+  /* Padding */
+  padding: 0.75rem 2rem;
+  /* Maroon background */
+  background-color: #800000;
+  /* White text */
+  color: #fff;
+  /* No border */
+  border: none;
+  /* Rounded corners */
+  border-radius: 8px;
+  /* Pointer cursor */
+  cursor: pointer;
+  /* Font size */
+  font-size: 1rem;
+  /* Smooth transitions */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover state for submit button */
+.submit-button:hover {
+  /* Darker maroon on hover */
+  background-color: #b30000;
+  /* Slight upward movement */
+  transform: translateY(-2px);
+}
+
+/* Active state for submit button */
+.submit-button:active {
+  /* Reset transform when clicked */
+  transform: translateY(0);
+}
+
+/* Alert notification styling */
+.alert {
+  /* Fixed position at top right */
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  /* Width */
+  width: 320px;
+  /* Light red background */
+  background-color: #fff5f5;
+  /* Maroon text */
+  color: #800000;
+  /* Padding */
+  padding: 1rem 1.5rem;
+  /* Left border accent */
+  border-left: 5px solid #800000;
+  /* Rounded corners */
+  border-radius: 8px;
+  /* Shadow effect */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  /* High z-index to appear above other elements */
+  z-index: 1000;
+  /* Font size */
+  font-size: 1rem;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 600px) {
+  /* Switch to single column layout */
   .form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-  }
-  
-  /* Label styling */
-  .form-label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: #333;
-    font-weight: 600;
-    font-size: 1rem;
-  }
-  
-  /* Input field styling */
-  .form-control {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    font-size: 1rem;
-  }
-  
-  .form-control:focus {
-    border-color: #800000;
-    box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.2);
-    outline: none;
-  }
-  
-  /* Submit button styling */
-  .submit-button {
-    align-self: flex-end;
-    padding: 0.75rem 2rem;
-    background-color: #800000;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-  }
-  
-  .submit-button:hover {
-    background-color: #b30000;
-    transform: translateY(-2px);
-  }
-  
-  .submit-button:active {
-    transform: translateY(0);
-  }
-  
-  /* Alert styling */
-  .alert {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    width: 320px;
-    background-color: #fff5f5;
-    color: #800000;
-    padding: 1rem 1.5rem;
-    border-left: 5px solid #800000;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-    font-size: 1rem;
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 600px) {
-    .form-grid {
       grid-template-columns: 1fr;
-    }
-  
-    .submit-button {
+  }
+
+  /* Full width button on mobile */
+  .submit-button {
       width: 100%;
       text-align: center;
-    }
   }
-  
+}
