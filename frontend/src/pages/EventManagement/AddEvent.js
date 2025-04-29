@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { motion, AnimatePresence } from "framer-motion";
 import SideBar from "../../components/SideBar/EventSidebar";
 import "./AddEvent.css";
 
@@ -20,6 +21,11 @@ export default function AddEvent() {
   const [searchResults, setSearchResults] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
 
+  // Alert state
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("success");
+
   useEffect(() => {
     if (searchTerm.length > 0) {
       // Searching for event planners
@@ -34,6 +40,13 @@ export default function AddEvent() {
       setSearchResults([]);
     }
   }, [searchTerm]);
+
+  const showAlertMessage = (message, type) => {
+    setAlertMessage(message);
+    setAlertType(type);
+    setShowAlert(true);
+    setTimeout(() => setShowAlert(false), 3000);
+  };
 
   const handleEventPlannerSelect = (planner) => {
     setEventPlanner(planner.Name);
@@ -102,12 +115,15 @@ export default function AddEvent() {
       axios
         .post("http://localhost:5000/events/add", newEvent)
         .then(() => {
-          alert("Event Added");
+          showAlertMessage("Event Added Successfully", "success");
           resetForm();
         })
         .catch((err) => {
-          alert(err);
+          const errorMessage = err.response?.data?.message || err.message || "Error adding event";
+          showAlertMessage(errorMessage, "error");
         });
+    } else {
+      showAlertMessage("Please fix the errors in the form", "error");
     }
   };
 
@@ -286,7 +302,33 @@ export default function AddEvent() {
             </form>
           </div>
         </div>
-      </div>
-    </div>
+
+    {/* Alert notification */}
+    <AnimatePresence>
+    {showAlert && (
+      <motion.div 
+        style={{
+          padding: '10px',
+          borderRadius: '5px',
+          textAlign: 'center',
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+          zIndex: 1000,
+          width: '300px',
+          backgroundColor: alertType === "error" ? "#ffebee" : "#e8f5e9",
+          color: alertType === "error" ? "#c62828" : "#2e7d32",
+        }} 
+        initial={{ opacity: 0, x: '100%' }}
+        animate={{ opacity: 1, x: '0%' }} 
+        exit={{ opacity: 0, x: '100%' }}
+      >
+        {alertMessage}
+      </motion.div>
+    )}
+  </AnimatePresence>
+</div>
+</div>
   );
 }
