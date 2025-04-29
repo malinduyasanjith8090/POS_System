@@ -1,276 +1,369 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { EyeOutlined, FilePdfOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import {
-  DeleteOutlined,
-  PlusCircleOutlined,
-  MinusCircleOutlined,
-} from "@ant-design/icons";
-import { Button, Modal, Table, message, Form, Input, Select } from "antd";
+import { Modal, Button, Table, Typography, message } from "antd";
+import jsPDF from "jspdf";
 import SideBar from "../SideBar/BarSideBar";
 
-const CartPage = () => {
-  const [subTotal, setSubTotal] = useState(0);
-  const [billPopup, setBillPopup] = useState(false);
+const { Title, Text } = Typography;
+
+/**
+ * Features:
+ * - View list of all bills
+ * - View bill details in modal
+ * - Delete bills
+ * - Generate PDF invoices
+ */
+const BillsPage = () => {
+  // Redux dispatch hook for state management
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { cartItems } = useSelector((state) => state.rootReducer);
+  
+  // Component state variables
+  const [billsData, setBillsData] = useState([]); // Stores all bill records
+  const [popupModal, setPopModal] = useState(false); // Controls modal visibility
+  const [selectedBill, setSelectedBill] = useState(null); // Stores currently selected bill details
 
-  // Handle increment
-  const handleIncrement = (record) => {
-    dispatch({
-      type: "UPDATE_CART",
-      payload: { ...record, quantity: record.quantity + 1 },
-    });
-  };
-
-  const handleDecrement = (record) => {
-    if (record.quantity !== 1) {
-      dispatch({
-        type: "UPDATE_CART",
-        payload: { ...record, quantity: record.quantity - 1 },
-      });
+  /**
+   * Fetches all bills from the API
+   * Updates the billsData state with fetched data
+   */
+  const getAllBills = async () => {
+    try {
+      dispatch({ type: "SHOW_LOADING" }); // Show loading indicator
+      const { data } = await axios.get("/api/bills/get-bills");
+      setBillsData(data); // Update state with fetched data
+      dispatch({ type: "HIDE_LOADING" }); // Hide loading indicator
+    } catch (error) {
+      console.error("Error fetching bills data", error);
+      dispatch({ type: "HIDE_LOADING" });
     }
   };
 
-  // Define table columns
+  // Fetch bills when component mounts
+  useEffect(() => {
+    getAllBills();
+  }, []);
+
+  /**
+   * Deletes a bill record
+   * @param {string} id - ID of the bill to delete
+   */
+  const deleteBill = async (id) => {
+    try {
+      dispatch({ type: "SHOW_LOADING" });
+      await axios.delete(`/api/bills/delete-bills/${id}`);
+      message.success("Bill deleted successfully");
+      getAllBills(); // Refresh the bill list
+      dispatch({ type: "HIDE_LOADING" });
+    } catch (error) {
+      console.error("Error deleting bill", error);
+      message.error("Failed to delete bill");
+      dispatch({ type: "HIDE_LOADING" });
+    }
+  };
+
+  /**
+   * Generates a PDF invoice for the selected bill
+   * Creates a professional-looking invoice with:
+   * - Header with business name
+   * - Customer details
+   * - Invoice summary
+   * - Itemized list of purchased items
+   * - Footer with thank you message
+   */
+  const generatePDF = () => {
+    if (!selectedBill) return;
+  
+    const doc = new jsPDF();
+    const currentDate = new Date(); // Get current date and time
+  
+    // Format the current date and time
+    const formattedDate = `${currentDate.toLocaleDateString()} ${currentDate.toLocaleTimeString()}`;
+  
+    // Add page border
+    const margin = 10;
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+    doc.rect(margin, margin, pageWidth - 2 * margin, pageHeight - 2 * margin); // Page border
+  
+    // Header section with business name
+    doc.setFontSize(18);
+    doc.setTextColor(40);
+  
+    // Title split into three lines with the word "Red" in red color
+    doc.setFont("helvetica", "bold");
+    doc.text("Cinnamon", 105, 20, { align: "center" });
+    doc.setTextColor("#800000");
+    doc.text("Red", 105, 30, { align: "center" });
+    doc.setTextColor(40);
+    doc.text("Colombo", 105, 40, { align: "center" });
+  
+    // Add a little space between the title and the date
+    doc.setFontSize(12);
+    doc.text(`Date: ${formattedDate}`, 20, 55);
+  
+    // Bill ID
+    doc.text(`Bill ID: ${selectedBill._id}`, 20, 65);
+  
+    // Divider line
+    doc.line(20, 70, 190, 70); // Horizontal line for section separation
+  
+    // Customer Details Section
+    doc.setFontSize(14);
+    doc.text("Customer Details", 20, 80);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal"); // Normal font for customer details
+    doc.text(`Customer Name: ${selectedBill.customerName}`, 20, 90);
+    doc.text(`Contact Number: ${selectedBill.customerNumber}`, 20, 100);
+  
+    // Invoice Details Section
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold"); // Bold for Invoice Summary
+    doc.text("Invoice Summary", 20, 115);
+    doc.setFont("helvetica", "normal"); // Normal font for amounts
+    doc.setFontSize(12);
+    doc.text(`Sub Total: LKR ${selectedBill.subTotal}`, 20, 125);
+    doc.text(`Tax: LKR ${selectedBill.tax}`, 20, 135);
+    doc.text(`Total Amount: LKR ${selectedBill.totalAmount}`, 20, 145); // Total amount displayed
+  
+    // Cart Items Section
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold"); // Bold for Cart Items
+    doc.text("Cart Items", 20, 160);
+  
+    // Table for Cart Items
+    let yPosition = 170; // Initial position for the first row
+  
+    // Column Headers
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold"); // Bold for headers
+    doc.text("Item", 20, yPosition);
+    doc.text("Quantity", 100, yPosition);
+    doc.text("Price (LKR)", 150, yPosition);
+    yPosition += 10; // Move down for the next row
+  
+    // Draw a line under the headers
+    doc.line(20, yPosition, 190, yPosition); // Horizontal line across the page
+    yPosition += 5; // Add space below the line
+  
+    // Add Cart Items
+    selectedBill.cartItems.forEach((item) => {
+      // Calculate prices
+      const totalPrice = item.price > 0 ? item.price * item.quantity : 0;
+      const totalBPrice = item.Bprice > 0 ? item.Bprice * item.quantity : 0;
+      const totalSPrice = item.Sprice > 0 ? item.Sprice * item.quantity : 0;
+  
+      // Create a formatted price string
+      let priceDetails = `LKR ${totalPrice}`;
+      if (totalBPrice > 0) {
+        priceDetails += `,LKR ${totalBPrice}`;
+      }
+      if (totalSPrice > 0) {
+        priceDetails += `,LKR ${totalSPrice}`;
+      }
+  
+      // Add item details
+      doc.setFont("helvetica", "normal"); // Normal font for item details
+      doc.text(item.name, 20, yPosition);
+      doc.text(String(item.quantity), 100, yPosition);
+      doc.text(priceDetails, 150, yPosition);
+  
+      // Move down for the next item
+      yPosition += 10; // Add space for the next item
+    });
+  
+    // Add footer with thank you message
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "italic"); // Italic font for footer
+    doc.text("Thank you for shopping with us!", 105, pageHeight - margin, { align: "center" });
+  
+    // Save the PDF with customer name in filename
+    doc.save(`invoice_${selectedBill.customerName}.pdf`);
+  };
+  
+
+  // Columns configuration for the bills table
   const columns = [
     {
-      title: "Name",
-      dataIndex: "name",
+      title: "Customer Name",
+      dataIndex: "customerName",
+      key: "customerName",
+      render: (text) => <Text>{text}</Text>,
     },
     {
-      title: "Image",
-      dataIndex: "image",
-      render: (image, record) => (
-        <img src={image} alt={record.name} width="50" height="50" />
-      ),
+      title: "Contact Number",
+      dataIndex: "customerNumber",
+      key: "customerNumber",
+      render: (text) => <Text>{text}</Text>,
     },
     {
-      title: "Bprice",
-      dataIndex: "Bprice",
+      title: "Sub Total",
+      dataIndex: "subTotal",
+      key: "subTotal",
+      render: (text) => <Text>LKR {text}</Text>,
     },
     {
-      title: "Sprice",
-      dataIndex: "Sprice",
+      title: "Tax",
+      dataIndex: "tax",
+      key: "tax",
+      render: (text) => <Text>LKR {text}</Text>,
     },
     {
-      title: "Price",
-      dataIndex: "price",
-    },
-    {
-      title: "Quantity",
-      dataIndex: "_id",
-      render: (id, record) => (
-        <div>
-          <PlusCircleOutlined
-            className="mx-3"
-            style={{ cursor: "pointer" }}
-            onClick={() => handleIncrement(record)}
-          />
-          <b>{record.quantity}</b>
-          <MinusCircleOutlined
-            className="mx-3"
-            style={{ cursor: "pointer" }}
-            onClick={() => handleDecrement(record)}
-          />
-        </div>
+      title: "Total Amount",
+      dataIndex: "totalAmount",
+      key: "totalAmount",
+      render: (text) => (
+        <Text strong style={{ color: "#52c41a" }}>
+          LKR {text}
+        </Text>
       ),
     },
     {
       title: "Action",
-      dataIndex: "_id",
-      render: (id, record) => (
-        <DeleteOutlined
-          style={{ cursor: "pointer" }}
-          onClick={() =>
-            dispatch({
-              type: "DELETE_FROM_CART",
-              payload: record,
-            })
-          }
-        />
+      key: "action",
+      render: (record) => (
+        <>
+          {/* View button - opens modal with bill details */}
+          <Button
+            icon={<EyeOutlined />}
+            type="primary"
+            style={{
+              backgroundColor: "#800000",
+              borderColor: "#800000",
+              color: "#fff",
+              marginRight: "10px",
+            }}
+            onClick={() => {
+              setSelectedBill(record);
+              setPopModal(true);
+            }}
+          >
+            View
+          </Button>
+          {/* Delete button - removes the bill record */}
+          <Button
+            icon={<DeleteOutlined />}
+            type="primary"
+            danger
+            onClick={() => deleteBill(record._id)}
+          >
+            Delete
+          </Button>
+        </>
       ),
     },
   ];
 
-  // Calculate subtotal
-  useEffect(() => {
-    let tempBprice = 0;
-    let tempSprice = 0;
-    let tempprice = 0;
-
-    cartItems.forEach((item) => {
-      tempBprice += (item.Bprice * item.quantity) || 0;
-      tempSprice += (item.Sprice * item.quantity) || 0;
-      tempprice += (item.price * item.quantity) || 0;
-    });
-
-    setSubTotal(tempBprice + tempSprice + tempprice);
-  }, [cartItems]);
-
-  // Handle form submit
-  const handleSubmit = async (values) => {
-    try {
-      const newObject = {
-        ...values,
-        cartItems,
-        subTotal,
-        tax: Number(((subTotal / 100) * 10).toFixed(2)),
-        totalAmount: Number(
-          Number(subTotal) + Number(((subTotal / 100) * 10).toFixed(2))
-        ),
-      };
-
-      const response = await axios.post("/api/bills/add-bills", newObject);
-      message.success("Bill Created Successfully!");
-      navigate("/bills");
-    } catch (error) {
-      message.error("Something Went Wrong!");
-    }
-  };
-
-  // Prevent typing numbers in customer name
-  const handleNameChange = (e) => {
-    const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-    e.target.value = value;
-    return value;
-  };
-
-  // Prevent typing letters in contact number
-  const handleNumberChange = (e) => {
-    const value = e.target.value.replace(/\D/g, '');
-    e.target.value = value;
-    return value;
-  };
-
   return (
     <>
-      <SideBar/>
-      <h1 style={{marginLeft:"260px"}}>Cart</h1>
-      <Table 
-        columns={columns} 
-        dataSource={cartItems} 
-        bordered 
-        rowKey="_id" 
-        style={{marginLeft:"260px",marginRight:"20px"}}
-      />
-      <div className="d-flex flex-column align-items-end" style={{marginLeft:"260px"}}>
-        <hr />
-        <h3>
-          SUB TOTAL : LKR <b> {subTotal} </b> /-
-        </h3>
-        <Button type="primary" onClick={() => setBillPopup(true)}>
-          Create Invoice
-        </Button>
+      <div>
+        {/* Sidebar navigation */}
+        <SideBar />
+        
+        {/* Page header */}
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "20px", marginLeft: "800px" }}>
+          <Title level={3}>Invoice List</Title>
+        </div>
+
+        {/* Main bills table */}
+        <Table
+          columns={columns}
+          dataSource={billsData}
+          bordered
+          pagination={{ pageSize: 5 }} // Show 5 records per page
+          style={{ 
+            backgroundColor: "#f5f5f5", 
+            padding: "20px", 
+            borderRadius: "10px",
+            marginLeft: "300px" 
+          }}
+        />
+
+        {/* Modal for viewing bill details */}
+        {popupModal && (
+          <Modal
+            title="Invoice Details"
+            visible={popupModal}
+            onCancel={() => setPopModal(false)}
+            footer={[
+              // Close button
+              <Button
+                key="cancel"
+                style={{ backgroundColor: "#800000", borderColor: "#800000", color: "#fff" }}
+                onClick={() => setPopModal(false)}
+              >
+                Close
+              </Button>,
+              // PDF export button
+              <Button
+                key="export"
+                type="primary"
+                icon={<FilePdfOutlined />}
+                style={{ backgroundColor: "#800000", borderColor: "#800000", color: "#fff" }}
+                onClick={generatePDF}
+              >
+                Print Invoice
+              </Button>,
+            ]}
+          >
+            {/* Bill details content */}
+            {selectedBill && (
+              <div style={{ lineHeight: "1.8" }}>
+                <p>
+                  <Text strong>ID:</Text> {selectedBill._id}
+                </p>
+                <p>
+                  <Text strong>Customer Name:</Text> {selectedBill.customerName}
+                </p>
+                <p>
+                  <Text strong>Contact Number:</Text> {selectedBill.customerNumber}
+                </p>
+                <p>
+                  <Text strong>Sub Total:</Text> LKR {selectedBill.subTotal}
+                </p>
+                <p>
+                  <Text strong>Tax:</Text> LKR {selectedBill.tax}
+                </p>
+                <p>
+                  <Text strong>Total Amount:</Text> LKR {selectedBill.totalAmount}
+                </p>
+
+                {/* Cart items table */}
+                <Title level={4}>Cart Items</Title>
+                <Table
+                  dataSource={selectedBill.cartItems}
+                  columns={[
+                    { title: "Item", dataIndex: "name" },
+                    { title: "Quantity", dataIndex: "quantity" },
+                    {
+                      title: "Price (LKR)",
+                      dataIndex: "price",
+                      render: (text, record) => {
+                        const totalPrice = record.price > 0 ? record.price * record.quantity : 0;
+                        const totalBPrice = record.Bprice > 0 ? record.Bprice * record.quantity : 0;
+                        const totalSPrice = record.Sprice > 0 ? record.Sprice * record.quantity : 0;
+
+                        return (
+                          <div>
+                            {totalPrice > 0 && <div>LKR {totalPrice}</div>}
+                            {totalBPrice > 0 && <div>Bprice: LKR {totalBPrice}</div>}
+                            {totalSPrice > 0 && <div>Sprice: LKR {totalSPrice}</div>}
+                          </div>
+                        );
+                      },
+                    },
+                  ]}
+                  pagination={false}
+                  rowKey="_id"
+                />
+              </div>
+            )}
+          </Modal>
+        )}
       </div>
-
-      <Modal
-        title="Create Invoice"
-        visible={billPopup}
-        onCancel={() => setBillPopup(false)}
-        footer={false}
-        width={800}
-      >
-        <Form layout="vertical" onFinish={handleSubmit}>
-          <Form.Item
-            name="customerName"
-            label="Customer Name"
-            rules={[
-              { required: true, message: "Please enter the customer name" },
-              { min: 3, message: "Customer name must be at least 3 characters" },
-              { 
-                pattern: /^[a-zA-Z\s]*$/,
-                message: "Customer name cannot contain numbers or special characters" 
-              }
-            ]}
-            getValueFromEvent={handleNameChange}
-          >
-            <Input placeholder="Enter customer name" maxLength={50} />
-          </Form.Item>
-          <Form.Item
-            name="customerNumber"
-            label="Contact No"
-            rules={[
-              { required: true, message: "Please enter the contact number" },
-              {
-                pattern: /^\d{10}$/,
-                message: "Contact number must be 10 digits",
-              },
-            ]}
-            getValueFromEvent={handleNumberChange}
-          >
-            <Input placeholder="Enter 10-digit contact number" maxLength={10} />
-          </Form.Item>
-          <Form.Item
-            name="paymentMode"
-            label="Payment Method"
-            rules={[{ required: true, message: "Please select a payment method" }]}
-          >
-            <Select placeholder="Select payment method">
-              <Select.Option value="cash">Cash</Select.Option>
-              <Select.Option value="card">Card</Select.Option>
-            </Select>
-          </Form.Item>
-
-          {/* Display cart items in the invoice modal */}
-          <div>
-            <h4>Items:</h4>
-            <Table
-              dataSource={cartItems}
-              columns={[
-                {
-                  title: "Item Name",
-                  dataIndex: "name",
-                },
-                {
-                  title: "Quantity",
-                  dataIndex: "quantity",
-                },
-                {
-                  title: "Price (LKR)",
-                  dataIndex: "price",
-                  render: (price, record) => (
-                    <div>
-                      {record.price > 0 && <div>LKR {record.price * record.quantity}</div>}
-                      {record.Bprice > 0 && <div>Bprice: LKR {record.Bprice * record.quantity}</div>}
-                      {record.Sprice > 0 && <div>Sprice: LKR {record.Sprice * record.quantity}</div>}
-                    </div>
-                  ),
-                },
-              ]}
-              pagination={false}
-              rowKey="_id"
-              size="small"
-            />
-          </div>
-
-          {/* Display subtotal, tax, and total */}
-          <div className="bill-it" style={{ marginTop: '20px' }}>
-            <h5>
-              Sub Total: LKR <b>{subTotal.toFixed(2)}</b>
-            </h5>
-            <h4>
-              TAX (10%): LKR <b>{((subTotal / 100) * 10).toFixed(2)}</b>
-            </h4>
-            <h3>
-              GRAND TOTAL: LKR{" "}
-              <b>
-                {(Number(subTotal) + Number(((subTotal / 100) * 10).toFixed(2))).toFixed(2)}
-              </b>
-            </h3>
-          </div>
-
-          <div className="d-flex justify-content-end" style={{ marginTop: '20px' }}>
-            <Button type="primary" htmlType="submit">
-              Generate Bill
-            </Button>
-          </div>
-        </Form>
-      </Modal>
     </>
   );
 };
 
-export default CartPage;
+export default BillsPage;
