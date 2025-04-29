@@ -10,14 +10,27 @@ import {
 import { Button, Modal, Table, message, Form, Input, Select } from "antd";
 import SideBar from "../SideBar/BarSideBar";
 
+/**
+ * CartPage Component - Handles the shopping cart functionality
+ * Features:
+ * - Displays cart items in a table
+ * - Allows quantity adjustment (increment/decrement)
+ * - Item removal from cart
+ * - Invoice generation
+ * - Customer information collection
+ */
 const CartPage = () => {
-  const [subTotal, setSubTotal] = useState(0);
-  const [billPopup, setBillPopup] = useState(false);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { cartItems } = useSelector((state) => state.rootReducer);
+  // State management
+  const [subTotal, setSubTotal] = useState(0); // Stores the subtotal of all cart items
+  const [billPopup, setBillPopup] = useState(false); // Controls invoice modal visibility
+  const dispatch = useDispatch(); // Redux dispatch function
+  const navigate = useNavigate(); // Navigation function
+  const { cartItems } = useSelector((state) => state.rootReducer); // Cart items from Redux store
 
-  // Handle increment
+  /**
+   * Handles incrementing item quantity
+   * @param {object} record - The cart item to increment
+   */
   const handleIncrement = (record) => {
     dispatch({
       type: "UPDATE_CART",
@@ -25,6 +38,10 @@ const CartPage = () => {
     });
   };
 
+  /**
+   * Handles decrementing item quantity (minimum 1)
+   * @param {object} record - The cart item to decrement
+   */
   const handleDecrement = (record) => {
     if (record.quantity !== 1) {
       dispatch({
@@ -34,7 +51,7 @@ const CartPage = () => {
     }
   };
 
-  // Define table columns
+  // Table columns configuration
   const columns = [
     {
       title: "Name",
@@ -64,12 +81,14 @@ const CartPage = () => {
       dataIndex: "_id",
       render: (id, record) => (
         <div>
+          {/* Increment button */}
           <PlusCircleOutlined
             className="mx-3"
             style={{ cursor: "pointer" }}
             onClick={() => handleIncrement(record)}
           />
           <b>{record.quantity}</b>
+          {/* Decrement button */}
           <MinusCircleOutlined
             className="mx-3"
             style={{ cursor: "pointer" }}
@@ -82,6 +101,7 @@ const CartPage = () => {
       title: "Action",
       dataIndex: "_id",
       render: (id, record) => (
+        /* Delete button */
         <DeleteOutlined
           style={{ cursor: "pointer" }}
           onClick={() =>
@@ -95,7 +115,10 @@ const CartPage = () => {
     },
   ];
 
-  // Calculate subtotal
+  /**
+   * Calculates subtotal whenever cart items change
+   * Sums up all item prices (Bprice, Sprice, and regular price)
+   */
   useEffect(() => {
     let tempBprice = 0;
     let tempSprice = 0;
@@ -110,9 +133,13 @@ const CartPage = () => {
     setSubTotal(tempBprice + tempSprice + tempprice);
   }, [cartItems]);
 
-  // Handle form submit
+  /**
+   * Handles form submission for invoice generation
+   * @param {object} values - Form values containing customer info
+   */
   const handleSubmit = async (values) => {
     try {
+      // Prepare bill data
       const newObject = {
         ...values,
         cartItems,
@@ -123,6 +150,7 @@ const CartPage = () => {
         ),
       };
 
+      // Submit to API
       const response = await axios.post("/api/bills/add-bills", newObject);
       message.success("Bill Created Successfully!");
       navigate("/bills");
@@ -131,14 +159,20 @@ const CartPage = () => {
     }
   };
 
-  // Prevent typing numbers in customer name
+  /**
+   * Prevents entering numbers in customer name field
+   * @param {Event} e - Input change event
+   */
   const handleNameChange = (e) => {
     const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
     e.target.value = value;
     return value;
   };
 
-  // Prevent typing letters in contact number
+  /**
+   * Prevents entering non-digits in contact number field
+   * @param {Event} e - Input change event
+   */
   const handleNumberChange = (e) => {
     const value = e.target.value.replace(/\D/g, '');
     e.target.value = value;
@@ -147,8 +181,13 @@ const CartPage = () => {
 
   return (
     <>
+      {/* Sidebar component */}
       <SideBar/>
+      
+      {/* Page title */}
       <h1 style={{marginLeft:"260px"}}>Cart</h1>
+      
+      {/* Main cart items table */}
       <Table 
         columns={columns} 
         dataSource={cartItems} 
@@ -156,6 +195,8 @@ const CartPage = () => {
         rowKey="_id" 
         style={{marginLeft:"260px",marginRight:"20px"}}
       />
+      
+      {/* Subtotal and invoice button section */}
       <div className="d-flex flex-column align-items-end" style={{marginLeft:"260px"}}>
         <hr />
         <h3>
@@ -166,6 +207,7 @@ const CartPage = () => {
         </Button>
       </div>
 
+      {/* Invoice creation modal */}
       <Modal
         title="Create Invoice"
         visible={billPopup}
@@ -173,7 +215,9 @@ const CartPage = () => {
         footer={false}
         width={800}
       >
+        {/* Invoice form */}
         <Form layout="vertical" onFinish={handleSubmit}>
+          {/* Customer name field */}
           <Form.Item
             name="customerName"
             label="Customer Name"
@@ -189,6 +233,8 @@ const CartPage = () => {
           >
             <Input placeholder="Enter customer name" maxLength={50} />
           </Form.Item>
+          
+          {/* Contact number field */}
           <Form.Item
             name="customerNumber"
             label="Contact No"
@@ -203,6 +249,8 @@ const CartPage = () => {
           >
             <Input placeholder="Enter 10-digit contact number" maxLength={10} />
           </Form.Item>
+          
+          {/* Payment method selection */}
           <Form.Item
             name="paymentMode"
             label="Payment Method"
@@ -214,7 +262,7 @@ const CartPage = () => {
             </Select>
           </Form.Item>
 
-          {/* Display cart items in the invoice modal */}
+          {/* Cart items summary in modal */}
           <div>
             <h4>Items:</h4>
             <Table
@@ -246,7 +294,7 @@ const CartPage = () => {
             />
           </div>
 
-          {/* Display subtotal, tax, and total */}
+          {/* Price summary section */}
           <div className="bill-it" style={{ marginTop: '20px' }}>
             <h5>
               Sub Total: LKR <b>{subTotal.toFixed(2)}</b>
@@ -262,6 +310,7 @@ const CartPage = () => {
             </h3>
           </div>
 
+          {/* Form submit button */}
           <div className="d-flex justify-content-end" style={{ marginTop: '20px' }}>
             <Button type="primary" htmlType="submit">
               Generate Bill

@@ -8,14 +8,29 @@ import { jsPDF } from "jspdf";
 import logo from '../../images/company.png';
 import SideBar from "../SideBar/BarSideBar";
 
+/**
+ * ItemPage Component - Manages bar inventory items
+ * Features:
+ * - View, add, edit, and delete items
+ * - Search functionality
+ * - PDF report generation
+ * - Form validation
+ * - Image URL validation
+ */
 const ItemPage = () => {
+  // Redux dispatch for state management
   const dispatch = useDispatch();
-  const [itemsData, setItemsData] = useState([]);
-  const [popupModal, setPopModal] = useState(false);
-  const [editItem, SetEdititem] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  
+  // Component state
+  const [itemsData, setItemsData] = useState([]); // Stores all items
+  const [popupModal, setPopModal] = useState(false); // Controls modal visibility
+  const [editItem, SetEdititem] = useState(null); // Stores item being edited
+  const [searchTerm, setSearchTerm] = useState(""); // Stores search term
 
-  // Function to fetch items
+  /**
+   * Fetches all items from the API
+   * Manages loading state during API call
+   */
   const getAllItems = async () => {
     try {
       dispatch({ type: "SHOW_LOADING" });
@@ -28,10 +43,15 @@ const ItemPage = () => {
     }
   };
 
+  // Fetch items on component mount
   useEffect(() => {
     getAllItems();
   }, []);
 
+  /**
+   * Handles item deletion
+   * @param {object} record - Item to delete
+   */
   const handleDelete = async (record) => {
     try {
       dispatch({ type: "SHOW_LOADING" });
@@ -47,7 +67,7 @@ const ItemPage = () => {
     }
   };
 
-  // Filtered data based on search term
+  // Filter items based on search term (name or prices)
   const filteredItems = itemsData.filter((item) =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     String(item.Bprice).includes(searchTerm) ||
@@ -55,7 +75,10 @@ const ItemPage = () => {
     String(item.price).includes(searchTerm)
   );
 
-  // Function to generate PDF
+  /**
+   * Generates a PDF report of items
+   * Includes company logo, details, and formatted item table
+   */
   const generatePDF = async () => {
     const doc = new jsPDF();
 
@@ -129,7 +152,7 @@ const ItemPage = () => {
     doc.save("items_report.pdf");
   };
 
-  // Table columns
+  // Table columns configuration
   const columns = [
     {
       title: "Name",
@@ -162,6 +185,7 @@ const ItemPage = () => {
       dataIndex: "_id",
       render: (id, record) => (
         <div style={{ display: "flex", gap: "10px" }}>
+          {/* Edit button */}
           <EditOutlined
             style={{ cursor: "pointer", color: "#1890ff" }}
             onClick={() => {
@@ -169,6 +193,7 @@ const ItemPage = () => {
               setPopModal(true);
             }}
           />
+          {/* Delete button */}
           <DeleteOutlined
             style={{ cursor: "pointer", color: "#ff4d4f" }}
             onClick={() => {
@@ -180,7 +205,10 @@ const ItemPage = () => {
     },
   ];
 
-  // Handle form submit for adding/editing items
+  /**
+   * Handles form submission for adding/editing items
+   * @param {object} values - Form values
+   */
   const handleSubmit = async (values) => {
     if (editItem === null) {
       // Add new item
@@ -222,7 +250,10 @@ const ItemPage = () => {
     }
   };
 
-  // Prevent typing letters in price fields
+  /**
+   * Handles price input validation
+   * @param {Event} e - Input change event
+   */
   const handlePriceChange = (e) => {
     const value = e.target.value.replace(/[^0-9.]/g, '');
     // Ensure only one decimal point
@@ -235,7 +266,11 @@ const ItemPage = () => {
     return value;
   };
 
-  // Validate URL format
+  /**
+   * Validates URL format
+   * @param {object} _ - Antd form rule object
+   * @param {string} value - URL to validate
+   */
   const validateUrl = (_, value) => {
     try {
       new URL(value);
@@ -247,7 +282,10 @@ const ItemPage = () => {
 
   return (
     <>
+      {/* Sidebar navigation */}
       <SideBar/>
+      
+      {/* Page header with search and action buttons */}
       <div
         style={{
           display: "flex",
@@ -260,6 +298,7 @@ const ItemPage = () => {
       >
         <h1>Item List</h1>
         <div style={{ display: "flex", gap: "10px" }}>
+          {/* Search input */}
           <Input.Search
             placeholder="Search items"
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -269,6 +308,8 @@ const ItemPage = () => {
               boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.1)",
             }}
           />
+          
+          {/* Add Item button (maroon color) */}
           <Button
             type="primary"
             onClick={() => {
@@ -284,6 +325,8 @@ const ItemPage = () => {
           >
             Add Item
           </Button>
+          
+          {/* Report button (green color) */}
           <Button
             type="primary"
             onClick={generatePDF}
@@ -299,6 +342,7 @@ const ItemPage = () => {
         </div>
       </div>
 
+      {/* Items table */}
       <Table
         columns={columns}
         dataSource={filteredItems}
@@ -317,6 +361,7 @@ const ItemPage = () => {
         }}
       />
 
+      {/* Add/Edit Item Modal */}
       {popupModal && (
         <Modal
           title={`${editItem !== null ? "Edit Item" : "Add new Item"}`}
@@ -338,6 +383,7 @@ const ItemPage = () => {
             }}
             onFinish={handleSubmit}
           >
+            {/* Item Name field */}
             <Form.Item
               name="name"
               label="Name"
@@ -349,6 +395,7 @@ const ItemPage = () => {
               <Input />
             </Form.Item>
 
+            {/* Bottle Price field */}
             <Form.Item
               name="Bprice"
               label="Bottle Price"
@@ -364,6 +411,7 @@ const ItemPage = () => {
               <Input prefix="" />
             </Form.Item>
 
+            {/* Shot Price field */}
             <Form.Item
               name="Sprice"
               label="Shot Price"
@@ -379,6 +427,7 @@ const ItemPage = () => {
               <Input prefix="" />
             </Form.Item>
 
+            {/* Regular Price field */}
             <Form.Item
               name="price"
               label="Price"
@@ -394,6 +443,7 @@ const ItemPage = () => {
               <Input prefix="" />
             </Form.Item>
 
+            {/* Image URL field with validation */}
             <Form.Item
               name="image"
               label="Image URL"
@@ -427,6 +477,7 @@ const ItemPage = () => {
               />
             </Form.Item>
 
+            {/* Category selection */}
             <Form.Item
               name="category"
               label="Category"
@@ -448,6 +499,7 @@ const ItemPage = () => {
               </Select>
             </Form.Item>
 
+            {/* Form action buttons */}
             <div
               style={{
                 display: "flex",

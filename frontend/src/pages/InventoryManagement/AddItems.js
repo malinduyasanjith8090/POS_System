@@ -74,7 +74,7 @@ export default function AddItems({ onItemAdded }) {
         }));
       }
     }
-
+    // Real-time validation for In Date
     if (field === "date") {
       if (!date) {
         setErrors((prevErrors) => ({
@@ -166,7 +166,7 @@ export default function AddItems({ onItemAdded }) {
             backgroundColor: "#f9f9f9",
             borderRadius: "10px",
             boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-          }}
+          }} //Add styles
         >
           <style>{`
           .form-group {

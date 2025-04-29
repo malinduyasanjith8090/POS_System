@@ -26,7 +26,7 @@ export default function AddOrders() {
         console.error("Error fetching orders:", error);
       });
   };
-
+// use effect update
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -78,7 +78,7 @@ export default function AddOrders() {
     setErrors(formErrors);
     return valid;
   }
-
+  // function edits
   function sendData(e) {
     e.preventDefault();
 
@@ -153,7 +153,7 @@ export default function AddOrders() {
             borderRadius: "10px",
             boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
             border: "1px solid black"
-          }}
+          }} //add style for add order
         >
           <style>
             {`
@@ -210,7 +210,7 @@ export default function AddOrders() {
             `}
           </style>
           <h1 style={{ textAlign: "center", fontSize: 32 }}>Add Order Details</h1>
-
+          
           <form onSubmit={sendData}>
             <div className="form-group">
               <label htmlFor="Name" className="form-label">
