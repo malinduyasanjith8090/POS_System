@@ -5,11 +5,21 @@ import ItemList from "../../components/Bar/ItemList";
 import { useDispatch } from "react-redux";
 import SideBar from "../SideBar/BarSideBar";
 
+/**
+ * Homepage Component - Displays product categories and items for a bar management system
+ * Features:
+ * - Category selection with visual indicators
+ * - Item display in grid layout
+ * - Interactive UI with hover effects
+ * - Loading state management
+ */
 const Homepage = () => {
-  const [itemsData, setItemsData] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("drinks");
-  const [selectedItem, setSelectedItem] = useState(null); // State to track selected item
+  // State management
+  const [itemsData, setItemsData] = useState([]); // Stores all items data from API
+  const [selectedCategory, setSelectedCategory] = useState("drinks"); // Currently selected category
+  const [selectedItem, setSelectedItem] = useState(null); // Currently selected item ID
 
+  // Category configuration with display names and images
   const categories = [
     {
       name: 'alcoholicBeverages',
@@ -53,15 +63,19 @@ const Homepage = () => {
     }
   ];
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch(); // Redux dispatch function
 
+  /**
+   * Fetches all items from the API when component mounts
+   * Manages loading state during API call
+   */
   useEffect(() => {
     const getAllItems = async () => {
       try {
-        dispatch({ type: "SHOW_LOADING" });
+        dispatch({ type: "SHOW_LOADING" }); // Show loading indicator
         const { data } = await axios.get("/api/items/get-item");
-        setItemsData(data);
-        dispatch({ type: "HIDE_LOADING" });
+        setItemsData(data); // Store fetched items data
+        dispatch({ type: "HIDE_LOADING" }); // Hide loading indicator
       } catch (error) {
         console.log(error);
         dispatch({ type: "HIDE_LOADING" });
@@ -70,7 +84,7 @@ const Homepage = () => {
     getAllItems();
   }, [dispatch]);
 
-  // Inline styles for categories and enhancements
+  // Inline styles for categories and UI elements
   const categoryStyle = {
     display: 'flex',
     alignItems: 'center',
@@ -85,25 +99,28 @@ const Homepage = () => {
     backgroundColor: 'white'
   };
 
+  // Style for active (selected) category
   const categoryActiveStyle = {
     ...categoryStyle,
     border: '2px solid #4CAF50',
     backgroundColor: 'rgba(76, 175, 80, 0.1)',
   };
 
-  // Change text color for active categories
+  // Text style for active category (maroon color)
   const activeCategoryTextStyle = {
     fontSize: '14px',
     fontWeight: '500',
-    color: '#800000', // Set color to #800000 for active category
+    color: '#800000',
   };
 
+  // Text style for inactive category
   const inactiveCategoryTextStyle = {
     fontSize: '14px',
     fontWeight: '500',
-    color: '#333' // Default color
+    color: '#333'
   };
 
+  // Style for category images
   const categoryImgStyle = {
     borderRadius: '6px',
     objectFit: 'cover',
@@ -112,6 +129,7 @@ const Homepage = () => {
     marginLeft: '10px'
   };
 
+  // Style for page title
   const pageTitleStyle = {
     textAlign: 'center',
     fontSize: '28px',
@@ -120,6 +138,7 @@ const Homepage = () => {
     marginLeft:'200px'
   };
 
+  // Style for category container (horizontal scrollable)
   const categoryContainerStyle = {
     display: 'flex',
     justifyContent: 'center',
@@ -129,6 +148,7 @@ const Homepage = () => {
     marginRight:'20px'
   };
 
+  // Style for individual items
   const itemStyle = {
     cursor: 'pointer',
     padding: '10px',
@@ -140,8 +160,13 @@ const Homepage = () => {
 
   return (
     <>
-    <SideBar/>
+      {/* Sidebar navigation */}
+      <SideBar/>
+      
+      {/* Page title */}
       <h1 style={pageTitleStyle}>Explore Our Categories</h1>
+      
+      {/* Categories horizontal scrollable container */}
       <div style={categoryContainerStyle}>
         {categories.map(category => (
           <div
@@ -151,9 +176,11 @@ const Homepage = () => {
             onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
+            {/* Category name with conditional styling */}
             <span style={selectedCategory === category.name ? activeCategoryTextStyle : inactiveCategoryTextStyle}>
               {category.displayName}
             </span>
+            {/* Category image */}
             <img
               src={category.imageUrl}
               alt={category.displayName}
@@ -163,25 +190,27 @@ const Homepage = () => {
         ))}
       </div>
 
+      {/* Items grid filtered by selected category */}
       <Row style={{ marginTop: '40px',marginLeft:"250px",marginRight:"20px" }} gutter={[16, 16]}>
         {itemsData
           .filter(item => item.category.toLowerCase() === selectedCategory.toLowerCase())  
           .map(item => (
             <Col key={item._id} xs={24} lg={6} md={12} sm={6}>
+              {/* Individual item container with selection highlighting */}
               <div 
                 style={{ 
                   ...itemStyle, 
                   backgroundColor: selectedItem === item._id ? '#800000' : 'white', 
-                  color: selectedItem === item._id ? 'white' : '#333' // Change text color when selected
+                  color: selectedItem === item._id ? 'white' : '#333'
                 }}
-                onClick={() => setSelectedItem(item._id)} // Set selected item
+                onClick={() => setSelectedItem(item._id)}
               >
+                {/* ItemList component to render item details */}
                 <ItemList item={item} />
               </div>
             </Col>
           ))}
       </Row>
-   
     </>
   );
 };
