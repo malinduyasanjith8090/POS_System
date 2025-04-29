@@ -5,7 +5,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import SideBar from "../SideBar/EmployeeSideBar copy";
 
 export default function UpdateEmpProfile() {
+  // Get employee ID from URL parameters
   const { id } = useParams();
+  
+  // State for employee data
   const [employee, setEmployee] = useState({
     name: "",
     email: "",
@@ -14,15 +17,21 @@ export default function UpdateEmpProfile() {
     designation: "",
     empid: "",
   });
+  
+  // State for alert notification
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
 
+  // Fetch employee data when component mounts or ID changes
   useEffect(() => {
+    // First try to get employee data from sessionStorage
     const storedEmployee = JSON.parse(sessionStorage.getItem('employee'));
 
     if (storedEmployee) {
+      // If found in sessionStorage, use that data
       setEmployee(storedEmployee);
     } else {
+      // Otherwise fetch from API
       axios
         .get(`http://localhost:5000/employee/get/${id}`)
         .then((res) => {
@@ -34,11 +43,14 @@ export default function UpdateEmpProfile() {
     }
   }, [id]);
 
+  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
+    // Update the employee state with new value
     setEmployee((prevState) => ({ ...prevState, [name]: value }));
   };
 
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -89,6 +101,7 @@ export default function UpdateEmpProfile() {
       });
   };
 
+  // Style definitions
   const containerStyle = {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
@@ -144,41 +157,115 @@ export default function UpdateEmpProfile() {
 
   return (
     <>
+      {/* Sidebar component */}
       <SideBar />
-      <div style={{ padding: "50px", width: "calc(100% - 250px)", boxSizing: "border-box", marginLeft: "250px" }}>
+      
+      {/* Main content container */}
+      <div style={{ 
+        padding: "50px", 
+        width: "calc(100% - 250px)", 
+        boxSizing: "border-box", 
+        marginLeft: "250px" 
+      }}>
         <h1>Employee Update</h1>
+        
+        {/* Form container */}
         <div style={formStyle}>
           <form onSubmit={handleSubmit}>
             <div style={containerStyle}>
+              {/* Name Field */}
               <div className="form-group">
                 <label htmlFor="name" style={labelStyle}>Name</label>
-                <input type="text" id="name" name="name" value={employee.name} onChange={handleChange} style={inputStyle} required />
+                <input 
+                  type="text" 
+                  id="name" 
+                  name="name" 
+                  value={employee.name} 
+                  onChange={handleChange} 
+                  style={inputStyle} 
+                  required 
+                />
               </div>
+              
+              {/* Email Field */}
               <div className="form-group">
                 <label htmlFor="email" style={labelStyle}>Email</label>
-                <input type="email" id="email" name="email" value={employee.email} onChange={handleChange} style={inputStyle} required />
+                <input 
+                  type="email" 
+                  id="email" 
+                  name="email" 
+                  value={employee.email} 
+                  onChange={handleChange} 
+                  style={inputStyle} 
+                  required 
+                />
               </div>
+              
+              {/* Mobile Number Field */}
               <div className="form-group">
                 <label htmlFor="mobile" style={labelStyle}>Mobile No</label>
-                <input type="text" id="mobile" name="mobile" value={employee.mobile} onChange={handleChange} style={inputStyle} required />
+                <input 
+                  type="text" 
+                  id="mobile" 
+                  name="mobile" 
+                  value={employee.mobile} 
+                  onChange={handleChange} 
+                  style={inputStyle} 
+                  required 
+                />
               </div>
+              
+              {/* NIC Field */}
               <div className="form-group">
                 <label htmlFor="nic" style={labelStyle}>NIC</label>
-                <input type="text" id="nic" name="nic" value={employee.nic} onChange={handleChange} style={inputStyle} required />
+                <input 
+                  type="text" 
+                  id="nic" 
+                  name="nic" 
+                  value={employee.nic} 
+                  onChange={handleChange} 
+                  style={inputStyle} 
+                  required 
+                />
               </div>
+              
+              {/* Designation Field (disabled) */}
               <div className="form-group">
                 <label htmlFor="designation" style={labelStyle}>Designation</label>
-                <input type="text" id="designation" name="designation" value={employee.designation} onChange={handleChange} style={inputStyle} required disabled />
+                <input 
+                  type="text" 
+                  id="designation" 
+                  name="designation" 
+                  value={employee.designation} 
+                  onChange={handleChange} 
+                  style={inputStyle} 
+                  required 
+                  disabled 
+                />
               </div>
+              
+              {/* Employee ID Field (disabled) */}
               <div className="form-group">
                 <label htmlFor="empid" style={labelStyle}>Employee ID</label>
-                <input type="text" id="empid" name="empid" value={employee.empid} onChange={handleChange} style={inputStyle} required disabled />
+                <input 
+                  type="text" 
+                  id="empid" 
+                  name="empid" 
+                  value={employee.empid} 
+                  onChange={handleChange} 
+                  style={inputStyle} 
+                  required 
+                  disabled 
+                />
               </div>
             </div>
+            
+            {/* Submit Button */}
             <button type="submit" style={buttonStyle}>Update</button>
           </form>
         </div>
 
+        {/* Alert Notification */}
         <AnimatePresence>
           {showAlert && (
             <motion.div
