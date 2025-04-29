@@ -3,43 +3,53 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 export default function Login() {
+  // State for form inputs and error message
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
   const [error, setError] = useState("");
+  
+  // Navigation hook for programmatic routing
   const navigate = useNavigate();
 
+  // Style for the title bar at the top of the page
   const titleBarStyle = {
-    backgroundColor: '#1a1a1a',  // Match sidebar color
-    padding: '10px',  // Increased padding for better appearance
-    margin: 0,
-    width: '100%',  // Full width minus sidebar width
-    position: 'fixed',
-    top: 0,  // Align with the top of the viewport
-    boxSizing: 'border-box',
-    textAlign: 'center',  // Center the title text
-    color: '#fff',  // White text for contrast on dark background
-    borderBottom: '1px solid #333',  // Optional: darker gray border at the bottom for better contrast
+    backgroundColor: '#1a1a1a',  // Dark background color
+    padding: '10px',            // Padding around the title
+    margin: 0,                  // No margin
+    width: '100%',              // Full width
+    position: 'fixed',          // Fixed position at top
+    top: 0,                     // Align to top of viewport
+    boxSizing: 'border-box',    // Box sizing model
+    textAlign: 'center',        // Center align text
+    color: '#fff',              // White text color
+    borderBottom: '1px solid #333',  // Bottom border
   };
+
+  // Handle login form submission
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
+      // Send login request to backend
       const res = await axios.post(`http://localhost:5000/employee/login`, { email, mobile });
 
       if (res.status === 200 && res.data.employee) {
-        // Store employee data in sessionStorage
+        // Store employee data in sessionStorage for persistence
         sessionStorage.setItem('employee', JSON.stringify(res.data.employee));
-        // Successful login, navigate to employee update profile
+        // Navigate to employee update profile page on successful login
         navigate(`/employee/update/${res.data.employee._id}`);
       } else {
+        // Set error message for invalid credentials
         setError("Invalid email or mobile number");
       }
     } catch (err) {
+      // Handle login error
       setError("Invalid email or mobile number");
-      console.error(err); // For debugging
+      console.error(err); // Log error for debugging
     }
   };
 
+  // Container style for the login form
   const containerStyle = {
     display: 'flex',
     justifyContent: 'center',
@@ -48,6 +58,7 @@ export default function Login() {
     background: 'linear-gradient(135deg, #8e9eab, #eef2f3)',
   };
 
+  // Style for the form container
   const formStyle = {
     backgroundColor: '#fff',
     padding: '40px',
@@ -59,6 +70,7 @@ export default function Login() {
     textAlign: 'center',
   };
 
+  // Style for input fields
   const inputStyle = {
     marginBottom: '20px',
     padding: '12px',
@@ -69,6 +81,7 @@ export default function Login() {
     transition: 'border 0.3s',
   };
 
+  // Style for the login button
   const buttonStyle = {
     padding: '12px',
     background: 'linear-gradient(45deg, #800000, #800000)',
@@ -82,6 +95,7 @@ export default function Login() {
     transition: 'background 0.3s',
   };
 
+  // Style for the form heading
   const headingStyle = {
     fontSize: '26px',
     marginBottom: '10px',
@@ -90,6 +104,7 @@ export default function Login() {
     fontFamily: '"Poppins", sans-serif',
   };
 
+  // Style for form labels
   const labelStyle = {
     fontSize: '14px',
     marginBottom: '8px',
@@ -100,34 +115,47 @@ export default function Login() {
   };
 
   return (
-    <><div style={titleBarStyle}>
-    <h1 style={{ margin: 0, padding: 0 }}>Employee Management</h1>
-  </div>
-    <div style={containerStyle}>
-      <form style={formStyle} onSubmit={handleLogin}>
-        <h2 style={headingStyle}>Log In</h2>
-        <label style={labelStyle}>Email</label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          style={inputStyle}
-          placeholder="Enter your email"
-        />
-        <label style={labelStyle}>Mobile Number</label>
-        <input
-          type="text"
-          value={mobile}
-          onChange={(e) => setMobile(e.target.value)}
-          required
-          style={inputStyle}
-          placeholder="Enter your mobile number"
-        />
-        {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
-        <button type="submit" style={buttonStyle}>Log In</button>
-      </form>
+    <>
+      {/* Title bar at the top of the page */}
+      <div style={titleBarStyle}>
+        <h1 style={{ margin: 0, padding: 0 }}>Employee Management</h1>
       </div>
-      </>
+      
+      {/* Main container for the login form */}
+      <div style={containerStyle}>
+        {/* Login form */}
+        <form style={formStyle} onSubmit={handleLogin}>
+          <h2 style={headingStyle}>Log In</h2>
+          
+          {/* Email input field */}
+          <label style={labelStyle}>Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            style={inputStyle}
+            placeholder="Enter your email"
+          />
+          
+          {/* Mobile number input field */}
+          <label style={labelStyle}>Mobile Number</label>
+          <input
+            type="text"
+            value={mobile}
+            onChange={(e) => setMobile(e.target.value)}
+            required
+            style={inputStyle}
+            placeholder="Enter your mobile number"
+          />
+          
+          {/* Error message display */}
+          {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
+          
+          {/* Login button */}
+          <button type="submit" style={buttonStyle}>Log In</button>
+        </form>
+      </div>
+    </>
   );
 }
