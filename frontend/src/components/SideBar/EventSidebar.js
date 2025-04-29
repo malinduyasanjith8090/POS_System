@@ -43,7 +43,7 @@ function SideBar() {             // Hover style for navigation items
     fontSize: '1.5em',  // Increased text size
   };
 
-  const redTextStyle = {
+  const redTextStyle = {     // Style specifically for red text ("POS")
     color: 'red',
     fontSize: '2.5em',  // Larger text size for better visibility
   };
