@@ -1,3 +1,4 @@
+/* Checkout page container styles */
 .container {
     margin-top: 1rem;
     display: flex;
@@ -6,28 +7,33 @@
     justify-content: center;
 }
 
+/* Main content area styles */
 .content {
     width: 35rem;
     margin: 0 3rem 0 0;
 }
 
+/* Flex layout for content and inputs */
 .content,
 .inputs {
     display: flex;
     flex-direction: column;
 }
 
+/* Input fields container */
 .inputs {
     width: 100%;
 }
 
+/* Button container positioning */
 .buttons_container {
-    flex-basis: 100%;
+    flex-basis: 100%; /* Takes full width */
     display: flex;
-    justify-content: center;
+    justify-content: center; /* Center horizontally */
 }
 
+/* Button styles */
 .buttons {
     margin: 2rem;
-    width: 35rem;
+    width: 35rem; /* Matches content width */
 }
