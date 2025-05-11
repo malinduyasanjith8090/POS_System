@@ -104,7 +104,7 @@ function SideBar() {
               Finance Document
             </Link>
           </li>
-          <li>
+          {/* <li>
             <Link
               to="/finance/pettycash"
               style={defaultStyle}
@@ -117,7 +117,7 @@ function SideBar() {
             >
               Petty Cash Stateme
             </Link>
-          </li>
+          </li> */}
 
           <li>
             <Link
