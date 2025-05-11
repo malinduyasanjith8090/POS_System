@@ -216,7 +216,7 @@ const HomePage = () => {
     <div style={styles.container}>
       {/* Header Section */}
       <header style={styles.header}>
-        <h1 style={styles.headerText}>Welcome to the Hotel</h1>
+        <h1 style={styles.headerText}>Welcome to the Point Of Sales System</h1>
         <p style={styles.subHeader}>Experience a luxurious stay like never before</p>
         <button style={styles.loginButton} onClick={handleLoginClick}>Login</button>
       </header>
